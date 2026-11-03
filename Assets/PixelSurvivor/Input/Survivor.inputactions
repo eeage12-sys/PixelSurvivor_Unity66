@@ -1,0 +1,191 @@
+{
+  "name": "Survivor",
+  "maps": [
+    {
+      "name": "Gameplay",
+      "id": "57cc438b-610b-4228-b5c9-f36a29d3e93a",
+      "actions": [
+        {
+          "name": "Move",
+          "type": "Value",
+          "id": "97ff7024-6d33-40e3-85fc-1d4abaadcffc",
+          "expectedControlType": "Vector2",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        }
+      ],
+      "bindings": [
+        {
+          "name": "WASD",
+          "id": "edf63e86-571a-4eea-a672-df4843322c03",
+          "path": "2DVector",
+          "action": "Move",
+          "isComposite": true
+        },
+        {
+          "name": "up",
+          "id": "1797dc4b-70a9-4fc7-9b59-432934e6e51a",
+          "path": "<Keyboard>/w",
+          "action": "Move",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "down",
+          "id": "98e6ee76-33cc-4e81-8950-0ded1cc59c7a",
+          "path": "<Keyboard>/s",
+          "action": "Move",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "left",
+          "id": "acd51c76-f7ba-4d10-83da-da44a5fb8aab",
+          "path": "<Keyboard>/a",
+          "action": "Move",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "right",
+          "id": "6c1b5a1c-1c71-4d32-a61a-230c371404a3",
+          "path": "<Keyboard>/d",
+          "action": "Move",
+          "isPartOfComposite": true
+        }
+      ]
+    },
+    {
+      "name": "UI",
+      "id": "0641ae93-a719-4565-8e4f-1ed6bece8aae",
+      "actions": [
+        {
+          "name": "Point",
+          "type": "PassThrough",
+          "id": "79fe5b72-ff0d-4441-82f8-c14d5d1c44c8",
+          "expectedControlType": "Vector2",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "Click",
+          "type": "PassThrough",
+          "id": "cfe6796e-ff40-49e9-9fb4-7a40af0bfcee",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "ScrollWheel",
+          "type": "PassThrough",
+          "id": "3f1b9d3b-f817-4349-aa7a-321e48e408f4",
+          "expectedControlType": "Vector2",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "Navigate",
+          "type": "PassThrough",
+          "id": "a72bbe51-181b-48b1-bfcb-99b174592ef1",
+          "expectedControlType": "Vector2",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "Submit",
+          "type": "Button",
+          "id": "b1840c82-11c6-4e26-b385-5f833a50b7cd",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        },
+        {
+          "name": "Cancel",
+          "type": "Button",
+          "id": "837348a8-e247-4a7c-afe2-ef1d9cf373ad",
+          "expectedControlType": "Button",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": false
+        }
+      ],
+      "bindings": [
+        {
+          "name": "",
+          "id": "ffca8955-994c-4399-b72a-8c8a05e3ead4",
+          "path": "<Mouse>/position",
+          "action": "Point"
+        },
+        {
+          "name": "",
+          "id": "08d52dc4-e1da-4bf5-b31b-8719c1a73e23",
+          "path": "<Mouse>/leftButton",
+          "action": "Click"
+        },
+        {
+          "name": "",
+          "id": "3c8f142c-70e6-47ed-acb9-4028e08dd9f4",
+          "path": "<Mouse>/scroll",
+          "action": "ScrollWheel"
+        },
+        {
+          "name": "",
+          "id": "21ab892e-c0ba-49a2-a98e-61296d8ea457",
+          "path": "<Keyboard>/enter",
+          "action": "Submit"
+        },
+        {
+          "name": "",
+          "id": "2eb21c55-69ff-4861-bf09-ed1c73d15679",
+          "path": "<Keyboard>/numpadEnter",
+          "action": "Submit"
+        },
+        {
+          "name": "",
+          "id": "9aa38069-8f08-48d8-84f9-92e5398c6969",
+          "path": "<Keyboard>/escape",
+          "action": "Cancel"
+        },
+        {
+          "name": "Arrows",
+          "id": "77bb1a4e-1d10-4c09-a226-1f6c3a84d7ab",
+          "path": "2DVector",
+          "action": "Navigate",
+          "isComposite": true
+        },
+        {
+          "name": "up",
+          "id": "04e6211a-9a77-4496-b1f8-f27680513018",
+          "path": "<Keyboard>/upArrow",
+          "action": "Navigate",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "down",
+          "id": "0009e4dd-968e-47ef-932d-c6a677e43c1e",
+          "path": "<Keyboard>/downArrow",
+          "action": "Navigate",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "left",
+          "id": "701df001-6616-4bff-800c-c7c2737d3d09",
+          "path": "<Keyboard>/leftArrow",
+          "action": "Navigate",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "right",
+          "id": "de009a68-5e0f-422b-ba4d-026a415ea538",
+          "path": "<Keyboard>/rightArrow",
+          "action": "Navigate",
+          "isPartOfComposite": true
+        }
+      ]
+    }
+  ],
+  "controlSchemes": []
+}

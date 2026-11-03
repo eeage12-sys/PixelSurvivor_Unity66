@@ -1,0 +1,11 @@
+{
+  "name": "PixelSurvivor.Tests.PlayMode",
+  "references": [
+    "PixelSurvivor.Runtime",
+    "Unity.InputSystem",
+    "UnityEngine.UI"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

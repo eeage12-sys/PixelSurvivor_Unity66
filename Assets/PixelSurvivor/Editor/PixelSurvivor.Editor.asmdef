@@ -1,0 +1,12 @@
+{
+  "name": "PixelSurvivor.Editor",
+  "rootNamespace": "PixelSurvivor.Editor",
+  "references": [
+    "PixelSurvivor.Runtime",
+    "Unity.InputSystem",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

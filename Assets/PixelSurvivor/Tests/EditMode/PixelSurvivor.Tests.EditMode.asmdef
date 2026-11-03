@@ -1,0 +1,14 @@
+{
+  "name": "PixelSurvivor.Tests.EditMode",
+  "references": [
+    "PixelSurvivor.Runtime",
+    "Unity.InputSystem",
+    "UnityEngine.UI"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

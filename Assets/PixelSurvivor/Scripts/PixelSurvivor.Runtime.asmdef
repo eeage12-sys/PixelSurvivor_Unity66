@@ -1,0 +1,8 @@
+{
+  "name": "PixelSurvivor.Runtime",
+  "rootNamespace": "PixelSurvivor",
+  "references": [
+    "Unity.InputSystem",
+    "UnityEngine.UI"
+  ]
+}
