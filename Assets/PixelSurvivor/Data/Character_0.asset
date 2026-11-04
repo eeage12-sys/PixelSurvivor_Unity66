@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd1142c4bde801744a0ae43d215fe764, type: 3}
+  m_Name: Character_0
+  m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.CharacterData
+  id: char0
+  title: "\uC544\uB9AC \xB7 \uBC38\uB7F0\uC2A4\uD615"
+  role: "\uBC38\uB7F0\uC2A4\uD615"
+  sprite: {fileID: 21300000, guid: 4c6e2a92a91c8df4caf29876f2b466b3, type: 3}
+  portrait: {fileID: 21300000, guid: 3f8ec1bed9453054e929f8d479567078, type: 3}
+  downFrames:
+  - {fileID: 21300000, guid: 4c6e2a92a91c8df4caf29876f2b466b3, type: 3}
+  - {fileID: 21300000, guid: a995d31a4e6c3ab48bec43072153e943, type: 3}
+  - {fileID: 21300000, guid: 11cac0ac9d5e68f408f8aea73295c480, type: 3}
+  - {fileID: 21300000, guid: 4c4dd7c07c3a74942a35192b01f5d21b, type: 3}
+  upFrames:
+  - {fileID: 21300000, guid: c668f1984a3a58044a7d15e148e5661c, type: 3}
+  - {fileID: 21300000, guid: edcc2056ff5aea54fa48d0b94f7d361b, type: 3}
+  - {fileID: 21300000, guid: 43b0ca9cb5fd3ae468df69fc497e151b, type: 3}
+  - {fileID: 21300000, guid: 3bbacce0564880d40a9bda1b091118e8, type: 3}
+  leftFrames:
+  - {fileID: 21300000, guid: 51ff591b9866c2b4080bcb10cac3d85b, type: 3}
+  - {fileID: 21300000, guid: 029c41e6511d6554db77542a04e145aa, type: 3}
+  - {fileID: 21300000, guid: 61d36df5da0f9ef4d820c7afa2dfa90d, type: 3}
+  - {fileID: 21300000, guid: 68a7abbe5eca6144e81742d49bb457f5, type: 3}
+  rightFrames:
+  - {fileID: 21300000, guid: 7db3748039a8a014892f51aff7cba0bc, type: 3}
+  - {fileID: 21300000, guid: d6334b3e57277f146b68e49d5a8a12a8, type: 3}
+  - {fileID: 21300000, guid: 7916f2db6cdcd5f4fb2f2c5e40cb8ab4, type: 3}
+  - {fileID: 21300000, guid: 67ded53c3ac347d4bb5083c6498839b7, type: 3}
+  description: "\uB2E4\uC591\uD55C \uBB34\uAE30 \uC870\uD569\uC744 \uD65C\uC6A9\uD558\uB294 \uD0D0\uD5D8\uAC00."
+  passiveDescription: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD\uB7C9 +10%"
+  startingWeapon: {fileID: 11400000, guid: 635c04647f101384084132dae937706d, type: 2}
+  tint: {r: 1, g: 0.8, b: 0.8, a: 1}
+  maxHP: 100
+  moveSpeed: 5
+  damage: 10
+  attackInterval: 0.8
+  inherentBonuses:
+  - kind: 9
+    amount: 0.1
+  upgrades:
+  - id: power
+    title: "\uB2E4\uC7AC\uB2E4\uB2A5"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 0
+      amount: 0.04
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: health
+    title: "\uC0DD\uC874 \uD6C8\uB828"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 1
+      amount: 8
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: learn
+    title: "\uD559\uC2B5 \uB2A5\uB825"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 9
+      amount: 0.03
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: pickup
+    title: "\uC218\uC9D1 \uB2A5\uB825"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 7
+      amount: 0.06
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4

@@ -1,0 +1,178 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4d30fddfc2cb3f4583ceee87989acd0, type: 3}
+  m_Name: Campaign
+  m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.CampaignData
+  weapons:
+  - {fileID: 11400000, guid: 635c04647f101384084132dae937706d, type: 2}
+  - {fileID: 11400000, guid: 6a091e1d6b199f841a6a45bbd10f2d15, type: 2}
+  - {fileID: 11400000, guid: 7a88d0667ae9d124f8c579311e64d4b2, type: 2}
+  - {fileID: 11400000, guid: f7a31717c59c8ed43a331ce3bcb3cf0e, type: 2}
+  - {fileID: 11400000, guid: 7161ce1f817beb342b99aeb49a8e09a3, type: 2}
+  - {fileID: 11400000, guid: 515d26553f63e8447a9cd65af74ad997, type: 2}
+  - {fileID: 11400000, guid: 187b0173243372a4eb43e60f9fc3265f, type: 2}
+  - {fileID: 11400000, guid: c9d5116f019063b43a01dbe98f561a2e, type: 2}
+  passives:
+  - {fileID: 11400000, guid: cc36c6abdc130a44a9f64035f305da78, type: 2}
+  - {fileID: 11400000, guid: 623c1a396ccd2fb40b27099675a88f8f, type: 2}
+  - {fileID: 11400000, guid: d4802199c3bb5cf499f66362a3dac4b8, type: 2}
+  - {fileID: 11400000, guid: 91d8268f9a8b2f3428b83b158d8762bd, type: 2}
+  - {fileID: 11400000, guid: 709026a3edcbbb7429e4a696a85c434a, type: 2}
+  - {fileID: 11400000, guid: 629a7c37300f4cd4f831152957dc6491, type: 2}
+  - {fileID: 11400000, guid: f15be062d1c278b45b21e8847adb8853, type: 2}
+  - {fileID: 11400000, guid: 204b951a1c2466944bfa87d9e3039f24, type: 2}
+  characters:
+  - {fileID: 11400000, guid: f9bb432b08540f5478008239b879827d, type: 2}
+  - {fileID: 11400000, guid: 3461292f9498ebc44b366aad3b63a98b, type: 2}
+  - {fileID: 11400000, guid: 03c6037d93258c44fb5ea41a4d1d1cb1, type: 2}
+  - {fileID: 11400000, guid: a761f47aded647540ac274f1e26b1c24, type: 2}
+  - {fileID: 11400000, guid: d3c9e6ac06bc10449a42296a384580ac, type: 2}
+  stages:
+  - {fileID: 11400000, guid: 75973d1d662c62444ac08d5951633bbc, type: 2}
+  - {fileID: 11400000, guid: 8868b96557b3f9244981db0a3f81a9e2, type: 2}
+  - {fileID: 11400000, guid: fac9dfccc114303498992a9f0ba891b1, type: 2}
+  commonUpgrades:
+  - id: damage
+    title: "\uACF5\uACA9\uB825"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 0
+      amount: 0.04
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: hp
+    title: "\uCD5C\uB300 \uCCB4\uB825"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 1
+      amount: 10
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: move
+    title: "\uC774\uB3D9\uC18D\uB3C4"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 2
+      amount: 0.025
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: armor
+    title: "\uBC29\uC5B4\uB825"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 8
+      amount: 1
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: exp
+    title: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 9
+      amount: 0.04
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: gold
+    title: "\uACE8\uB4DC \uD68D\uB4DD"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 10
+      amount: 0.05
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: pickup
+    title: "\uC544\uC774\uD15C \uD68D\uB4DD \uBC94\uC704"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 7
+      amount: 0.08
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  ringSprite: {fileID: 21300000, guid: 8b686f108662c0546b6bbb9054e126a3, type: 3}
+  whiteSprite: {fileID: 21300000, guid: 422f2d399d0624b40aed01404af2e175, type: 3}
+  projectileSprite: {fileID: 21300000, guid: 06387864266d5944eb0d250347988492, type: 3}
+  chestSprite: {fileID: 21300000, guid: 0421c4e6e7abf084c9a31fc4e2e74c32, type: 3}
+  propSprite: {fileID: 21300000, guid: 8f5ba6b12db174f4fa8d5b0fbe3768ff, type: 3}
+  itemSprite: {fileID: 21300000, guid: c3e4f80ab2eda0d4397253ede98d515f, type: 3}
+  supportSprite: {fileID: 21300000, guid: baa0e122be8f39a4f9c8799845a9e9d1, type: 3}
+  singleWeight: 85
+  tripleWeight: 12
+  fiveWeight: 3
+  overflowGold: 25
+  dropWeights:
+  - 40
+  - 15
+  - 10
+  - 25
+  - 10
+  fieldGold: 15
+  monsterGold: 3
+  monsterGoldChance: 0.12
+  healAmount: 30
+  bombSpecialDamage: 300
+  propHP: 20
+  propRespawnSeconds: 35
+  supportDuration: 15
+  supportAttackInterval: 0.25
+  supportHealInterval: 2
+  supportDamage: 15
+  supportHeal: 8
+  barrierWidth: 4

@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d25b3cec890e664fb42e0fd4c63baa0, type: 3}
+  m_Name: Stage_2
+  m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.StageData
+  id: stage2
+  title: "3\uAD6C\uC5ED \xB7 \uBCF4\uB78F\uBE5B \uD3D0\uD5C8"
+  description: "\uC138\uB85C\uB85C \uAE34 \uD3D0\uD5C8\uC785\uB2C8\uB2E4. \uB2E8\uB2E8\uD55C \uB531\uC815\uBC8C\uB808\uAC00 \uB354 \uC790\uC8FC \uB4F1\uC7A5\uD569\uB2C8\uB2E4."
+  halfSize: {x: 25, y: 34}
+  groundColor: {r: 0.8, g: 0.6, b: 1, a: 1}
+  detailColor: {r: 0.8, g: 0.65, b: 1, a: 1}
+  layoutSeed: 243
+  unlockBossTime: 1200
+  bossInterval: 600
+  minimumEliteInterval: 20
+  eliteRateGrowthPerMinute: 0.05
+  bossHealthGrowthPerWave: 0.75
+  bossDamageGrowthPerWave: 0.25
+  bossHastePerWave: 0.12
+  bossAttackInterval: 5
+  minimumBossAttackInterval: 1.2
+  bossBaseProjectiles: 4
+  bossExtraProjectilesPerWave: 2
+  bossMaxProjectiles: 24
+  bossProjectileSpeed: 4
+  bossProjectileLife: 6
+  bossAttackDamage: 20
+  bossAreaGrowthPerWave: 0.1
+  firstEliteTime: 60
+  eliteInterval: 90
+  difficulty: 1.9
+  healthGrowthPerMinute: 0.12
+  damageGrowthPerMinute: 0.04
+  speedGrowthPerMinute: 0.01
+  initialSpawnInterval: 1.5
+  minimumSpawnInterval: 0.3
+  initialSpawnCount: 1
+  maxSpawnCount: 4
+  propsCount: 44
+  extraSpawnEvery: 300
+  mothUnlock: 0
+  beetleUnlock: 30
+  mothWeight: 0.3
+  beetleWeight: 0.45
+  eliteHP: 6
+  eliteDamage: 1.6
+  eliteSpeed: 1.1
+  bossHP: 1200
+  unlockBossHP: 4500

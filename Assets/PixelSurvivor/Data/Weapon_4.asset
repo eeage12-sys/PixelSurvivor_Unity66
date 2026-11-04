@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c4327d816a1b4a4c9121b58fb4fcb36, type: 3}
+  m_Name: Weapon_4
+  m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.WeaponData
+  id: w4
+  title: "\uCD08\uC2B9\uB2EC \uB0AB"
+  evolvedTitle: "\uC6D4\uC2DD\uC758 \uB0AB"
+  description: "\uC801\uC744 \uAD00\uD1B5\uD55C \uCE7C\uB0A0\uC774 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uB3CC\uC544\uC635\uB2C8\uB2E4."
+  pattern: 4
+  evolutionPartner: {fileID: 11400000, guid: cc36c6abdc130a44a9f64035f305da78, type: 2}
+  icon: {fileID: 21300000, guid: e011a06ae4d769847b8a933c647b5160, type: 3}
+  evolvedIcon: {fileID: 21300000, guid: 8794e77229e49bf49910598a94c07218, type: 3}
+  color: {r: 0.45, g: 1, b: 1, a: 1}
+  maxLevel: 5
+  damage: 18
+  cooldown: 1.8
+  area: 1.6
+  duration: 2
+  projectileSpeed: 8
+  projectileCount: 1
+  penetration: 8
+  knockback: 0.15
+  damagePerLevel: 0.25
+  areaPerLevel: 0.12
+  cooldownPerLevel: 0.04
+  extraProjectileEvery: 2
+  evolvedDamage: 2
+  evolvedArea: 1.4
+  evolvedCooldown: 0.7
+  evolvedExtraProjectiles: 1
+  evolvedPenetration: 2

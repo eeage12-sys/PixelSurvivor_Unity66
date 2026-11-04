@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd1142c4bde801744a0ae43d215fe764, type: 3}
+  m_Name: Character_4
+  m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.CharacterData
+  id: char4
+  title: "\uB179\uC2A4 \xB7 \uB9AC\uD37C\uD615"
+  role: "\uB9AC\uD37C\uD615"
+  sprite: {fileID: 21300000, guid: d9df85b89371fe846bb7176ad27e2158, type: 3}
+  portrait: {fileID: 21300000, guid: 6c8ae10436b53b04d9e1b48ebaa2d7a8, type: 3}
+  downFrames:
+  - {fileID: 21300000, guid: d9df85b89371fe846bb7176ad27e2158, type: 3}
+  - {fileID: 21300000, guid: c937acce2943d824981c8572e7a99047, type: 3}
+  - {fileID: 21300000, guid: 59d0927b83a0a4546a8b79bd49e9a7bb, type: 3}
+  - {fileID: 21300000, guid: b40a975c25c677f4e8b37c0bc6aba4ce, type: 3}
+  upFrames:
+  - {fileID: 21300000, guid: 0f4b2547cf352554fa75d2c6f42d5be4, type: 3}
+  - {fileID: 21300000, guid: 049141ff35dc5d14c84c414327c31a5b, type: 3}
+  - {fileID: 21300000, guid: 57750aacce7a07a4b884eec71619961d, type: 3}
+  - {fileID: 21300000, guid: 7e401619319edc943a1f1256b5ac97ee, type: 3}
+  leftFrames:
+  - {fileID: 21300000, guid: 9aff219bb702a704fb50647665143398, type: 3}
+  - {fileID: 21300000, guid: 617f1e8f532c3b140bfe1f920e494f6e, type: 3}
+  - {fileID: 21300000, guid: 5297876adada6fd4197084f8204499e5, type: 3}
+  - {fileID: 21300000, guid: 6cbc6c5efb365a04a8778c738b725af0, type: 3}
+  rightFrames:
+  - {fileID: 21300000, guid: a7cf20c704003994ca6900ba92ca1807, type: 3}
+  - {fileID: 21300000, guid: 2ff7d8f4ba4c0df45aa98ce9d023f628, type: 3}
+  - {fileID: 21300000, guid: dcf198c637519644ebbf3613edfd5eb7, type: 3}
+  - {fileID: 21300000, guid: 87c433a1573007849b131ccded75bc44, type: 3}
+  description: "\uCCB4\uB825\uC774 \uC904\uC5B4\uB4E4\uC218\uB85D \uAC15\uD574\uC9C0\uB294 \uC704\uD5D8\uD55C \uC804\uC0AC."
+  passiveDescription: "\uC783\uC740 \uCCB4\uB825\uC5D0 \uBE44\uB840\uD574 \uD53C\uD574\uB7C9 \uCD5C\uB300 +80%"
+  startingWeapon: {fileID: 11400000, guid: 7161ce1f817beb342b99aeb49a8e09a3, type: 2}
+  tint: {r: 0.96000004, g: 0.8, b: 1, a: 1}
+  maxHP: 65
+  moveSpeed: 5.5
+  damage: 12
+  attackInterval: 0.8
+  inherentBonuses:
+  - kind: 13
+    amount: 0.8
+  upgrades:
+  - id: crit
+    title: "\uC815\uBC00 \uD0C0\uACA9"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 11
+      amount: 0.025
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: haste
+    title: "\uC218\uD655\uC758 \uC18D\uB3C4"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 3
+      amount: 0.025
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: risk
+    title: "\uD608\uAE30\uC758 \uD798"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 13
+      amount: 0.08
+    maxLevel: 10
+    baseCost: 40
+    costGrowth: 1.4
+  - id: leech
+    title: "\uC601\uD63C \uD68C\uBCF5"
+    role: 
+    sprite: {fileID: 0}
+    portrait: {fileID: 0}
+    downFrames: []
+    upFrames: []
+    leftFrames: []
+    rightFrames: []
+    bonus:
+      kind: 12
+      amount: 0.1
+    maxLevel: 5
+    baseCost: 100
+    costGrowth: 1.4
