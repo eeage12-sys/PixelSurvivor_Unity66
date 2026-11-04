@@ -1,33 +1,23 @@
-Compared with the previously delivered infinite-survival ZIP (version 5).
-Korean localization update. Overlay Assets; preserve existing .meta, scenes and prefabs.
+Compared with Korean localization ZIP version 6.
+Compact HUD, ESC information, prop hit effects and saved menu preview repair.
+Overlay Assets; preserve existing .meta, scenes, prefabs and data. Then run Apply HUD Update.
 
-ADDED (8)
+ADDED (7)
+Assets/PixelSurvivor/Scripts/Combat/PropHitEffect.cs
+Assets/PixelSurvivor/Scripts/UI/CampaignPauseUI.cs
+Assets/PixelSurvivor/Scripts/UI/CompactHUD.cs
+Assets/PixelSurvivor/Scripts/UI/DisplayOptions.cs
+Assets/PixelSurvivor/Scripts/UI/FitCanvasViewport.cs
+Assets/PixelSurvivor/Tests/PlayMode/HudUpdateTests.cs
+Documentation/HUD_UPDATE.md
+
+MODIFIED (13)
 Assets/PixelSurvivor/Editor/KoreanSetup.cs
-Assets/PixelSurvivor/Resources/Fonts/FONT-LICENSE.txt
-Assets/PixelSurvivor/Resources/Fonts/FONT-SOURCE.txt
-Assets/PixelSurvivor/Resources/Fonts/NotoSansCJKkr-Regular.otf
-Assets/PixelSurvivor/Scripts/UI/KoreanText.cs
-Documentation/KOREAN_TRANSLATIONS.json
-Documentation/KOREAN_UPDATE.md
-Documentation/KoreanTextPreview.png
-
-MODIFIED (23)
-Assets/PixelSurvivor/Editor/CampaignSetup.cs
-Assets/PixelSurvivor/Editor/SurvivorSetup.cs
-Assets/PixelSurvivor/Scripts/Campaign/CampaignController.cs
-Assets/PixelSurvivor/Scripts/Campaign/FieldItem.cs
-Assets/PixelSurvivor/Scripts/Campaign/FieldSystem.cs
-Assets/PixelSurvivor/Scripts/Campaign/StageDirector.cs
-Assets/PixelSurvivor/Scripts/Campaign/SupportUnitManager.cs
+Assets/PixelSurvivor/Scripts/Campaign/DestructibleProp.cs
 Assets/PixelSurvivor/Scripts/Core/GameManager.cs
-Assets/PixelSurvivor/Scripts/Equipment/EquipmentManager.cs
-Assets/PixelSurvivor/Scripts/Equipment/TreasureChestSystem.cs
-Assets/PixelSurvivor/Scripts/Progression/UpgradeSystem.cs
 Assets/PixelSurvivor/Scripts/UI/CampaignUI.cs
 Assets/PixelSurvivor/Scripts/UI/GameUI.cs
-Assets/PixelSurvivor/Scripts/UI/ResultUI.cs
 Assets/PixelSurvivor/Tests/PlayMode/GameplayTests.cs
-Documentation/CAMPAIGN_DESIGN.md
 Documentation/QA_CHECKLIST.md
 Documentation/STATIC_CHECKS.json
 Documentation/TEST_RESULTS.md

@@ -87,6 +87,7 @@ namespace PixelSurvivor
         }
         void Update()
         {
+            if(Campaign!=null)Campaign.UI.HandlePauseInput();
             if(IsPlaying)
             {
                 if(Campaign!=null){timer.AdvanceCampaign(Time.deltaTime);Campaign.Tick(Time.deltaTime);}

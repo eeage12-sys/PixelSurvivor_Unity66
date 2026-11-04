@@ -65,3 +65,6 @@ Static checks are separately reported in STATIC_CHECKS.json; unchecked items bel
 - [ ] 1600x900 / 1920x1080에서 긴 카드 설명과 진화 조건이 잘리지 않음.
 - [ ] 한국어 폰트가 설치되지 않은 Windows PC에서도 빌드 문구 표시됨.
 - [ ] 적용 전 골드/영구 강화/최고 기록/해금과 Inspector 수정 수치가 유지됨.
+
+## HUD / ESC update
+Complete all 12 manual scenarios in HUD_UPDATE.md. All remain NOT RUN in this environment.

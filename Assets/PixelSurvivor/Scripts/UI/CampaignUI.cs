@@ -5,15 +5,16 @@ using UnityEngine.EventSystems;
 namespace PixelSurvivor
 {
     // Builds the expansion UI on a separate canvas, preserving the existing HUD and scene objects.
-    public sealed class CampaignUI
+    public sealed partial class CampaignUI
     {
         readonly CampaignController c;
         Canvas canvas;Font font;GameObject menu,characters,stages,shop,hud,modal;
         Button characterNext,stageStart;
-        readonly List<Image> weaponIcons=new List<Image>(),passiveIcons=new List<Image>();
-        Text selection,gold,status,notice,boss,slotInfo,stageInfo;
+        
+        Text selection,gold,notice,boss,stageInfo;
+        CompactHUD compactHud;
         readonly List<Button> characterButtons=new List<Button>(),stageButtons=new List<Button>();
-        readonly List<Text> weaponSlots=new List<Text>(),passiveSlots=new List<Text>();
+        
         Text practiceLabel;float noticeUntil;
         static readonly Color Ink=new Color(0.025f,0.05f,0.09f,0.98f), Panel=new Color(0.08f,0.15f,0.22f,1), Mint=new Color(0.38f,0.95f,0.78f), Muted=new Color(0.6f,0.68f,0.75f);
         public CampaignUI(CampaignController owner){c=owner;}
@@ -23,6 +24,7 @@ namespace PixelSurvivor
             var root=new GameObject("Campaign Canvas",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));
             canvas=root.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.sortingOrder=50;
             var scaler=root.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1600,900);scaler.matchWidthOrHeight=0.5f;
+            root.AddComponent<FitCanvasViewport>();
             menu=Overlay("Main Menu");characters=Overlay("Character Select");stages=Overlay("Stage Select");shop=Overlay("Permanent Upgrades");hud=Box("Equipment HUD",root.transform,Vector2.zero,Vector2.zero,Color.clear).gameObject;
             Stretch(hud.GetComponent<RectTransform>());hud.GetComponent<Image>().raycastTarget=false;
             TextAt(menu.transform,"픽셀 서바이버",0,245,1400,100,64,Mint);
@@ -51,21 +53,11 @@ namespace PixelSurvivor
             stageInfo=TextAt(stages.transform,"",0,-30,1400,260,25,Color.white);
             ButtonAt(stages.transform,"뒤로",-360,-300,320,65,()=>ShowCharacters(false));
             stageStart=ButtonAt(stages.transform,"전투 시작",360,-300,440,75,()=>c.Game.BeginRun());
-            for(int i=0;i<7;i++)
-            {
-                int slot=i;float x=-660+i*220;
-                var wb=ButtonAt(hud.transform,"빈 슬롯",x,-285,210,70,()=>InspectWeapon(slot));
-                weaponSlots.Add(wb.GetComponentInChildren<Text>());weaponSlots[i].fontSize=16;weaponSlots[i].resizeTextMinSize=14;weaponSlots[i].resizeTextMaxSize=16;
-                weaponIcons.Add(Icon(wb.transform,null,-78,0,36,Color.white));OffsetSlotText(weaponSlots[i]);
-                var pb=ButtonAt(hud.transform,"빈 슬롯",x,-365,210,60,()=>InspectPassive(slot));
-                passiveSlots.Add(pb.GetComponentInChildren<Text>());passiveSlots[i].fontSize=16;passiveSlots[i].resizeTextMinSize=14;passiveSlots[i].resizeTextMaxSize=16;
-                passiveIcons.Add(Icon(pb.transform,null,-78,0,36,Color.white));OffsetSlotText(passiveSlots[i]);
-            }
-            status=TextAt(hud.transform,"",-90,315,1180,50,20,Mint);
-            boss=TextAt(hud.transform,"",0,270,1000,40,22,new Color(1,0.5f,0.4f));
-            notice=TextAt(hud.transform,"",0,220,1400,45,24,Color.white);
-            slotInfo=TextAt(hud.transform,"장비 슬롯을 누르면 진화 조건을 볼 수 있습니다.",0,-210,1450,65,18,Muted);
-            ButtonAt(hud.transform,"일시정지",690,315,170,40,()=>ShowPause());
+            compactHud=hud.AddComponent<CompactHUD>();
+            compactHud.Initialize(c,()=>ShowPause(),InspectWeapon,InspectPassive);
+            boss=TextAt(hud.transform,"",0,-120,850,40,22,new Color(1,0.5f,0.4f));
+            PinTop(boss.rectTransform);
+            notice=TextAt(hud.transform,"",0,-165,1250,60,22,Color.white);PinTop(notice.rectTransform);
             shop.SetActive(false);hud.SetActive(false);characters.SetActive(false);stages.SetActive(false);
         }
         void RefreshMenu()
@@ -89,7 +81,7 @@ namespace PixelSurvivor
         public void ShowMenu(){Only(menu);RefreshMenu();SelectFirst(menu);}
         void ShowCharacters(bool fresh){if(fresh)c.ClearCharacterSelection();Only(characters);RefreshMenu();SelectFirst(characters);}
         void ShowStages(){if(!c.HasCharacterSelection)return;Only(stages);RefreshMenu();SelectFirst(stages);}
-        public void ShowGameplay(){Only(hud);slotInfo.text="공격형 7칸 / 강화형 7칸 · 슬롯을 누르면 진화 정보를 볼 수 있습니다.";Tick();}
+        public void ShowGameplay(){Only(hud);Tick();}
         void Quit()
         {
             c.Save.Save();
@@ -100,30 +92,16 @@ namespace PixelSurvivor
             Application.Quit();
 #endif
         }
-        static void OffsetSlotText(Text text){text.rectTransform.anchoredPosition=new Vector2(23,0);text.rectTransform.sizeDelta=new Vector2(153,62);}
+        static void PinTop(RectTransform r){r.anchorMin=r.anchorMax=new Vector2(0.5f,1);}
         public void Tick()
         {
             if(hud==null)return;
-            for(int i=0;i<7;i++)
-            {
-                if(i<c.Equipment.Weapons.Count){var w=c.Equipment.Weapons[i];weaponSlots[i].text=w.Name+"\n"+(w.evolved?"진화 완료":w.level>=w.Maximum?"최대":"레벨 "+w.level)+(c.Equipment.CanEvolve(w)?" · 진화 가능":"");weaponSlots[i].color=c.Equipment.CanEvolve(w)?Mint:Color.white;}
-                else weaponSlots[i].text="공격형 "+(i+1)+"\n빈 슬롯";
-                weaponIcons[i].gameObject.SetActive(i<c.Equipment.Weapons.Count);
-                if(i<c.Equipment.Weapons.Count){var w=c.Equipment.Weapons[i];weaponIcons[i].sprite=w.evolved?w.data.evolvedIcon:w.data.icon;}
-                if(i<c.Equipment.Passives.Count){var p=c.Equipment.Passives[i];passiveSlots[i].text=p.data.title+"\n"+(p.level>=p.data.maxLevel?"최대":"레벨 "+p.level);}
-                else passiveSlots[i].text="강화형 "+(i+1)+"\n빈 슬롯";
-                passiveIcons[i].gameObject.SetActive(i<c.Equipment.Passives.Count);
-                if(i<c.Equipment.Passives.Count)passiveIcons[i].sprite=c.Equipment.Passives[i].data.icon;
-            }
-            status.text=c.StageData.title+"  |  "+"생존 시간 "+SurvivalRules.Clock(c.Stage.Elapsed)+"  |  획득 골드 "+c.RunGold+(c.Practice?"  [테스트 · 저장 안 함]":"");
-            var b=c.Stage.CurrentBoss;boss.text=b!=null && b.IsAlive?(b.IsFinalBoss?"해금 보스":"보스")+"  체력 "+Mathf.CeilToInt(b.CurrentHP)+" / "+Mathf.CeilToInt(b.MaxHP):"";
+            var b=c.Stage.CurrentBoss;boss.text=b!=null && b.IsAlive?(b.IsFinalBoss?"해금 보스":"보스")+"  "+Mathf.CeilToInt(b.CurrentHP)+" / "+Mathf.CeilToInt(b.MaxHP):"";
             if(Time.unscaledTime>noticeUntil)notice.text="";
         }
         public void Notify(string message){if(notice==null)return;notice.text=message;noticeUntil=Time.unscaledTime+4;}
-        void InspectWeapon(int index)
-        {if(index<c.Equipment.Weapons.Count){var w=c.Equipment.Weapons[index];slotInfo.text=w.Name+" - "+c.Equipment.EvolutionStatus(w.data).Replace("\n","  |  ");}}
-        void InspectPassive(int index)
-        {if(index<c.Equipment.Passives.Count){var p=c.Equipment.Passives[index];slotInfo.text=p.data.title+": "+p.data.description+"  |  "+c.Equipment.Synergy(p.data).Replace("\n","  /  ");}}
+        void InspectWeapon(int index){if(index<c.Equipment.Weapons.Count)ShowPause();}
+        void InspectPassive(int index){if(index<c.Equipment.Passives.Count)ShowPause();}
         public void ShowChoices(EquipmentChoice[] choices)
         {
             NewModal("레벨 상승 · 장비 선택", "공격형 "+c.Equipment.Weapons.Count+" / 7     강화형 "+c.Equipment.Passives.Count+" / 7");
@@ -168,11 +146,6 @@ namespace PixelSurvivor
                 (c.Practice?"테스트 전투의 골드, 기록, 해금은 저장되지 않습니다.":"골드와 성장 기록을 저장했습니다. 전투 장비는 초기화됩니다."),0,10,1400,350,28,Color.white);
             ButtonAt(modal.transform,"메인 메뉴",-260,-280,420,70,()=>c.Game.ReturnToMenu());
             ButtonAt(modal.transform,"다시 시작",260,-280,420,70,()=>c.Game.BeginRun());SelectFirst(modal);
-        }
-        void ShowPause()
-        {
-            if(!c.Game.IsPlaying)return;c.Game.TogglePause();NewModal("일시정지","전투가 일시정지되었습니다.");
-            ButtonAt(modal.transform,"계속하기",0,0,400,80,()=>{HideModal();c.Game.TogglePause();});SelectFirst(modal);
         }
         void ShowShop()
         {

@@ -1,5 +1,5 @@
 """Static checks only; NOT a Unity compile/play test.
-Optional developer dependencies: Pillow, tree-sitter, tree-sitter-c-sharp.
+Optional developer dependencies: Pillow, fonttools, tree-sitter, tree-sitter-c-sharp.
 """
 from pathlib import Path
 import json, re, hashlib, sys
@@ -85,6 +85,23 @@ check('Font shipped as embedded dynamic asset',all(x in (assets/'Editor/KoreanSe
 check('Korean font applied to both UI paths','font=KoreanText.Font' in ui and 'label.font=KoreanText.Font' in (assets/'Scripts/UI/GameUI.cs').read_text(),'Runtime campaign and original HUD use Korean font')
 check('Default data localized on migration and runtime','KoreanText.LocalizeData(result)' in (assets/'Editor/CampaignSetup.cs').read_text() and 'KoreanText.LocalizeData(data)' in campaign,'Exact known-default translation retains IDs, stats, custom text')
 check('Korean application menu included','한국어 적용 (Apply Korean)' in (assets/'Editor/KoreanSetup.cs').read_text(),'Calls existing full scene migration')
+hud=(assets/'Scripts/UI/CompactHUD.cs').read_text()
+pause=(assets/'Scripts/UI/CampaignPauseUI.cs').read_text()
+legacy=(assets/'Scripts/UI/GameUI.cs').read_text()
+prop=(assets/'Scripts/Campaign/DestructibleProp.cs').read_text()
+check('Campaign suppresses old HUD','gameplayPanel.SetActive(game.Campaign==null)' in legacy,'Only CompactHUD is active in campaign gameplay')
+check('Single gameplay timer source','Single timer' in hud and 'status.text=' not in ui,'No duplicate stage/status clock; pause/result summaries are separate')
+check('Top experience and concise LV',all(x in hud for x in ['Top experience','level.text="LV"','expFill.fillAmount']),'Edge-anchored experience with level inside')
+check('Health follows world position after camera','WorldToScreenPoint' in hud and 'DefaultExecutionOrder(200)' in hud and 'ScreenPointToLocalPointInRectangle' in hud,'LateUpdate after default camera follow')
+check('Compact icon rows','34+i*48,-54' in hud and '34+i*48,-102' in hud,'7 attack + 7 passive icons at upper left')
+check('Numeric counters use icons','Kill icon' in hud and 'Gold icon' in hud,'Generated original pixel glyphs, separate numeric values')
+check('ESC uses existing InputActionReference','InputActionReference cancelAction' in pause and 'cancelAction=input.cancel' in pause and 'WasPressedThisFrame' in pause,'Shared UI Cancel action; no legacy Input polling')
+check('ESC only toggles playing or paused','else if(c.Game.State==RunState.Paused)' in pause,'ChoosingUpgrade, Treasure and GameOver are not dismissed')
+check('Pause contains stats options recipes and levels',all(x in pause for x in ['캐릭터 정보','ShowOptions','ShowRecipes','LevelPips','ResumePause']),'Source check only; supplied PlayMode regressions not run')
+check('Pips reflect current and maximum','i<maximum' in pause and 'i<current?Mint' in pause,'Actual equipment data maxLevel, including evolved weapon full pips')
+check('Prop hit and break feedback wired','PropHitEffect.Spawn(c,transform.position,hp<=0)' in prop and 'amount<=0' in prop,'Positive hits emit sparks; optional flash/scale reaction')
+check('Saved editor preview repair','PrepareEditorPreview(font)' in (assets/'Editor/KoreanSetup.cs').read_text() and 'case "Title":label.text=' in legacy,'Restores previously cleared labels by object name')
+check('HUD update menu','UI 업데이트 적용 (Apply HUD Update)' in (assets/'Editor/KoreanSetup.cs').read_text(),'Non-destructive scene overlay migration')
 report={'scope':'Static source/assets inspection only. Unity unavailable; compile/play/build NOT RUN.', 'checks':checks,'failures':sum(c['status']=='FAIL' for c in checks)}
 (root/'Documentation/STATIC_CHECKS.json').write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
 print(json.dumps({'checks':len(checks),'failures':report['failures'],'cs_files':len(files),'png_assets':len(expected)}))

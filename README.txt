@@ -1,3 +1,8 @@
+[최신 업데이트: 전투 HUD + ESC 정보창]
+적용은 UPDATE_README.txt의 순서를 따라주세요.
+Tools > Pixel Survivor > UI 업데이트 적용 (Apply HUD Update)
+아래의 이전 한국어 적용 메뉴도 동일한 업데이트를 실행합니다.
+
 [2026-11-04 한국어판 업데이트]
 이번 ZIP에는 한국어 UI와 한글 폰트가 포함되어 있습니다.
 기존 프로젝트: Unity 종료 → 새 Assets 전체를 기존 Assets와 합치기/덮어쓰기

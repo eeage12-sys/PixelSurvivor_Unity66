@@ -1,3 +1,3 @@
-Pixel Survivor — Korean Infinite Survival Update
-2026-11-04
-Unity 6000.6.6f1 / Input System 1.20.1
+Pixel Survivor Unity 6000.6.6f1
+2026-11-04 Korean compact HUD / ESC information / prop hit feedback update
+Source package; Unity compile/play/build NOT RUN in delivery environment.

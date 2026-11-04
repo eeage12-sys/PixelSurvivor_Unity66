@@ -5,7 +5,7 @@
       "check": "C# grammar",
       "status": "PASS",
       "detail": {
-        "files": 55,
+        "files": 61,
         "errors": [],
         "limitation": "Not Unity compilation or type checking"
       }
@@ -1834,7 +1834,7 @@
       "check": "Korean font covers source Hangul",
       "status": "PASS",
       "detail": {
-        "unique_syllables": 338,
+        "unique_syllables": 344,
         "missing": []
       }
     },
@@ -1867,6 +1867,71 @@
       "check": "Korean application menu included",
       "status": "PASS",
       "detail": "Calls existing full scene migration"
+    },
+    {
+      "check": "Campaign suppresses old HUD",
+      "status": "PASS",
+      "detail": "Only CompactHUD is active in campaign gameplay"
+    },
+    {
+      "check": "Single gameplay timer source",
+      "status": "PASS",
+      "detail": "No duplicate stage/status clock; pause/result summaries are separate"
+    },
+    {
+      "check": "Top experience and concise LV",
+      "status": "PASS",
+      "detail": "Edge-anchored experience with level inside"
+    },
+    {
+      "check": "Health follows world position after camera",
+      "status": "PASS",
+      "detail": "LateUpdate after default camera follow"
+    },
+    {
+      "check": "Compact icon rows",
+      "status": "PASS",
+      "detail": "7 attack + 7 passive icons at upper left"
+    },
+    {
+      "check": "Numeric counters use icons",
+      "status": "PASS",
+      "detail": "Generated original pixel glyphs, separate numeric values"
+    },
+    {
+      "check": "ESC uses existing InputActionReference",
+      "status": "PASS",
+      "detail": "Shared UI Cancel action; no legacy Input polling"
+    },
+    {
+      "check": "ESC only toggles playing or paused",
+      "status": "PASS",
+      "detail": "ChoosingUpgrade, Treasure and GameOver are not dismissed"
+    },
+    {
+      "check": "Pause contains stats options recipes and levels",
+      "status": "PASS",
+      "detail": "Source check only; supplied PlayMode regressions not run"
+    },
+    {
+      "check": "Pips reflect current and maximum",
+      "status": "PASS",
+      "detail": "Actual equipment data maxLevel, including evolved weapon full pips"
+    },
+    {
+      "check": "Prop hit and break feedback wired",
+      "status": "PASS",
+      "detail": "Positive hits emit sparks; optional flash/scale reaction"
+    },
+    {
+      "check": "Saved editor preview repair",
+      "status": "PASS",
+      "detail": "Restores previously cleared labels by object name"
+    },
+    {
+      "check": "HUD update menu",
+      "status": "PASS",
+      "detail": "Non-destructive scene overlay migration"
     }
   ],
   "failures": 0

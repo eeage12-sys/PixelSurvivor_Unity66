@@ -10,14 +10,15 @@ namespace PixelSurvivor.Tests
 {
     public sealed class GameplayTests
     {
-        GameManager game;Keyboard keyboard;
+        GameManager game;Keyboard keyboard;bool savedHealthBar;
         [UnitySetUp] public IEnumerator LoadScene()
         {
+            savedHealthBar=DisplayOptions.HealthBar;DisplayOptions.HealthBar=true;
             Time.timeScale=1;yield return SceneManager.LoadSceneAsync("Assets/PixelSurvivor/Scenes/MainScene.unity");yield return null;
             game=Object.FindAnyObjectByType<GameManager>();Assert.NotNull(game);Assert.IsTrue(game.HasRequiredReferences());
             Assert.NotNull(game.Campaign);game.Campaign.UseTemporaryProgress();
         }
-        [TearDown] public void Cleanup(){if(game!=null && game.Player.MoveAction!=null)game.Player.MoveAction.action.actionMap.devices=null;if(keyboard!=null && keyboard.added)InputSystem.RemoveDevice(keyboard);keyboard=null;Time.timeScale=1;}
+        [TearDown] public void Cleanup(){DisplayOptions.HealthBar=savedHealthBar;if(game!=null && game.Player.MoveAction!=null)game.Player.MoveAction.action.actionMap.devices=null;if(keyboard!=null && keyboard.added)InputSystem.RemoveDevice(keyboard);keyboard=null;Time.timeScale=1;}
         void Begin(){game.Campaign.SelectCharacter(0);game.BeginRun();}
         Button ActiveButton(string name)
         {foreach(var b in Object.FindObjectsByType<Button>(FindObjectsSortMode.None))if(b.name==name+" Button")return b;return null;}
@@ -69,9 +70,8 @@ namespace PixelSurvivor.Tests
             bool hp=false,exp=false,clock=false;
             foreach(var im in Object.FindObjectsByType<Image>(FindObjectsSortMode.None))
             {
-                if(im.name!="Fill")continue;
-                if(im.transform.parent.name=="HP Bar"){Assert.AreEqual(0.75f,im.fillAmount,0.001f);hp=true;}
-                if(im.transform.parent.name=="EXP Bar"){Assert.AreEqual(0.4f,im.fillAmount,0.001f);exp=true;}
+                if(im.name=="Health fill"){Assert.AreEqual(0.75f,im.fillAmount,0.001f);hp=true;}
+                if(im.name=="Experience fill"){Assert.AreEqual(0.4f,im.fillAmount,0.001f);exp=true;}
             }
             foreach(var text in Object.FindObjectsByType<Text>(FindObjectsSortMode.None))if(text.text=="01:01:10")clock=true;
             Assert.IsTrue(hp && exp && clock);

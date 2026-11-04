@@ -50,6 +50,7 @@ namespace PixelSurvivor.Editor
             foreach(var ui in Object.FindObjectsByType<GameUI>(FindObjectsInactive.Include,FindObjectsSortMode.None))
             {
                 if(ui.gameObject.scene!=game.gameObject.scene)continue;
+                ui.PrepareEditorPreview(font);
                 foreach(var label in ui.GetComponentsInChildren<Text>(true))
                 {
                     label.font=font;label.text=Legacy(label.text);
@@ -59,6 +60,8 @@ namespace PixelSurvivor.Editor
                 }
             }
         }
+        [MenuItem("Tools/Pixel Survivor/UI 업데이트 적용 (Apply HUD Update)",false,14)]
+        public static void ApplyHUDMenu(){CampaignSetup.ApplyMenu();}
         [MenuItem("Tools/Pixel Survivor/한국어 적용 (Apply Korean)",false,13)]
         public static void ApplyMenu()
         {

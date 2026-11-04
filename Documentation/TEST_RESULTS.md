@@ -1,8 +1,8 @@
 # Validation report — Infinite Survival update, 2026-11-04
 
 ## Executed in this environment
-- Static validation: **201 checks, 0 failures** (STATIC_CHECKS.json).
-- C# grammar parsing: **55 source files** with tree-sitter-c-sharp; no syntax errors found.
+- Static validation: **214 checks, 0 failures** (STATIC_CHECKS.json).
+- C# grammar parsing: **61 source files** with tree-sitter-c-sharp; no syntax errors found.
 - JSON: package manifest, assembly definitions and Input Actions parse successfully.
 - **139 original PNG game assets** decoded; expected dimensions and RGBA format checked.
 - 5 character portraits are distinct; each character/direction has at least three distinct walking poses.
@@ -12,7 +12,7 @@
 - Migration source retains original PlayerPrefs key and adds per-character/stage records.
 - Removed-member references and deprecated FindFirstObjectByType calls scanned.
 
-The 201 static checks include individual image checks. They are **not 194 gameplay tests**.
+The 214 static checks include individual image checks. They are **not gameplay tests**.
 Syntax parsing does not resolve C# types, Unity APIs or serialized references.
 
 ## Not executed — blocking environment limitation
@@ -32,7 +32,9 @@ This execution environment contains no Unity Editor or C# compiler. No claim of 
 - `GameplayTests.cs`: 17 cases
 - `ExpansionTests.cs`: 5 cases
 
-Total declared test cases: 89 (not pass counts).
+- `HudUpdateTests.cs`: 7 cases
+
+Total declared test cases: 96 (not pass counts).
 Tests use a temporary profile or unique PlayerPrefs key, keeping the user's normal profile separate.
 GameplayTests replaces old five-minute tests in the same file so overlay updates leave no stale references.
 ExpansionTests now runs in the current campaign rather than silently skipping it.
@@ -53,3 +55,7 @@ KoreanTextPreview.png was visually inspected as a font/text preview, not a Unity
 Current and existing-scene font paths, exact default data migration and Korean apply menu inspected.
 The existing UI navigation test button labels were updated for the translated controls.
 No Unity test execution is claimed by these checks.
+
+## HUD update
+214 static source/asset checks passed. New seven HudUpdateTests and updated GameplayTests supplied but NOT RUN.
+See HUD_UPDATE.md for scope and manual checks. No Unity rendering/build claims.
