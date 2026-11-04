@@ -7,8 +7,9 @@ $resultsPath = Join-Path $projectPath "TestResults"
 if (-not (Test-Path $UnityEditor)) { throw "Unity.exe not found. Pass -UnityEditor with its full path." }
 New-Item -ItemType Directory -Force -Path $resultsPath | Out-Null
 function Invoke-Unity([string[]]$UnityArguments) {
-    & $UnityEditor @UnityArguments
-    if ($LASTEXITCODE -ne 0) { throw "Unity returned exit code $LASTEXITCODE. Check TestResults logs." }
+    $quotedArguments = $UnityArguments | ForEach-Object { '"' + $_.Replace('"', '\"') + '"' }
+    $unityProcess = Start-Process -FilePath $UnityEditor -ArgumentList $quotedArguments -Wait -PassThru
+    if ($unityProcess.ExitCode -ne 0) { throw "Unity returned exit code $($unityProcess.ExitCode). Check TestResults logs." }
 }
 # This intentionally recreates the generated scene and prefabs. Run on a fresh copy.
 Invoke-Unity @("-batchmode", "-projectPath", $projectPath, "-executeMethod", "PixelSurvivor.Editor.SurvivorSetup.Build", "-quit", "-logFile", (Join-Path $resultsPath "setup.log"))

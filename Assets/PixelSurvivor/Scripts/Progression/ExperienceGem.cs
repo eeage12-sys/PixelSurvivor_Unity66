@@ -9,6 +9,9 @@ namespace PixelSurvivor
         [SerializeField, Min(0.1f)] float magnetSpeed = 9;
         GameManager game;
         bool collected;
+        bool globalMagnet;
+        public void Attract() => globalMagnet=true;
+        public void SetExperience(int amount) {experience=Mathf.Max(1,amount);}
         public void Initialize(GameManager owner) { game = owner; collected = false; }
         void Update()
         {
@@ -22,7 +25,7 @@ namespace PixelSurvivor
                 game.Level.AddExperience(experience);
                 Destroy(gameObject);
             }
-            else if (distance <= magnetRadius)
+            else if (globalMagnet || distance <= magnetRadius*(game.Campaign!=null ? game.Campaign.PickupFactor : 1))
                 transform.position = Vector2.MoveTowards(transform.position, target, magnetSpeed * Time.deltaTime);
         }
     }

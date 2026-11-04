@@ -13,7 +13,7 @@ namespace PixelSurvivor
         public void AddExperience(int amount)
         {
             if (game == null || !game.IsPlaying || amount <= 0) return;
-            Experience += amount;
+            Experience += game.Campaign!=null ? game.Campaign.ScaleExperience(amount) : amount;
             while (Experience >= RequiredEXP)
             { Experience -= RequiredEXP; Level++; PendingChoices++; }
             if (PendingChoices > 0) game.RequestUpgrade();

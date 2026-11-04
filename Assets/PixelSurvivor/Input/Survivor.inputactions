@@ -50,6 +50,41 @@
           "path": "<Keyboard>/d",
           "action": "Move",
           "isPartOfComposite": true
+        },
+        {
+          "name": "Arrows",
+          "id": "6f2b64ad-0a15-4d39-91e8-5ca9569b55d0",
+          "path": "2DVector",
+          "action": "Move",
+          "isComposite": true
+        },
+        {
+          "name": "up",
+          "id": "f1ede216-659e-45d6-997d-9e6af99d9cf7",
+          "path": "<Keyboard>/upArrow",
+          "action": "Move",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "down",
+          "id": "bbc2beec-6b08-4db7-8392-e54d46f9f03d",
+          "path": "<Keyboard>/downArrow",
+          "action": "Move",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "left",
+          "id": "c1516e23-c30a-49bb-9b1e-d04347950555",
+          "path": "<Keyboard>/leftArrow",
+          "action": "Move",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "right",
+          "id": "f8e7f98d-ad6a-4c25-b218-13a78dd2e2f1",
+          "path": "<Keyboard>/rightArrow",
+          "action": "Move",
+          "isPartOfComposite": true
         }
       ]
     },

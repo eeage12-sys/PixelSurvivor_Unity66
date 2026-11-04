@@ -1,0 +1,5 @@
+Noto Sans CJK KR Regular
+Source: https://github.com/notofonts/noto-cjk
+License: SIL Open Font License 1.1 (see FONT-LICENSE.txt).
+Korean regular face extracted from Debian fonts-noto-cjk NotoSansCJK-Regular.ttc with fontTools.
+No glyphs removed; full Hangul repertoire retained. Outlines were not changed.

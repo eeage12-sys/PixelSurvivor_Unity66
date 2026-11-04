@@ -14,9 +14,9 @@ namespace PixelSurvivor
         public void Hide() => panel.SetActive(false);
         public void Show(bool won, float elapsed, int level, int kills)
         {
-            panel.SetActive(true); title.text = won ? "SURVIVED!" : "GAME OVER";
-            title.color = won ? new Color(0.4f, 1, 0.8f) : new Color(1, 0.45f, 0.5f);
-            summary.text = $"SURVIVAL TIME    {GameRules.Clock(elapsed)}\n\nLEVEL    {level:00}         KILLS    {kills:000}";
+            panel.SetActive(true); title.text = "게임 종료";
+            title.color = new Color(1, 0.45f, 0.5f);
+            summary.text = $"생존 시간    {SurvivalRules.Clock(elapsed)}\n\n레벨    {level:00}         처치    {kills:000}";
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(restartButton.gameObject);
         }
     }

@@ -17,22 +17,22 @@ namespace PixelSurvivor
         {
             switch (kind)
             {
-                case UpgradeKind.Damage: return "POWER CORE";
-                case UpgradeKind.AttackSpeed: return "RAPID CIRCUIT";
-                case UpgradeKind.MoveSpeed: return "LIGHT STEPS";
-                case UpgradeKind.MaxHP: return "VITAL SHELL";
-                default: return "SWIFT BOLT";
+                case UpgradeKind.Damage: return "힘의 핵";
+                case UpgradeKind.AttackSpeed: return "고속 회로";
+                case UpgradeKind.MoveSpeed: return "가벼운 발걸음";
+                case UpgradeKind.MaxHP: return "생명의 껍질";
+                default: return "신속한 볼트";
             }
         }
         public static string Description(UpgradeKind kind, PlayerStats stats)
         {
             switch (kind)
             {
-                case UpgradeKind.Damage: return $"Damage +20%\n{stats.Damage:0.#} > {stats.Damage * 1.2f:0.#}";
-                case UpgradeKind.AttackSpeed: return $"Attack interval -15%\n{stats.AttackInterval:0.00}s > {Mathf.Max(GameRules.MinimumAttackInterval, stats.AttackInterval * 0.85f):0.00}s";
-                case UpgradeKind.MoveSpeed: return $"Move speed +10%\n{stats.MoveSpeed:0.#} > {stats.MoveSpeed * 1.1f:0.#}";
-                case UpgradeKind.MaxHP: return $"Max HP +20 / Heal 20\n{stats.MaxHP:0} > {stats.MaxHP + 20:0}";
-                default: return $"Projectile speed +20%\n{stats.ProjectileSpeed:0.#} > {stats.ProjectileSpeed * 1.2f:0.#}";
+                case UpgradeKind.Damage: return $"공격력 +20%\n{stats.Damage:0.#} > {stats.Damage * 1.2f:0.#}";
+                case UpgradeKind.AttackSpeed: return $"공격 간격 -15%\n{stats.AttackInterval:0.00}s > {Mathf.Max(GameRules.MinimumAttackInterval, stats.AttackInterval * 0.85f):0.00}s";
+                case UpgradeKind.MoveSpeed: return $"이동속도 +10%\n{stats.MoveSpeed:0.#} > {stats.MoveSpeed * 1.1f:0.#}";
+                case UpgradeKind.MaxHP: return $"최대 체력 +20 / 체력 20 회복\n{stats.MaxHP:0} > {stats.MaxHP + 20:0}";
+                default: return $"투사체 속도 +20%\n{stats.ProjectileSpeed:0.#} > {stats.ProjectileSpeed * 1.2f:0.#}";
             }
         }
     }

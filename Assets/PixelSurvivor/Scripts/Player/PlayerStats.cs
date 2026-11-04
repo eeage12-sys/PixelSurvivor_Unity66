@@ -21,6 +21,8 @@ namespace PixelSurvivor
             AttackInterval = Mathf.Max(GameRules.MinimumAttackInterval, attackInterval);
             ProjectileSpeed = Mathf.Max(0.1f, projectileSpeed);
         }
+        public void SetRunValues(float health,float movement,float power,float interval,float projectile)
+        { MaxHP=Mathf.Max(1,health);MoveSpeed=Mathf.Max(0.1f,movement);Damage=Mathf.Max(0.1f,power);AttackInterval=Mathf.Max(GameRules.MinimumAttackInterval,interval);ProjectileSpeed=Mathf.Max(0.1f,projectile); }
         public void Apply(UpgradeKind kind)
         {
             switch (kind)

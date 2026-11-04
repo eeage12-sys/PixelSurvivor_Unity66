@@ -1,42 +1,67 @@
-# Unity에서 실행할 최종 QA
+# Unity 6000.6.6f1 acceptance checklist — NOT RUN here
 
-제작 환경에 Unity가 없어 아래 항목은 **아직 실기 통과로 표시하지 않았다**. 자동 테스트를 먼저 실행하고 체크한다.
+Use a backup/fresh project copy. Apply Infinite Survival Update before testing an existing MainScene.
+Static checks are separately reported in STATIC_CHECKS.json; unchecked items below are not passed.
 
-| 확인 항목 | 확인 방법 | 통과 기준 |
-|---|---|---|
-| 컴파일 | 프로젝트 열기, Console 확인 | 빨간 오류 0 |
-| Setup | Setup 메뉴 실행 | MainScene, 5 Prefab, Input 참조 생성 |
-| 참조 | Validate Current Scene | 통과 로그, Missing Script 0 |
-| 시작 | Play 후 3초 대기 | 메뉴 유지, 적/타이머 시작 안 함 |
-| START | 버튼 클릭 | 전투 시작, 05:00 카운트다운 |
-| 이동 | WASD, W+D | 정상 이동, 대각선 더 빨라지지 않음 |
-| 맵·카메라 | 가장자리 이동 | 플레이어 경계 제한, 카메라 과도한 바깥 노출 없음 |
-| 적 생성 | 시작 후 대기 | 화면 밖 생성, 플레이어 추적 |
-| 적 증가 | 분 단위 진행 | 1.5 / 1.2 / 0.9 / 0.7 / 0.5초 단계 |
-| 자동 공격 | 적 근처 이동 | 가장 가까운 화면 내 적을 향해 발사 |
-| 적중·사망 | 기본 적 피격 | 기본 볼트 2회로 사망, 처치 +1, 보석 1개 |
-| EXP | 보석 접촉 | EXP +1, 보석 소멸 |
-| 레벨업 | EXP 5 획득 | Lv2, 정지, 중복 없는 3개 선택 |
-| 강화 UI | 카드 클릭 / 좌우+Enter | 선택 적용, 게임 재개 |
-| 공격 강화 | POWER CORE 선택 | 10→12 등 실제 피해 상승 |
-| 공격속도 | RAPID CIRCUIT 선택 | 0.8→0.68초, 하한 0.12초 |
-| 이동속도 | LIGHT STEPS 선택 | 5→5.5 |
-| 최대 HP | 피해 후 VITAL SHELL 선택 | 최대 HP+20, 현재 HP+20 |
-| 투사체 속도 | SWIFT BOLT 선택 | 8→9.6 |
-| 접촉 피해 | 적과 겹침 | HP -10, 0.65초 무적, 점멸 |
-| 게임오버 | HP 0 | GAME OVER, 시간/레벨/처치 표시 |
-| 재시작 | 결과 RESTART | Lv1, HP100, EXP0, Kill0, 이전 오브젝트 제거 |
-| 승리 | 정상 300초 생존 | SURVIVED!, 05:00 결과 |
-| 빠른 승리 확인 | GameTimer Round Duration=10 | 10초 승리 후 원래 300 복구 |
-| UI | 피해/EXP/처치 후 확인 | HP/EXP 바와 텍스트 값 일치 |
-| 화면 | 1600×900 / 1920×1080 | 카드·HUD·메뉴 잘림 없음 |
-| 반복 실행 | Play 종료 및 재시작 반복 | 멈춤/참조 오류/입력 중복 없음 |
-| Windows | Build Windows x64 | EXE 실행, 입력/UI/재시작 정상 |
+## Import
+- [ ] Packages resolve; Console has no red compiler errors.
+- [ ] Apply completes, Validate Current Scene completes, no missing script/reference.
+- [ ] Restart Unity; menu loads with all five character images.
 
-## 자동 테스트 범위
+## Menu / characters / input
+- [ ] START opens Character Select; Next disabled until choosing a card.
+- [ ] Five cards show role, HP, damage, speed, attacks/sec, starting weapon and unique passive.
+- [ ] Selected highlight and Stage Select work; fresh profile Stage2/3 locked.
+- [ ] Each character applies distinct HP/speed/damage/starter/passive and walking sprites.
+- [ ] W A S D and all four arrows move correctly; both diagonals have unit speed.
+- [ ] W+Up and A+Left do not stack movement speed; boundaries stop movement/animation.
+- [ ] Menu/card buttons work with mouse; in-run arrow movement does not select hidden UI.
 
-EditMode: EXP 공식, 각 분 경계의 생성 주기, 대각선 보정, 고속 투사체 충돌/빗나감/초기 겹침, 5종 강화 수치, 공격 간격 하한, 강화 중복 제외, 시간 표기.
+## Survival / enemy / boss
+- [ ] Survive past 05:00, 20:00 and 30:00; no automatic result screen.
+- [ ] Pause, level-up and chest stop time, movement and enemy attacks.
+- [ ] Normal spawn/HP/damage/speed/count scale; normal enemies keep spawning after 20:00.
+- [ ] Elite appearance/color/size distinct; elite frequency scales; chest guaranteed.
+- [ ] Bosses spawn at 10/20/30/40 minutes even if earlier bosses remain alive.
+- [ ] Boss HP/damage/attack frequency/projectiles/pattern area scale on later waves.
+- [ ] 20-minute boss death unlocks next stage and current run keeps playing.
+- [ ] Killing that boss after 30:00 still unlocks; killing other waves doesn't substitute.
+- [ ] Boss chest drops on ground, gives exactly 3 rewards, Continue returns to combat.
 
-PlayMode: 메뉴 START, 실제 InputAction 입력, 맵 경계, 화면 밖 생성, 적 추적/접촉 무적, 자동 공격→사망→드롭→회수, 레벨업 정지/카드 적용, 연속 레벨업, 패배→버튼 재시작, 300초 승리, HP·EXP 바.
+## Equipment / progression
+- [ ] EXP pickup levels player; random choices are weapon/enhancement only.
+- [ ] Choosing a new item consumes correct slot; reselecting levels the same slot.
+- [ ] 7+7 caps hold; icons/levels are displayed; no eighth item in either category.
+- [ ] Under-MAX weapon cannot evolve; MAX without required enhancement cannot evolve.
+- [ ] MAX + partner shows READY but waits for a chest; partner icon/status and synergy appear.
+- [ ] Chest evolution changes name/icon/attack, same slot; enhancement retained and never evolves.
+- [ ] Elite chest boundaries yield 1/3/5; boss always3; fully maxed chest converts remaining rolls to gold.
+- [ ] Last 1-2 legal equipment choices work; all MAX continues levels without stat/gold/heal choices.
 
-자동 PlayMode의 승리 테스트는 GameTimer를 300초로 진행시키는 상태 전환 검사다. 실제 5분 생존 플레이나 난이도 검증을 대체하지 않는다.
+## Field / supports
+- [ ] Destructibles can be targeted and broken, dropping all 5 item types over repeated rolls.
+- [ ] Magnet attracts EXP/gold/items across map; healing respects maximum HP.
+- [ ] Bomb instantly kills normals but only damages elites/bosses.
+- [ ] Attack/heal/barrier supports work, expire, do not consume equipment slots.
+- [ ] Monsters route around barrier; player and player projectiles pass through.
+
+## Results / persistence / restart
+- [ ] Death shows survival/level/kill/elite/boss/gold/best, Restart and Main Menu.
+- [ ] Restart resets equipment/evolution/HP/EXP/level/supports/time and keeps persistent progression.
+- [ ] Common upgrade affects all characters; character upgrades affect only that ID.
+- [ ] Gold, purchases, stage/character unlocks and per-character/stage best survive Unity restart.
+- [ ] Prior version1 profile migrates without losing gold or upgrades.
+- [ ] Practice doesn't save Run gold/unlocks/records; normal mode does.
+
+## Final
+- [ ] Run all EditMode / PlayMode tests and inspect XML/logs.
+- [ ] Test 1600x900 and 1920x1080 UI without clipping.
+- [ ] Windows x64 build launches; QUIT exits; keyboard input works outside Editor.
+- [ ] Long run performance/profile and balance acceptable on target Windows PC.
+
+## 한국어판 추가 확인 — Unity 미실행
+- [ ] 한국어 적용 메뉴 실행 후 기존 영어 이름/설명이 한국어로 변경됨.
+- [ ] 시작/캐릭터/스테이지/상점/레벨업/상자/결과/HUD에 네모 글자 없음.
+- [ ] 1600x900 / 1920x1080에서 긴 카드 설명과 진화 조건이 잘리지 않음.
+- [ ] 한국어 폰트가 설치되지 않은 Windows PC에서도 빌드 문구 표시됨.
+- [ ] 적용 전 골드/영구 강화/최고 기록/해금과 Inspector 수정 수치가 유지됨.

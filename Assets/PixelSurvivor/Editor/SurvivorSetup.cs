@@ -22,7 +22,7 @@ namespace PixelSurvivor.Editor
         static readonly Color Mint = new Color(0.37f, 0.95f, 0.76f);
         static readonly Color Muted = new Color(0.57f, 0.69f, 0.75f);
 
-        [MenuItem("Tools/Pixel Survivor/Setup - Rebuild MVP Scene", false, 10)]
+        [MenuItem("Tools/Pixel Survivor/Setup - Rebuild Game Scene", false, 10)]
         public static void SetupMenu()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) { Debug.LogWarning("Stop Play mode before Setup."); return; }
@@ -38,7 +38,7 @@ namespace PixelSurvivor.Editor
             Directory.CreateDirectory(Root + "/Prefabs"); Directory.CreateDirectory(Root + "/Scenes");
             AssetDatabase.Refresh();
             ImportSprites();
-            font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            font = KoreanSetup.EnsureFont();
             white = Sprite("White");
             if (font == null || white == null) throw new InvalidOperationException("Missing built-in font or Art/White.png");
             InputActionAsset actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(Root + "/Input/Survivor.inputactions");
@@ -64,12 +64,14 @@ namespace PixelSurvivor.Editor
             ExperienceGem gemPrefab = MakeGemPrefab();
             Projectile projectilePrefab = MakeProjectilePrefab();
             Enemy enemyPrefab = MakeEnemyPrefab(gemPrefab);
+            Enemy mothPrefab = MakeVariantPrefab(gemPrefab, "EnemyMoth", 10, 3.4f, 8, 0.32f);
+            Enemy beetlePrefab = MakeVariantPrefab(gemPrefab, "EnemyBeetle", 60, 1.25f, 18, 0.46f);
             GameObject playerPrefab = MakePlayerPrefab(reference, projectilePrefab);
             GameObject playerObject = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
             playerObject.name = "Player";
             PlayerMovement player = playerObject.GetComponent<PlayerMovement>();
             follow.Configure(player.transform, bounds); follow.Snap();
-            EnemySpawner spawner = new GameObject("EnemySpawner").AddComponent<EnemySpawner>(); spawner.SetEnemy(enemyPrefab);
+            EnemySpawner spawner = new GameObject("EnemySpawner").AddComponent<EnemySpawner>(); spawner.SetEnemy(enemyPrefab); spawner.SetVariants(mothPrefab, beetlePrefab);
             GameObject managerObject = new GameObject("GameManager");
             GameTimer timer = managerObject.AddComponent<GameTimer>();
             GameManager game = managerObject.AddComponent<GameManager>();
@@ -87,6 +89,7 @@ namespace PixelSurvivor.Editor
             BuildUI(out GameUI gameUI, out LevelUpUI levelUI, out ResultUI resultUI);
             game.Configure(player, spawner, timer, bounds, camera, runtime.transform, gameUI, levelUI, resultUI);
             EditorUtility.SetDirty(game); EditorUtility.SetDirty(spawner); EditorUtility.SetDirty(follow);
+            CampaignSetup.Apply(game);
             EditorSceneManager.SaveScene(scene, ScenePath);
             var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene>();
             scenes.Add(new EditorBuildSettingsScene(ScenePath, true));
@@ -154,11 +157,72 @@ namespace PixelSurvivor.Editor
             var go = Visual("Enemy", Sprite("Enemy"), null, 5); go.AddComponent<Enemy>().SetGem(gem);
             return SavePrefab(go, "Enemy").GetComponent<Enemy>();
         }
+        static Enemy MakeVariantPrefab(ExperienceGem gem, string name, float hp, float speed, float damage, float radius)
+        {
+            var go = Visual(name, Sprite(name), null, 5);
+            Enemy enemy = go.AddComponent<Enemy>(); enemy.SetGem(gem); enemy.ConfigureStats(hp, speed, damage, radius);
+            return SavePrefab(go, name).GetComponent<Enemy>();
+        }
+        static Sprite[] Frames(string direction)
+        {
+            var frames = new Sprite[4];
+            for (int i = 0; i < frames.Length; i++)
+            {
+                frames[i] = Sprite("Player_" + direction + "_" + i);
+                if (frames[i] == null) throw new InvalidOperationException("Missing player frame: " + direction + " " + i);
+            }
+            return frames;
+        }
+        static void ConfigureAnimation(GameObject player)
+        {
+            PlayerSpriteAnimator animation = player.GetComponent<PlayerSpriteAnimator>();
+            if (animation == null) animation = player.AddComponent<PlayerSpriteAnimator>();
+            animation.Configure(Frames("Down"), Frames("Up"), Frames("Left"), Frames("Right"));
+            EditorUtility.SetDirty(animation);
+            EditorUtility.SetDirty(player.GetComponent<SpriteRenderer>());
+        }
+        [MenuItem("Tools/Pixel Survivor/Apply Monster and Animation Update", false, 11)]
+        public static void ApplyContentUpdate()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) { Debug.LogWarning("Stop Play mode before updating."); return; }
+            GameManager game = UnityEngine.Object.FindAnyObjectByType<GameManager>();
+            if (game == null || !game.HasRequiredReferences())
+                throw new InvalidOperationException("Open your working MainScene first. For a fresh project use Setup - Rebuild Game Scene.");
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            Directory.CreateDirectory(Root + "/Prefabs");
+            AssetDatabase.Refresh(); ImportSprites();
+            // Validate all 16 source frames before changing the scene.
+            Frames("Down"); Frames("Up"); Frames("Left"); Frames("Right");
+            if (Sprite("EnemyMoth") == null || Sprite("EnemyBeetle") == null)
+                throw new InvalidOperationException("Missing new enemy PNGs. Copy the entire update Assets folder first.");
+            ExperienceGem gem = game.Spawner.EnemyPrefab.GemPrefab;
+            Enemy moth = MakeVariantPrefab(gem, "EnemyMoth", 10, 3.4f, 8, 0.32f);
+            Enemy beetle = MakeVariantPrefab(gem, "EnemyBeetle", 60, 1.25f, 18, 0.46f);
+            string playerPath = Root + "/Prefabs/Player.prefab";
+            if (File.Exists(playerPath))
+            {
+                GameObject contents = PrefabUtility.LoadPrefabContents(playerPath);
+                try { ConfigureAnimation(contents); PrefabUtility.SaveAsPrefabAsset(contents, playerPath); }
+                finally { PrefabUtility.UnloadPrefabContents(contents); }
+            }
+            ConfigureAnimation(game.Player.gameObject);
+            game.Spawner.SetVariants(moth, beetle); EditorUtility.SetDirty(game.Spawner);
+            if (PrefabUtility.IsPartOfPrefabInstance(game.Player.gameObject))
+            {
+                PrefabUtility.RecordPrefabInstancePropertyModifications(game.Player.GetComponent<SpriteRenderer>());
+                PrefabUtility.RecordPrefabInstancePropertyModifications(game.Player.GetComponent<PlayerSpriteAnimator>());
+            }
+            EditorSceneManager.MarkSceneDirty(game.gameObject.scene);
+            EditorSceneManager.SaveScene(game.gameObject.scene);
+            AssetDatabase.SaveAssets(); ValidateScene();
+            Debug.Log("Content update applied: 3 enemies, 4-direction player walking. Moth unlock 30s; beetle unlock 90s.");
+        }
         static GameObject MakePlayerPrefab(InputActionReference action, Projectile projectile)
         {
             var go = Visual("Player", Sprite("Player"), null, 10);
             go.AddComponent<PlayerStats>(); go.AddComponent<PlayerHealth>(); go.AddComponent<PlayerLevel>();
             go.AddComponent<PlayerMovement>().SetInput(action); go.AddComponent<AutoAttack>().SetProjectile(projectile);
+            ConfigureAnimation(go);
             return SavePrefab(go, "Player");
         }
         static void MakeMap(Transform parent, MapBounds bounds)
@@ -200,7 +264,7 @@ namespace PixelSurvivor.Editor
         static Text Label(string name, Transform parent, string value, Vector2 position, Vector2 size, int fontSize, Color color, TextAnchor alignment = TextAnchor.MiddleCenter)
         {
             var text = Rect(name, parent, position, size).gameObject.AddComponent<Text>();
-            text.font = font; text.text = value; text.fontSize = fontSize; text.color = color; text.alignment = alignment;
+            text.font = font; text.text = KoreanSetup.Legacy(value); text.fontSize = fontSize; text.color = color; text.alignment = alignment;
             text.raycastTarget = false; text.horizontalOverflow = HorizontalWrapMode.Wrap; text.verticalOverflow = VerticalWrapMode.Truncate;
             return text;
         }
@@ -249,7 +313,7 @@ namespace PixelSurvivor.Editor
             Text hp = Label("HP", top.transform, "HP 100 / 100", new Vector2(-620, -15), new Vector2(270, 28), 18, Color.white, TextAnchor.MiddleLeft);
             Image hpBar = Bar("HP Bar", top.transform, new Vector2(-600, -36), new Vector2(310, 9), new Color(0.95f, 0.37f, 0.45f));
             Label("Timer caption", top.transform, "TIME REMAINING", new Vector2(0, 29), new Vector2(300, 24), 16, Muted);
-            Text timer = Label("Timer", top.transform, "05:00", new Vector2(0, -5), new Vector2(300, 55), 40, Color.white);
+            Text timer = Label("Timer", top.transform, "00:00:00", new Vector2(0, -5), new Vector2(300, 55), 40, Color.white);
             Text kills = Label("Kills", top.transform, "KILLS 000", new Vector2(650, 8), new Vector2(220, 48), 26, Color.white);
             var bottom = Rect("Footer", hud, Vector2.zero, new Vector2(0, 90));
             bottom.anchorMin = new Vector2(0, 0); bottom.anchorMax = new Vector2(1, 0); bottom.pivot = new Vector2(0.5f, 0);
@@ -257,14 +321,14 @@ namespace PixelSurvivor.Editor
             Image expBar = Bar("EXP Bar", bottom, new Vector2(0, -20), new Vector2(1460, 10), new Color(0.35f, 0.72f, 1));
 
             GameObject menu = Overlay("MainMenuPanel", root.transform);
-            Label("Eyebrow", menu.transform, "A FIVE-MINUTE SURVIVAL RUN", new Vector2(0, 210), new Vector2(900, 40), 22, Muted);
+            Label("Eyebrow", menu.transform, "INFINITE SURVIVAL", new Vector2(0, 210), new Vector2(900, 40), 22, Muted);
             Label("Title", menu.transform, "PIXEL SURVIVOR", new Vector2(0, 120), new Vector2(1200, 100), 78, Mint);
             Label("Subtitle", menu.transform, "L U M E N   F I E L D", new Vector2(0, 45), new Vector2(900, 45), 28, Color.white);
-            Label("Instructions", menu.transform, "WASD to move. Bolts fire automatically.\nCollect blue gems. Choose upgrades. Survive for 05:00.", new Vector2(0, -55), new Vector2(1000, 110), 24, Muted);
+            Label("Instructions", menu.transform, "WASD or arrow keys to move. Attacks are automatic.\nCollect gems. Build equipment. Survive as long as you can.", new Vector2(0, -55), new Vector2(1000, 110), 24, Muted);
             Button start = Button("StartButton", menu.transform, "START", new Vector2(0, -190), new Vector2(300, 70));
             Label("Menu help", menu.transform, "Click a button, or use arrow keys + Enter", new Vector2(0, -290), new Vector2(1000, 40), 18, Muted);
             gameUI.Configure(menu, hud.gameObject, start, level, timer, hp, exp, kills, hpBar, expBar);
-            UnityEngine.Object.FindFirstObjectByType<EventSystem>().firstSelectedGameObject = start.gameObject;
+            UnityEngine.Object.FindAnyObjectByType<EventSystem>().firstSelectedGameObject = start.gameObject;
 
             GameObject upgrade = Overlay("LevelUpPanel", root.transform);
             Label("Title", upgrade.transform, "LEVEL UP", new Vector2(0, 230), new Vector2(900, 90), 64, Mint);
@@ -286,7 +350,7 @@ namespace PixelSurvivor.Editor
             levelUI.Configure(upgrade, cards);
 
             GameObject result = Overlay("ResultPanel", root.transform);
-            Text resultTitle = Label("Title", result.transform, "SURVIVED!", new Vector2(0, 170), new Vector2(1100, 100), 72, Mint);
+            Text resultTitle = Label("Title", result.transform, "GAME OVER", new Vector2(0, 170), new Vector2(1100, 100), 72, Mint);
             Text summary = Label("Summary", result.transform, "", new Vector2(0, 0), new Vector2(1000, 180), 32, Color.white);
             Button restart = Button("RestartButton", result.transform, "RESTART", new Vector2(0, -200), new Vector2(340, 70));
             resultUI.Configure(result, resultTitle, summary, restart);
@@ -296,8 +360,15 @@ namespace PixelSurvivor.Editor
         [MenuItem("Tools/Pixel Survivor/Validate Current Scene", false, 20)]
         public static void ValidateScene()
         {
-            GameManager manager = UnityEngine.Object.FindFirstObjectByType<GameManager>();
+            GameManager manager = UnityEngine.Object.FindAnyObjectByType<GameManager>();
             if (manager == null || !manager.HasRequiredReferences()) throw new InvalidOperationException("Missing gameplay/UI/input/prefab references. Run Setup again.");
+            if (!manager.Spawner.HasExpandedRoster)
+                throw new InvalidOperationException("Missing enemy variants. Run Apply Monster and Animation Update.");
+            PlayerSpriteAnimator animation = manager.Player.GetComponent<PlayerSpriteAnimator>();
+            if (animation == null || !animation.IsConfigured)
+                throw new InvalidOperationException("Missing player animation frames. Run Apply Monster and Animation Update.");
+            var campaign=manager.GetComponent<CampaignController>();
+            if(campaign!=null)CampaignSetup.ValidateData(campaign.Data);
             int missing = 0;
             foreach (GameObject root in SceneManager.GetActiveScene().GetRootGameObjects())
             foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
@@ -312,10 +383,10 @@ namespace PixelSurvivor.Editor
                     if (sprite.sprite == null) throw new InvalidOperationException("Missing sprite in " + path);
             }
             if (missing != 0) throw new InvalidOperationException("Missing Script count: " + missing);
-            var input = UnityEngine.Object.FindFirstObjectByType<InputSystemUIInputModule>();
+            var input = UnityEngine.Object.FindAnyObjectByType<InputSystemUIInputModule>();
             if (input == null || input.point == null || input.leftClick == null || input.move == null || input.submit == null)
                 throw new InvalidOperationException("Missing InputSystemUIInputModule action references");
-            Debug.Log("Pixel Survivor: required refs, 5 prefabs, sprites, UI, Input System and Missing Script check passed. This does not replace a Play test.");
+            Debug.Log("Pixel Survivor: required refs, 7 prefabs, 3 enemies, 16 player frames, sprites, UI, Input System and Missing Script check passed. This does not replace a Play test.");
         }
     }
 }

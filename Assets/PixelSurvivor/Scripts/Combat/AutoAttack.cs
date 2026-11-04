@@ -15,7 +15,7 @@ namespace PixelSurvivor
         public void ResetWeapon() => cooldown = 0;
         void Update()
         {
-            if (game == null || !game.IsPlaying || projectilePrefab == null) return;
+            if (game == null || !game.IsPlaying || projectilePrefab == null || game.Campaign!=null) return;
             cooldown -= Time.deltaTime;
             if (cooldown > 0) return;
             Enemy nearest = null;

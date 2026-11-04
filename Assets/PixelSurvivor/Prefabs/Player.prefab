@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6239942946261299143}
   - component: {fileID: 4624325557636941452}
   - component: {fileID: 2298626696604445985}
+  - component: {fileID: 9145640768618126656}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -86,7 +87,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 10
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 42feea12675fc3a48be87dca46406339, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1bd92c7b8ab358d4884751150bce2ebb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -167,3 +168,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.AutoAttack
   projectilePrefab: {fileID: 2777210346108876763, guid: 65429eb4ac983d443826b08b985bfb42, type: 3}
   range: 24
+--- !u!114 &9145640768618126656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3687888273217834808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f3b494393dbdef42aa74cd8bf43e6d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.PlayerSpriteAnimator
+  downFrames:
+  - {fileID: 21300000, guid: 1bd92c7b8ab358d4884751150bce2ebb, type: 3}
+  - {fileID: 21300000, guid: 84ebc1209baded3438b129a7182b901d, type: 3}
+  - {fileID: 21300000, guid: 0af6ddbed356c034cabb22594c4e2e33, type: 3}
+  - {fileID: 21300000, guid: 8844939b709731849a902a25ee9a7abb, type: 3}
+  upFrames:
+  - {fileID: 21300000, guid: d8fc75e5fe9535646bde904abbbf3645, type: 3}
+  - {fileID: 21300000, guid: 62532cdae7b91dd4cbb0d996b9c3ab29, type: 3}
+  - {fileID: 21300000, guid: b7c7d9f070efab2409d749ddd9eb1b15, type: 3}
+  - {fileID: 21300000, guid: 84eae86e34c41dc40812379ef1a48c60, type: 3}
+  leftFrames:
+  - {fileID: 21300000, guid: d13126f605f64d34485558c9a13d1cfa, type: 3}
+  - {fileID: 21300000, guid: 9192fc3090c61a44fb44a980ceabe4aa, type: 3}
+  - {fileID: 21300000, guid: e5d76e00c6b836041846921e429644d6, type: 3}
+  - {fileID: 21300000, guid: ff3e10cf7e9086648b0d56a3668391ea, type: 3}
+  rightFrames:
+  - {fileID: 21300000, guid: 8792bcb5d3181ea4290eb63a715b17a0, type: 3}
+  - {fileID: 21300000, guid: 6d3d45930179a274490d3823210536e6, type: 3}
+  - {fileID: 21300000, guid: d3057eeb6731a054db787da655c41e6a, type: 3}
+  - {fileID: 21300000, guid: afbc9b2ed0a1ca54094d72ed98016107, type: 3}
+  framesPerUnit: 2

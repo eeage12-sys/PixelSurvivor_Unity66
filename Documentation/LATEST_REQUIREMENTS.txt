@@ -1,0 +1,1854 @@
+# Pixel Survivor 전체 시스템 최신 통합 기획 및 구현 요청서
+
+현재 제작 중인 Unity 2D 탑다운 픽셀 로그라이트 게임 **Pixel Survivor**를 아래 최신 기획을 기준으로 수정 및 확장해 줘.
+
+이 문서를 현재 프로젝트의 **최신 최종 기준 사양**으로 사용한다.
+
+이전 요청이나 기존 구현과 내용이 충돌할 경우 **반드시 이 문서의 내용을 우선한다.**
+
+기존에 정상 작동하는 기능은 최대한 유지하고, 필요한 부분만 수정·교체·확장한다.
+
+개발 환경:
+
+- Unity 6.6 / 6000.6.6f1
+- 2D
+- Pixel Art
+- Unity Input System 사용
+- Windows PC 우선
+
+---
+
+# 1. 게임 기본 방향
+
+장르:
+
+**2D 탑다운 픽셀 아트 무한 생존 로그라이트 RPG**
+
+핵심 재미는 다음과 같다.
+
+1. 전투 중 장비를 선택하고 조합하는 빌드 구성
+2. 공격형 장비 진화
+3. Elite / Boss / Field Event를 통한 전투 변수
+4. 캐릭터마다 다른 플레이 스타일
+5. Gold를 이용한 RPG식 영구 성장
+6. 새로운 Stage 해금
+7. 최고 생존 기록 도전
+
+---
+
+# 2. 전체 게임 흐름
+
+Main Menu
+
+↓
+
+Character Select
+
+↓
+
+Stage Select
+
+↓
+
+Game Start
+
+↓
+
+무한 생존
+
+↓
+
+Monster Kill
+
+↓
+
+EXP 획득
+
+↓
+
+Level Up
+
+↓
+
+장비 Random 3 Choices
+
+↓
+
+공격형 / 강화형 장비 획득 및 강화
+
+↓
+
+Elite / Boss Kill
+
+↓
+
+Treasure Chest
+
+↓
+
+장비 강화 / Evolution
+
+↓
+
+Gold 획득
+
+↓
+
+계속 생존
+
+↓
+
+Player Death
+
+↓
+
+Result
+
+↓
+
+Main Menu
+
+↓
+
+Gold를 이용한 영구 Upgrade
+
+↓
+
+다음 Run
+
+---
+
+# 3. 플레이어 조작
+
+플레이어 이동은 키보드에서 **WASD와 방향키를 모두 지원한다.**
+
+## WASD
+
+W = 위
+
+S = 아래
+
+A = 왼쪽
+
+D = 오른쪽
+
+## 방향키
+
+↑ = 위
+
+↓ = 아래
+
+← = 왼쪽
+
+→ = 오른쪽
+
+두 방식 모두 동일한 이동 기능을 제공한다.
+
+---
+
+# 4. Input System
+
+Unity의 새로운 **Input System**을 사용한다.
+
+Move Action 하나에 다음 Binding을 함께 등록한다.
+
+WASD Composite
+
++
+
+Arrow Key Composite
+
+예:
+
+Move
+
+- W / A / S / D
+- Up / Left / Down / Right Arrow
+
+별도의 이동 스크립트를 두 개 만들지 않는다.
+
+하나의 Move Action으로 두 조작 방식을 모두 처리한다.
+
+---
+
+# 5. 이동 관련 필수 규칙
+
+대각선 이동 시 이동속도가 빨라지면 안 된다.
+
+입력 Vector를 Normalize 또는 ClampMagnitude 처리한다.
+
+예:
+
+W + D
+
+또는
+
+↑ + →
+
+입력 시에도 직선 이동과 동일한 최대 이동속도를 유지한다.
+
+또한 WASD와 방향키를 동시에 눌렀다고 이동속도가 2배가 되면 안 된다.
+
+예:
+
+W + ↑
+
+를 동시에 눌러도 위쪽 이동속도는 정상적인 기본 Move Speed여야 한다.
+
+---
+
+# 6. 기존 제한시간 시스템 폐기
+
+현재 프로젝트에 존재하는 다음 시스템은 제거한다.
+
+- A FIVE-MINUTE SURVIVAL RUN
+- Survive for 05:00
+- 5분 Victory
+- Countdown Timer
+- 시간 경과에 따른 자동 Victory
+
+게임에는 기본적인 제한시간이 없다.
+
+플레이어가 사망할 때까지 계속 플레이할 수 있어야 한다.
+
+---
+
+# 7. Survival Time
+
+시간은 감소하지 않고 계속 증가한다.
+
+UI 예:
+
+SURVIVAL TIME
+
+00:14:37
+
+시간은 게임 종료 조건이 아니다.
+
+시간은 다음 시스템에 사용한다.
+
+- Enemy Scaling
+- Spawn Rate
+- Spawn Count
+- 새로운 Monster 등장
+- Elite 출현
+- Boss 등장
+- Stage Unlock
+
+---
+
+# 8. Run 종료 조건
+
+기본 Run 종료 조건은:
+
+## Player Death
+
+이다.
+
+5분이나 20분이 됐다고 게임을 끝내지 않는다.
+
+---
+
+# 9. Result 화면
+
+Player Death 시 다음 정보를 표시한다.
+
+- Survival Time
+- Character Level
+- Kill Count
+- Elite Kill Count
+- Boss Kill Count
+- 획득 Gold
+- Best Survival Time
+
+버튼:
+
+- Restart
+- Main Menu
+
+---
+
+# 10. Stage 시스템
+
+Stage는 존재한다.
+
+하지만 한 Run 안에서 Stage가 자동 전환되지 않는다.
+
+각 Stage는 독립적인 Run이다.
+
+예:
+
+Stage 1
+
+Stage 2
+
+Stage 3
+
+각 Stage는:
+
+- Map
+- Monster
+- Difficulty
+- Boss
+- Spawn Table
+
+등을 다르게 구성할 수 있다.
+
+---
+
+# 11. Stage Unlock
+
+처음에는 Stage 1만 사용 가능하다.
+
+Stage 1에서:
+
+20:00 Boss Spawn
+
+↓
+
+Boss Kill
+
+↓
+
+STAGE 2 UNLOCKED
+
+Stage 2가 해금된다.
+
+하지만 현재 Stage 1 Run은 종료하지 않는다.
+
+Player는 계속 Stage 1에서 생존할 수 있다.
+
+Player Death 후 Main Menu로 돌아오면 Stage 2 선택이 가능하다.
+
+Unlock 상태는 영구 저장한다.
+
+---
+
+# 12. Boss 등장
+
+Boss는 10분마다 등장한다.
+
+예:
+
+10:00
+
+20:00
+
+30:00
+
+40:00
+
+50:00
+
+60:00
+
+이후에도 계속 등장.
+
+---
+
+# 13. Boss Scaling
+
+시간이 지날수록 Boss도 강해진다.
+
+예:
+
+- Max HP 증가
+- Damage 증가
+- Attack Speed 증가
+- Projectile 증가
+- Pattern 강화
+
+정확한 Scaling 값은 데이터에서 수정 가능해야 한다.
+
+---
+
+# 14. 플레이어 캐릭터
+
+초기 플레이 캐릭터는 총 5명이다.
+
+---
+
+# 15. 캐릭터 1 - 밸런스형
+
+전체적인 능력치가 평균적이다.
+
+특징:
+
+여러 종류의 장비를 자유롭게 사용하는 기본형 캐릭터.
+
+---
+
+# 16. 캐릭터 2 - 속도형
+
+HP 낮음.
+
+Move Speed 높음.
+
+Attack Speed 높음.
+
+특징:
+
+빠른 이동을 이용해 적 사이를 빠져나가면서 싸운다.
+
+---
+
+# 17. 캐릭터 3 - 파워형
+
+HP 높음.
+
+Damage 높음.
+
+Move Speed 낮음.
+
+Attack Speed 낮음.
+
+특징:
+
+느리지만 강한 공격과 높은 생존력을 가진다.
+
+---
+
+# 18. 캐릭터 4 - 메이지형
+
+HP 낮음.
+
+Area / Projectile / Cooldown 계열에 강점.
+
+특징:
+
+다수의 적을 범위 공격으로 처리한다.
+
+---
+
+# 19. 캐릭터 5 - 리퍼형
+
+HP 낮음.
+
+Damage 높음.
+
+Move Speed 높음.
+
+특징:
+
+HP가 낮아질수록 강해지는 고위험 고화력 캐릭터.
+
+---
+
+# 20. Character Data
+
+각 캐릭터는 실제 서로 다른 데이터를 가진다.
+
+- Character ID
+- Character Name
+- Sprite
+- Portrait
+- Max HP
+- Move Speed
+- Base Damage
+- Attack Speed
+- Starting Weapon
+- Unique Passive
+- Character Upgrade Data
+
+가능하면 CharacterData ScriptableObject로 관리한다.
+
+---
+
+# 21. Character Select
+
+현재:
+
+START
+
+→ Game
+
+구조를 사용하지 않는다.
+
+최종 구조:
+
+START
+
+↓
+
+Character Select
+
+↓
+
+Stage Select
+
+↓
+
+Game
+
+---
+
+# 22. Character Card
+
+5개의 Character Card를 표시한다.
+
+각 카드에는:
+
+- Character Sprite
+- Name
+- Role
+- HP
+- Damage
+- Move Speed
+- Attack Speed
+- Starting Weapon
+- Unique Passive
+
+를 표시한다.
+
+선택된 캐릭터는:
+
+SELECTED
+
+또는 강조 테두리로 표시한다.
+
+---
+
+# 23. 캐릭터 미선택
+
+캐릭터를 선택하지 않은 상태에서는 Game Start 버튼을 사용할 수 없다.
+
+---
+
+# 24. 전투 중 성장
+
+Monster Kill
+
+↓
+
+EXP Drop
+
+↓
+
+EXP 획득
+
+↓
+
+Level Up
+
+↓
+
+Pause
+
+↓
+
+Random 3 Choices
+
+↓
+
+장비 선택
+
+↓
+
+Resume
+
+---
+
+# 25. 매우 중요한 Level Up 규칙
+
+전투 중 Level Up에서 등장하는 선택지는 반드시:
+
+## 공격형 장비
+
+또는
+
+## 강화형 장비
+
+다.
+
+---
+
+# 26. 기존 단순 스탯 선택지 폐기
+
+다음과 같은 선택지는 직접 등장하면 안 된다.
+
+- Damage +20%
+- Move Speed +10%
+- Attack Speed +15%
+
+이런 기존 스탯 Upgrade 선택 시스템은 제거한다.
+
+---
+
+# 27. 스탯 효과는 강화형 장비
+
+예:
+
+Damage +10%
+
+이라는 선택지를 직접 보여주는 것이 아니라:
+
+## 공격 강화 장비 Lv.1
+
+Damage +10%
+
+형태로 등장한다.
+
+---
+
+# 28. 장비 종류
+
+전투 중 장비는 크게 두 가지다.
+
+## A. 공격형 장비
+
+직접 Monster에게 Damage를 준다.
+
+## B. 강화형 장비
+
+직접 공격하지 않고 Character 또는 공격형 장비를 강화한다.
+
+---
+
+# 29. 장비 Slot
+
+한 Run에서:
+
+## 공격형 장비 최대 7개
+
+## 강화형 장비 최대 7개
+
+총 최대 14 Slot.
+
+전체 게임에 존재하는 장비 종류는 7개보다 많아도 된다.
+
+---
+
+# 30. 공격형 장비 예시
+
+- Whip
+- Dagger
+- Scythe
+- Magic Orb
+- Straight Projectile
+- Area Weapon
+- Auto Target Weapon
+
+---
+
+# 31. 공격형 장비 Level
+
+각 공격형 장비는 Level을 가진다.
+
+예:
+
+Lv.1
+
+↓
+
+Lv.2
+
+↓
+
+Lv.3
+
+↓
+
+Lv.4
+
+↓
+
+Lv.5 MAX
+
+정확한 최대 Level은 데이터로 수정 가능하게 한다.
+
+---
+
+# 32. 공격형 Level Up
+
+Level 상승 시 다음 값 중 일부가 증가할 수 있다.
+
+- Damage
+- Attack Speed
+- Cooldown
+- Projectile Count
+- Penetration
+- Area
+- Range
+- Duration
+- Knockback
+- Attack Pattern
+
+---
+
+# 33. 동일 공격형 장비 재선택
+
+이미 가지고 있는 공격형 장비가 다시 등장하면 새 Slot을 사용하지 않는다.
+
+기존 Weapon Level +1.
+
+---
+
+# 34. 강화형 장비 예시
+
+- Damage 증가
+- Attack Speed 증가
+- Projectile +1
+- Area 증가
+- Duration 증가
+- Cooldown 감소
+- Move Speed 증가
+- Max HP 증가
+- Pickup Range 증가
+
+---
+
+# 35. 강화형 장비 Level
+
+강화형 장비도 Level을 가질 수 있다.
+
+동일 강화형을 다시 선택하면 기존 강화형 Level +1.
+
+새 Slot을 사용하지 않는다.
+
+---
+
+# 36. 강화형 장비 진화 금지
+
+## 강화형 장비는 절대 진화하지 않는다.
+
+강화형 → 상위 강화형 같은 시스템을 만들지 않는다.
+
+---
+
+# 37. 강화형 장비 역할
+
+강화형 장비 역할:
+
+1. Player 및 공격형 장비 성능 강화
+2. 공격형 장비 Evolution 조건
+
+---
+
+# 38. 공격형 Evolution
+
+Evolution 가능한 것은 **공격형 장비뿐**이다.
+
+반드시 두 조건을 모두 만족해야 한다.
+
+## 조건 1
+
+공격형 장비 MAX Level
+
+## 조건 2
+
+해당 공격형 장비와 연결된 특정 강화형 장비 보유
+
+---
+
+# 39. Evolution 예시
+
+Whip MAX
+
++
+
+Life Enhancement
+
+↓
+
+EVOLUTION READY
+
+---
+
+Whip Lv.4
+
++
+
+Life Enhancement
+
+↓
+
+Evolution 불가능.
+
+---
+
+# 40. 강화형 장비 소모 없음
+
+Evolution 후에도 강화형 장비는 그대로 유지된다.
+
+Whip MAX
+
++
+
+Life Enhancement
+
+↓
+
+Evolved Whip
+
++
+
+Life Enhancement 유지
+
+---
+
+# 41. Evolution 발생 시점
+
+Evolution 조건을 만족했다고 즉시 진화하지 않는다.
+
+조건 만족:
+
+Weapon MAX
+
++
+
+Required Enhancement
+
+↓
+
+EVOLUTION READY
+
+↓
+
+Treasure Chest 획득
+
+↓
+
+Evolution 가능
+
+---
+
+# 42. 공격형 카드 Evolution UI
+
+공격형 장비가 3지선다에 등장하면 필요한 강화형 장비를 반드시 표시한다.
+
+예:
+
+WHIP
+
+Lv.1
+
+전방 공격.
+
+EVOLUTION:
+
+[Life Enhancement Icon]
+
+미보유
+
+---
+
+이미 보유:
+
+✓ Life Enhancement
+
+---
+
+# 43. 강화형 카드 Synergy UI
+
+강화형 장비가 등장했을 때 보유 중인 공격형 장비와 진화 관계가 있다면 표시한다.
+
+예:
+
+LIFE ENHANCEMENT
+
+Max HP 증가
+
+SYNERGY
+
+WHIP EVOLUTION
+
+---
+
+# 44. Evolution 상태
+
+공격형 Level 부족 + 강화형 없음
+
+→ 미충족
+
+공격형 Level 부족 + 강화형 있음
+
+→ Weapon Level 부족
+
+공격형 MAX + 강화형 없음
+
+→ Enhancement 필요
+
+공격형 MAX + 강화형 있음
+
+→ EVOLUTION READY
+
+---
+
+# 45. 일반 Monster
+
+일반 Monster는 계속 Spawn한다.
+
+시간에 따라 점점 강해진다.
+
+---
+
+# 46. Infinite Difficulty Scaling
+
+Survival Time에 따라:
+
+- Enemy HP
+- Enemy Damage
+- Enemy Move Speed
+- Spawn Rate
+- Spawn Count
+- Elite Spawn Rate
+
+등을 증가시킨다.
+
+새 Monster 종류도 시간에 따라 추가할 수 있다.
+
+---
+
+# 47. Elite Monster
+
+일반 Monster 종류별 Elite Variant가 존재할 수 있다.
+
+Elite는:
+
+- 다른 색상
+- 약간 큰 Size
+- Aura
+- Effect
+
+등으로 구분한다.
+
+---
+
+# 48. Elite 능력
+
+일반 Monster보다:
+
+- HP 높음
+- Damage 높음
+- Move Speed 높음
+
+정확한 배율은 데이터화한다.
+
+---
+
+# 49. Elite Drop
+
+Elite Kill 시:
+
+## Treasure Chest 100% Drop
+
+---
+
+# 50. Elite Treasure Chest
+
+기본적으로 현재 가지고 있는 장비 중 강화 가능한 장비 하나를 Random +1 Level 한다.
+
+대상:
+
+- 공격형
+- 강화형
+
+---
+
+# 51. Treasure Chest Evolution Check
+
+Chest를 열면 우선:
+
+Weapon MAX?
+
++
+
+Required Enhancement 보유?
+
+를 체크한다.
+
+YES면 해당 Weapon을 Evolution Candidate에 등록한다.
+
+---
+
+# 52. Elite Chest Jackpot
+
+Elite Chest는 기본 1회 보상이다.
+
+하지만 일정 확률로:
+
+3개 Jackpot
+
+또는
+
+5개 Jackpot
+
+가능.
+
+초기 예시:
+
+1회 = 85%
+
+3회 = 12%
+
+5회 = 3%
+
+데이터에서 수정 가능.
+
+---
+
+# 53. Jackpot 예시
+
+5회 Jackpot:
+
+1. Whip Evolution
+2. Dagger Lv.2 → Lv.3
+3. Damage Enhancement Lv.1 → Lv.2
+4. Magic Orb Lv.4 → MAX
+5. Area Enhancement Lv.2 → Lv.3
+
+Evolution도 1회 보상으로 계산한다.
+
+---
+
+# 54. 모든 장비 MAX
+
+더 이상 강화 또는 Evolution 가능한 장비가 없다면 Chest 보상을 Gold로 변환한다.
+
+Jackpot 중 강화 대상이 사라지면 남은 보상도 Gold로 변환한다.
+
+---
+
+# 55. Boss Treasure Chest
+
+Boss Kill 시 Boss Chest를 100% Drop한다.
+
+Boss Chest는:
+
+## 랜덤 장비 보상 3회 확정
+
+이다.
+
+---
+
+# 56. Boss Chest 결과
+
+각 보상은 다음 중 하나가 될 수 있다.
+
+- 공격형 +1 Level
+- 강화형 +1 Level
+- Evolution
+- 강화 대상 없음 → Gold
+
+---
+
+# 57. Elite와 Boss Chest 차이
+
+Elite:
+
+기본 1회.
+
+3회 / 5회 Jackpot 확률 존재.
+
+Boss:
+
+항상 3회 확정.
+
+Boss에 별도 5회 Jackpot은 없다.
+
+---
+
+# 58. Field Breakable Object
+
+맵에는 Monster 이외에도 파괴 가능한 Object를 배치한다.
+
+예:
+
+- Box
+- Barrel
+- Crystal
+- Supply Object
+- 기타 Environment Object
+
+Player 공격으로 파괴 가능.
+
+---
+
+# 59. Field Object Drop
+
+파괴 시 다음 중 하나를 Drop한다.
+
+- Gold
+- Magnet
+- Bomb
+- Heal
+- Support Call
+
+---
+
+# 60. Gold Pickup
+
+Gold를 먹으면 현재 Run Gold에 추가한다.
+
+Run 종료 후에도 영구 Gold로 저장한다.
+
+---
+
+# 61. Magnet
+
+Magnet 획득 시 맵 전체에 떨어져 있는:
+
+- EXP
+- Gold
+- Pickup Item
+
+을 Player 방향으로 끌어당긴다.
+
+---
+
+# 62. Bomb
+
+Bomb 획득 시 현재 맵의 일반 Monster를 즉사시킨다.
+
+Elite / Boss는 즉사시키지 않는다.
+
+Elite / Boss에게는 큰 Damage를 줄 수 있다.
+
+---
+
+# 63. Heal
+
+Heal Item 획득 시 Player HP를 즉시 회복한다.
+
+회복량은 데이터에서 수정 가능.
+
+---
+
+# 64. Support Call
+
+Support Call 획득 시 지원군 하나를 Random 소환한다.
+
+지원군은 일정 시간만 존재한다.
+
+장비가 아니며 장비 Slot을 사용하지 않는다.
+
+---
+
+# 65. 공격 지원군
+
+Player 주변에서 Monster를 자동 공격한다.
+
+역할:
+
+Monster 정리.
+
+---
+
+# 66. 회복 지원군
+
+Player를 따라다니며 일정 주기로 HP를 회복한다.
+
+직접 공격하지 않는다.
+
+---
+
+# 67. 방어 지원군
+
+Player 기준 한 방향에 Barrier를 설치한다.
+
+Barrier:
+
+- Monster 통과 불가
+- Player 통과 가능
+- Player Projectile 통과 가능
+
+Monster는 Barrier를 우회한다.
+
+일정 시간 후 사라진다.
+
+---
+
+# 68. Gold 영구 시스템
+
+Gold는 Run 종료 후에도 유지한다.
+
+Gold 사용처:
+
+## Main Menu → UPGRADE
+
+---
+
+# 69. Common Permanent Upgrade
+
+모든 Character에게 적용.
+
+예:
+
+- Base Damage
+- Max HP
+- Move Speed
+- Defense
+- EXP Gain
+- Gold Gain
+- Pickup Range
+
+---
+
+# 70. Character Unique Upgrade
+
+Character마다 별도의 Upgrade를 가진다.
+
+예:
+
+속도형:
+
+- Move Speed
+- Attack Speed
+- Unique Passive 강화
+
+파워형:
+
+- Max HP
+- Damage
+- Defense
+- Knockback
+
+메이지:
+
+- Area
+- Cooldown
+- Projectile
+- Unique Passive
+
+리퍼:
+
+- Critical
+- Attack Speed
+- Low HP Damage
+- Kill Heal
+
+---
+
+# 71. 영구 강화
+
+Gold로 구매한 Permanent Upgrade는 새로운 Run에서도 유지된다.
+
+---
+
+# 72. Character Upgrade 분리
+
+Character ID를 기준으로 별도 저장한다.
+
+속도형 Character의 고유 Upgrade가 파워형 Character에게 적용되면 안 된다.
+
+Common Upgrade만 모든 Character에게 적용한다.
+
+---
+
+# 73. Run 종료 시 초기화
+
+다음은 초기화한다.
+
+- Player Level
+- EXP
+- 공격형 장비
+- 공격형 Level
+- Evolved Weapon
+- 강화형 장비
+- 강화형 Level
+- Temporary Buff
+- Support Unit
+- 현재 HP
+
+---
+
+# 74. 영구 유지
+
+다음은 유지한다.
+
+- Gold
+- Common Upgrade
+- Character Unique Upgrade
+- Stage Unlock
+- Character Unlock
+- Best Survival Time
+- Meta Progression
+
+---
+
+# 75. Best Survival Record
+
+가능하면:
+
+Character별
+
++
+
+Stage별
+
+Best Survival Time을 저장한다.
+
+예:
+
+STAGE 1
+
+REAPER
+
+BEST TIME
+
+00:54:18
+
+---
+
+# 76. Main Menu
+
+최소 메뉴:
+
+START
+
+UPGRADE
+
+QUIT
+
+START:
+
+Character Select
+
+↓
+
+Stage Select
+
+↓
+
+Game
+
+---
+
+# 77. Game HUD
+
+HUD에는 최소한:
+
+- HP
+- EXP
+- Player Level
+- Survival Time
+- Gold
+- 공격형 장비 7칸
+- 강화형 장비 7칸
+
+을 표시한다.
+
+---
+
+# 78. 장비 HUD
+
+예:
+
+WEAPONS
+
+[1][2][3][4][5][6][7]
+
+ENHANCEMENTS
+
+[1][2][3][4][5][6][7]
+
+각 Slot에는:
+
+- Icon
+- Level
+
+표시.
+
+Evolved Weapon은 기존 Slot에서 Icon과 Name을 변경한다.
+
+---
+
+# 79. Pixel Art
+
+게임 전체는 2D Pixel Art 스타일을 유지한다.
+
+캐릭터 5명은 외형적으로 구분할 수 있어야 한다.
+
+가능하면:
+
+- Idle
+- Up Walk
+- Down Walk
+- Left Walk
+- Right Walk
+
+애니메이션을 적용한다.
+
+---
+
+# 80. Save System
+
+다음 데이터는 저장한다.
+
+- Gold
+- Common Upgrade
+- Character Upgrade
+- Character Unlock
+- Stage Unlock
+- Best Survival Record
+
+확장 가능한 SaveData 구조를 사용한다.
+
+---
+
+# 81. 권장 ScriptableObject
+
+예:
+
+CharacterData
+
+WeaponData
+
+EnhancementData
+
+EvolutionRecipe
+
+EnemyData
+
+EliteData
+
+BossData
+
+StageData
+
+PermanentUpgradeData
+
+---
+
+# 82. 권장 System
+
+CharacterManager
+
+CharacterSelectUI
+
+StageManager
+
+StageSelectUI
+
+PlayerMovement
+
+PlayerStats
+
+LevelManager
+
+LevelUpUI
+
+EquipmentManager
+
+WeaponManager
+
+EnhancementManager
+
+EvolutionManager
+
+EnemySpawner
+
+EliteManager
+
+BossManager
+
+TreasureChestManager
+
+FieldObjectManager
+
+PickupManager
+
+SupportUnitManager
+
+GoldManager
+
+PermanentUpgradeManager
+
+CharacterUpgradeManager
+
+SaveManager
+
+정확한 클래스명은 프로젝트 구조에 맞게 변경 가능하다.
+
+---
+
+# 83. 현재 프로젝트에서 반드시 제거할 것
+
+다음 기존 시스템은 제거한다.
+
+A FIVE-MINUTE SURVIVAL RUN
+
+Survive for 05:00
+
+5분 Victory
+
+Countdown Timer
+
+시간 초과 Victory
+
+---
+
+# 84. 현재 Game Start Flow 수정
+
+기존:
+
+START
+
+↓
+
+Game
+
+폐기.
+
+최종:
+
+START
+
+↓
+
+Character Select
+
+↓
+
+Stage Select
+
+↓
+
+Game
+
+---
+
+# 85. 현재 Level Up Flow 수정
+
+기존:
+
+EXP
+
+↓
+
+Level Up
+
+↓
+
+Damage / Speed / Move Speed 스탯 3지선다
+
+폐기.
+
+최종:
+
+EXP
+
+↓
+
+Level Up
+
+↓
+
+공격형 / 강화형 장비 Random 3 Choices
+
+↓
+
+장비 획득 또는 Level Up
+
+---
+
+# 86. 절대 변경하지 말아야 할 최종 확정 규칙
+
+1. 게임은 무한 생존 방식이다.
+
+2. 시간 제한으로 Run을 종료하지 않는다.
+
+3. Player Death가 기본 Run 종료 조건이다.
+
+4. WASD로 Player 이동 가능해야 한다.
+
+5. 방향키로도 Player 이동 가능해야 한다.
+
+6. WASD와 방향키 모두 동일한 Move Action을 사용한다.
+
+7. 대각선 이동속도가 빨라지면 안 된다.
+
+8. WASD와 방향키를 동시에 눌러도 이동속도가 중첩되면 안 된다.
+
+9. Boss는 10분마다 등장한다.
+
+10. 20분 Boss Kill 시 다음 Stage를 Unlock한다.
+
+11. Stage Unlock 이후에도 현재 Run을 계속한다.
+
+12. Character는 초기 5명이다.
+
+13. Character Select를 반드시 구현한다.
+
+14. Stage Select를 반드시 구현한다.
+
+15. Level Up 선택지는 장비 기반이다.
+
+16. 단순 스탯 증가 선택지는 사용하지 않는다.
+
+17. 스탯 효과는 강화형 장비 형태로 제공한다.
+
+18. 공격형 장비 최대 보유량은 7개다.
+
+19. 강화형 장비 최대 보유량은 7개다.
+
+20. 공격형 장비만 Evolution 가능하다.
+
+21. 강화형 장비는 Evolution하지 않는다.
+
+22. 공격형 장비가 MAX가 아니면 Evolution할 수 없다.
+
+23. 공격형 MAX + 특정 강화형 보유 조건이 모두 필요하다.
+
+24. 조건을 만족해도 즉시 Evolution하지 않는다.
+
+25. Treasure Chest를 통해 Evolution한다.
+
+26. 공격형 Evolution 시 강화형 장비는 소모되지 않는다.
+
+27. 공격형 카드에 필요한 강화형 장비를 UI로 표시한다.
+
+28. 강화형 카드에 관련 Weapon Synergy를 표시한다.
+
+29. Elite는 일반 Monster와 색상이 달라야 한다.
+
+30. Elite Kill 시 Treasure Chest 100% Drop.
+
+31. Elite Chest는 기본 1회 강화.
+
+32. Elite Chest는 3회 / 5회 Jackpot 가능.
+
+33. Boss Kill 시 Boss Chest 100% Drop.
+
+34. Boss Chest는 장비 보상 3회 확정.
+
+35. 모든 장비 MAX 시 Chest 보상은 Gold로 전환한다.
+
+36. Field Breakable Object가 존재한다.
+
+37. Gold Drop이 존재한다.
+
+38. Magnet이 존재한다.
+
+39. Bomb이 존재한다.
+
+40. Heal이 존재한다.
+
+41. Support Call이 존재한다.
+
+42. Support Call은 공격 / 회복 / 방어 중 Random이다.
+
+43. Support Unit은 장비 Slot을 사용하지 않는다.
+
+44. Run 장비는 Run 종료 시 초기화한다.
+
+45. Gold는 영구 유지한다.
+
+46. Common Upgrade는 영구 유지한다.
+
+47. Character Unique Upgrade는 영구 유지한다.
+
+48. Stage Unlock은 영구 유지한다.
+
+49. Best Survival Time을 저장한다.
+
+---
+
+# 87. 구현 우선순위
+
+1. 기존 5분 제한 시스템 제거
+2. Survival Timer 변경
+3. WASD + 방향키 Input 설정
+4. 이동속도 Normalize
+5. CharacterData
+6. Character Select
+7. 5 Character 실제 적용
+8. Stage Select
+9. Stage Unlock
+10. 공격형 / 강화형 Equipment Data
+11. 7 + 7 Slot
+12. 기존 스탯 Level Up 제거
+13. Equipment 기반 3지선다
+14. Evolution Recipe
+15. Evolution UI
+16. Elite
+17. Elite Chest
+18. Jackpot
+19. Boss
+20. Boss Chest
+21. Breakable Object
+22. Gold / Magnet / Bomb / Heal
+23. Support Unit
+24. Gold Permanent System
+25. Common Upgrade
+26. Character Upgrade
+27. Save System
+28. 전체 QA
+
+---
+
+# 88. 최종 QA
+
+완료 전 반드시 테스트한다.
+
+## Input
+
+- W 정상 이동
+- A 정상 이동
+- S 정상 이동
+- D 정상 이동
+- ↑ 정상 이동
+- ↓ 정상 이동
+- ← 정상 이동
+- → 정상 이동
+- WASD 대각선 정상
+- 방향키 대각선 정상
+- 대각선 이동속도 증가 없음
+- W + ↑ 동시 입력 시 속도 중첩 없음
+- A + ← 동시 입력 시 속도 중첩 없음
+
+## Character
+
+- 5 Character 표시
+- Character Select 정상
+- 실제 Character Sprite 적용
+- HP 차이 적용
+- Move Speed 차이 적용
+- Damage 차이 적용
+- Starting Weapon 적용
+- Unique Passive 적용
+
+## Stage
+
+- Stage Select 정상
+- Stage 1 기본 Unlock
+- Stage 2 Lock
+- 20분 Boss Kill 후 Stage 2 Unlock
+- Unlock 후 현재 Run 계속 진행
+
+## Survival
+
+- 5분 자동 종료 없음
+- 20분 자동 종료 없음
+- Player Death 전까지 계속 진행
+- Survival Time 계속 증가
+
+## Equipment
+
+- Level Up 시 공격형 등장
+- Level Up 시 강화형 등장
+- 단순 스탯 선택지 없음
+- 공격형 최대 7개
+- 강화형 최대 7개
+- 동일 장비 Level Up 정상
+- Weapon MAX 정상
+- Enhancement Level 정상
+
+## Evolution
+
+- MAX가 아닌 Weapon Evolution 불가
+- MAX + Enhancement 조건 정상
+- EVOLUTION READY 표시
+- Chest에서 Evolution 정상
+- Enhancement 미소모 정상
+- Enhancement 자체 Evolution 없음
+
+## Enemy
+
+- 일반 Monster Spawn
+- Time Scaling
+- Elite Spawn
+- Elite Color 구분
+- Elite Chest Drop
+
+## Chest
+
+- Elite 1회 보상
+- 3 Jackpot
+- 5 Jackpot
+- Boss 3회 확정
+- 모든 장비 MAX 시 Gold 변환
+
+## Boss
+
+- 10분 Boss
+- 20분 Boss
+- 이후 10분 단위 Boss
+- Boss Scaling
+
+## Field Item
+
+- Breakable Object
+- Gold
+- Magnet
+- Bomb
+- Heal
+- Support Call
+- 공격 지원군
+- 회복 지원군
+- 방어 지원군
+
+## Permanent Progression
+
+- Gold 저장
+- Common Upgrade 저장
+- Character Upgrade 독립 저장
+- Stage Unlock 저장
+- Best Time 저장
+- 게임 재실행 후 Load 정상
+
+## Project
+
+- Compile Error 없음
+- Missing Script 없음
+- Missing Reference 없음
+- NullReferenceException 없음
+
+---
+
+# 89. 최종 전달물
+
+완료 후 제공:
+
+1. PixelSurvivor_Unity66 적용용 ZIP
+2. 수정 / 추가 C# Script
+3. Sprite
+4. Animation
+5. ScriptableObject Data
+6. Input Actions 설정
+7. README
+8. 적용 방법
+9. Tools 메뉴 실행 순서
+10. 변경 파일 목록
+11. QA 결과
+12. 미구현 기능 목록
+
+---
+
+# 90. 적용 방식
+
+가능하면 다음 정도의 과정으로 적용 가능하게 만든다.
+
+Unity 종료
+
+↓
+
+ZIP 압축 해제
+
+↓
+
+기존 PixelSurvivor_Unity66에 덮어쓰기
+
+↓
+
+Unity 실행
+
+↓
+
+필요한 Tools Setup 실행
+
+↓
+
+Play
+
+---
+
+# 최종 목표
+
+Pixel Survivor를 단순한 5분 생존 프로토타입이 아니라,
+
+**WASD와 방향키를 모두 사용할 수 있는 5명의 서로 다른 캐릭터 중 하나를 선택하고, 원하는 Stage에서 제한시간 없이 생존하며, 몬스터를 처치해 EXP를 얻고, 공격형 및 강화형 장비를 최대 7개씩 조합하여 빌드를 만들고, 공격형 장비를 MAX까지 성장시킨 뒤 특정 강화형 장비와 조합하여 Treasure Chest에서 진화시키며, Elite와 10분마다 등장하는 Boss를 처치해 장비 강화 및 Jackpot 보상을 받고, Field Item과 랜덤 지원군을 활용하고, 사망 후 획득한 Gold를 이용해 모든 캐릭터의 공통 능력과 각 캐릭터의 고유 능력을 영구적으로 강화하고, 새로운 Stage를 해금하며 최고 생존 기록에 도전하는 2D 픽셀 무한 생존 로그라이트 RPG**
+
+로 완성하는 것이 최종 목표다.
+
+**이 문서를 최신 최종 사양으로 사용하고, 이전 구현이나 이전 요청과 충돌하는 내용이 있다면 반드시 이 문서의 내용을 우선한다.**

@@ -17,6 +17,8 @@ namespace PixelSurvivor
         public void TakeDamage(float damage)
         {
             if (game == null || !game.IsPlaying || invulnerability > 0 || damage <= 0) return;
+            if(game.Campaign!=null) damage=game.Campaign.IncomingDamage(damage);
+            if(damage<=0) return;
             CurrentHP = Mathf.Max(0, CurrentHP - damage);
             invulnerability = invulnerabilitySeconds;
             if (CurrentHP <= 0) game.EndRun(false);
@@ -26,7 +28,7 @@ namespace PixelSurvivor
             if (game == null || !game.IsPlaying) return;
             invulnerability = Mathf.Max(0, invulnerability - Time.deltaTime);
             visual.color = invulnerability > 0 && Mathf.FloorToInt(invulnerability * 18) % 2 == 0
-                ? new Color(1, 0.45f, 0.5f, 0.6f) : Color.white;
+                ? new Color(1, 0.45f, 0.5f, 0.6f) : (game.Campaign!=null ? game.Campaign.Character.tint : Color.white);
         }
     }
 }

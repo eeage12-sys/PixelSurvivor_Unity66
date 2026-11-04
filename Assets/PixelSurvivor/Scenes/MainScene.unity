@@ -458,7 +458,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 78
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -2255,7 +2255,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 64
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -2986,7 +2986,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 72
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -5668,6 +5668,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.EnemySpawner
   enemyPrefab: {fileID: 6272162079464379775, guid: e1b33b68473b0ad4b969ce8121d1ee16, type: 3}
+  mothPrefab: {fileID: 6141447106042892203, guid: f03eba7ee9b505a4fa5a13d5e2cf52fa, type: 3}
+  beetlePrefab: {fileID: 561991258689681694, guid: 5262e2638b158a848bb538f1322ab09d, type: 3}
+  mothUnlockSeconds: 30
+  beetleUnlockSeconds: 90
   spawnIntervals:
   - 1.5
   - 1.2

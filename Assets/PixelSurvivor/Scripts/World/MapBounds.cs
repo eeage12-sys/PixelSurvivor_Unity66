@@ -5,6 +5,7 @@ namespace PixelSurvivor
     {
         [SerializeField] Vector2 halfSize = new Vector2(32, 20);
         public Vector2 HalfSize => halfSize;
+        public void SetSize(Vector2 value) { halfSize=new Vector2(Mathf.Max(20,value.x),Mathf.Max(12,value.y)); }
         public Vector2 Clamp(Vector2 position, float margin = 0)
         {
             Vector2 center = transform.position;
