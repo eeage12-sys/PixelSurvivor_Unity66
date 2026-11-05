@@ -23,6 +23,7 @@ namespace PixelSurvivor.Tests
         {
             if(cancel!=null)cancel.actionMap.devices=null;
             if(keyboard!=null&&keyboard.added)InputSystem.RemoveDevice(keyboard);
+            keyboard=null;cancel=null;
             DisplayOptions.HealthBar=oldHealth;DisplayOptions.HitEffects=oldEffects;Time.timeScale=1;
         }
         void Escape()

@@ -14,6 +14,7 @@ namespace PixelSurvivor
         SpriteRenderer visual;
         float flash;
         Color tint=Color.white;
+        Vector3 visualScale;
         public bool IsElite {get;private set;}
         public bool IsBoss {get;private set;}
         public bool IsFinalBoss {get;private set;}
@@ -23,7 +24,11 @@ namespace PixelSurvivor
             IsElite=elite;IsBoss=boss;IsFinalBoss=final;
             float size=boss ? 2.8f : elite ? 1.4f : 1;
             transform.localScale=Vector3.one*size;radius*=size;
+            visualScale=transform.localScale;
+            if(boss && RedesignedSprites.Monster(3)!=null) visual.sprite=RedesignedSprites.Monster(3);
+            else if(elite && RedesignedSprites.Elite()!=null) visual.sprite=RedesignedSprites.Elite();
             tint=boss ? new Color(1,0.45f,0.45f) : elite ? new Color(0.45f,1,0.85f) : tint;
+            if((boss && RedesignedSprites.Monster(3)!=null) || (elite && RedesignedSprites.Elite()!=null)) tint=Color.white;
             visual.color=tint;
         }
         public void Knockback(Vector2 direction,float force)
@@ -44,7 +49,13 @@ namespace PixelSurvivor
         public ExperienceGem GemPrefab => gemPrefab;
         public void SetGem(ExperienceGem prefab) => gemPrefab = prefab;
         public void Initialize(GameManager owner, EnemySpawner source)
-        { game = owner; spawner = source; CurrentHP = hp; IsAlive = true; visual = GetComponent<SpriteRenderer>(); }
+        {
+            game = owner; spawner = source; CurrentHP = hp; IsAlive = true;
+            visual = GetComponent<SpriteRenderer>(); visualScale = transform.localScale;
+            int kind=name.Contains("Moth")?1:name.Contains("Beetle")?2:0;
+            var redesigned=RedesignedSprites.Monster(kind);
+            if(redesigned!=null) visual.sprite=redesigned;
+        }
         void Update()
         {
             if (game == null || !game.IsPlaying || !IsAlive) return;
@@ -68,11 +79,13 @@ namespace PixelSurvivor
                 game.Health.TakeDamage(contactDamage);
             flash = Mathf.Max(0, flash - Time.deltaTime);
             visual.color = flash > 0 ? new Color(1, 0.5f, 0.4f) : tint;
+            transform.localScale = visualScale * (flash > 0 ? 1.13f : 1f);
         }
         public void TakeDamage(float amount)
         {
             if (!IsAlive || game == null || !game.IsPlaying || amount <= 0) return;
             CurrentHP = Mathf.Max(0, CurrentHP - amount); flash = 0.08f;
+            CombatAudio.Hit(CurrentHP <= 0);
             if (CurrentHP > 0) return;
             IsAlive = false; // Guard against double kills/drop in the same frame.
             game.RegisterKill();

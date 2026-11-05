@@ -27,21 +27,32 @@ namespace PixelSurvivor
             root.AddComponent<FitCanvasViewport>();
             menu=Overlay("Main Menu");characters=Overlay("Character Select");stages=Overlay("Stage Select");shop=Overlay("Permanent Upgrades");hud=Box("Equipment HUD",root.transform,Vector2.zero,Vector2.zero,Color.clear).gameObject;
             Stretch(hud.GetComponent<RectTransform>());hud.GetComponent<Image>().raycastTarget=false;
-            TextAt(menu.transform,"픽셀 서바이버",0,245,1400,100,64,Mint);
-            TextAt(menu.transform,"무한 생존",0,155,1400,60,28,Muted);
-            TextAt(menu.transform,"장비를 조합하고 보스를 쓰러뜨리며 오래 살아남으세요.",0,85,1400,55,24,Color.white);
-            ButtonAt(menu.transform,"시작",0,-30,450,75,()=>ShowCharacters(true));
-            ButtonAt(menu.transform,"영구 강화",0,-130,450,75,()=>ShowShop());
-            ButtonAt(menu.transform,"종료",0,-230,450,65,()=>Quit());
-            var practice=ButtonAt(menu.transform,"",0,-340,1200,50,()=>{c.TogglePractice();RefreshMenu();});practiceLabel=practice.GetComponentInChildren<Text>();
-            gold=TextAt(menu.transform,"",0,360,1000,45,25,new Color(1,0.85f,0.35f));
+            var backdrop=Resources.Load<Texture2D>("MenuBackdrop");
+            if(backdrop!=null)
+            {
+                var background=Rect("Pixel Survivor title art",menu.transform,0,0,1600,900);
+                Stretch(background);
+                var art=background.gameObject.AddComponent<RawImage>();art.texture=backdrop;art.raycastTarget=false;
+                var shade=Box("Menu text shade",menu.transform,new Vector2(300,0),new Vector2(900,900),new Color(.015f,.025f,.05f,.62f));
+                shade.raycastTarget=false;
+            }
+            const float lobbyX=300;
+            TextAt(menu.transform,"픽셀 서바이버",lobbyX,245,850,100,64,Mint);
+            TextAt(menu.transform,"무한 생존",lobbyX,155,850,60,28,Muted);
+            TextAt(menu.transform,"장비를 조합하고 보스를 쓰러뜨리며 오래 살아남으세요.",lobbyX,85,850,55,24,Color.white);
+            ButtonAt(menu.transform,"시작",lobbyX,-30,450,75,()=>ShowCharacters(true));
+            ButtonAt(menu.transform,"영구 강화",lobbyX,-130,450,75,()=>ShowShop());
+            ButtonAt(menu.transform,"종료",lobbyX,-230,450,65,()=>Quit());
+            var practice=ButtonAt(menu.transform,"",lobbyX,-340,850,50,()=>{c.TogglePractice();RefreshMenu();});practiceLabel=practice.GetComponentInChildren<Text>();
+            gold=TextAt(menu.transform,"",lobbyX,360,850,45,25,new Color(1,0.85f,0.35f));
             TextAt(characters.transform,"캐릭터 선택",0,365,1450,70,44,Mint);
             selection=TextAt(characters.transform,"함께할 캐릭터를 선택하세요.",0,295,1450,55,23,Muted);
             for(int i=0;i<c.Data.characters.Length;i++)
             {
                 int id=i;var data=c.Data.characters[i];float x=-608+i*304;
                 var b=ButtonAt(characters.transform,"",x,0,288,490,()=>{c.SelectCharacter(id);RefreshMenu();});b.name="Character "+i+" Button";characterButtons.Add(b);
-                Icon(b.transform,data.portrait,0,165,96,Color.white);
+                var redesigned=RedesignedSprites.Direction(i,0);
+                Icon(b.transform,redesigned!=null?redesigned[0]:data.portrait,0,160,125,Color.white);
                 TextAt(b.transform,data.title,0,90,270,65,24,Mint);
                 TextAt(b.transform,data.role+"\n체력 "+data.maxHP+"    공격력 "+data.damage+"\n이동속도 "+data.moveSpeed+"\n초당 기본 공격 "+(1/data.attackInterval).ToString("0.00")+"\n\n시작 무기\n"+data.startingWeapon.title+"\n\n"+data.passiveDescription,0,-65,264,270,19,Color.white);
             }
@@ -104,6 +115,7 @@ namespace PixelSurvivor
         void InspectPassive(int index){if(index<c.Equipment.Passives.Count)ShowPause();}
         public void ShowChoices(EquipmentChoice[] choices)
         {
+            CombatAudio.LevelUp();
             NewModal("레벨 상승 · 장비 선택", "공격형 "+c.Equipment.Weapons.Count+" / 7     강화형 "+c.Equipment.Passives.Count+" / 7");
             for(int i=0;i<choices.Length;i++)
             {
@@ -124,9 +136,11 @@ namespace PixelSurvivor
                     description=choice.passive.description+"\n강화형 장비는 진화하지 않습니다.";
                     condition="진화 조합\n"+c.Equipment.Synergy(choice.passive);icon=choice.passive.icon;
                 }
-                TextAt(root,title,0,135,410,85,27,Mint);TextAt(root,description,0,35,405,110,20,Color.white);
-                TextAt(root,condition,0,-100,400,145,19,choice.kind==EquipmentChoiceKind.Weapon&&!owned?Muted:Mint);
-                if(icon!=null)Icon(root,icon,-175,185,38,Color.white);
+                TextAt(root,choice.kind==EquipmentChoiceKind.Weapon?"공격형":"강화형",0,182,390,35,19,Muted);
+                TextAt(root,title,0,102,410,90,30,Mint);
+                TextAt(root,description,0,-10,405,112,22,Color.white);
+                TextAt(root,condition,0,-135,400,112,17,choice.kind==EquipmentChoiceKind.Weapon&&!owned?Muted:Mint);
+                if(icon!=null)Icon(root,icon,-165,130,48,Color.white);
                 if(partnerIcon!=null)Icon(root,partnerIcon,165,-175,40,owned?Color.white:Color.gray);
             }
             SelectFirst(modal);

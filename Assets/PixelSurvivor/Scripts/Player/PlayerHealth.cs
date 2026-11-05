@@ -20,6 +20,7 @@ namespace PixelSurvivor
             if(game.Campaign!=null) damage=game.Campaign.IncomingDamage(damage);
             if(damage<=0) return;
             CurrentHP = Mathf.Max(0, CurrentHP - damage);
+            CombatAudio.Hurt();
             invulnerability = invulnerabilitySeconds;
             if (CurrentHP <= 0) game.EndRun(false);
         }

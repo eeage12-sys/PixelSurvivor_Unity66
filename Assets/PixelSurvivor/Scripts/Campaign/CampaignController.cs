@@ -50,8 +50,12 @@ namespace PixelSurvivor
         {
             RunGold=0; expRemainder=0; EliteKills=0;BossKills=0;saveCountdown=15;
             var animator=Game.Player.GetComponent<PlayerSpriteAnimator>();
-            if(animator!=null)animator.Configure(Character.downFrames,Character.upFrames,Character.leftFrames,Character.rightFrames);
-            Game.Player.GetComponent<SpriteRenderer>().color=Character.tint;
+            var redesigned=RedesignedSprites.Direction(CharacterIndex,0);
+            if(animator!=null)animator.Configure(redesigned??Character.downFrames,
+                RedesignedSprites.Direction(CharacterIndex,1)??Character.upFrames,
+                RedesignedSprites.Direction(CharacterIndex,2)??Character.leftFrames,
+                RedesignedSprites.Direction(CharacterIndex,3)??Character.rightFrames);
+            Game.Player.GetComponent<SpriteRenderer>().color=redesigned!=null?Color.white:Character.tint;
             Equipment.Reset(Character.startingWeapon); RefreshStats(false); Game.Health.ResetHealth();
             Stage.Begin(); Arsenal.Reset(); Field.Reset(); Supports.Reset(); UI.ShowGameplay();
         }

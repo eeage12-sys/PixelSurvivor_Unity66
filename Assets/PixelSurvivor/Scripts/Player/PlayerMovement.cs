@@ -25,9 +25,10 @@ namespace PixelSurvivor
         {
             if (game == null || !game.IsPlaying) return;
             Vector2 before = transform.position;
-            Vector2 next = before + GameRules.Movement(input) * stats.MoveSpeed * Mathf.Max(0, dt);
+            Vector2 direction = GameRules.Movement(input);
+            Vector2 next = before + direction * stats.MoveSpeed * Mathf.Max(0, dt);
             transform.position = game.Bounds.Clamp(next, radius);
-            if (spriteAnimator != null) spriteAnimator.AnimateStep((Vector2)transform.position - before);
+            if (spriteAnimator != null) spriteAnimator.AnimateStep((Vector2)transform.position - before, direction);
         }
     }
 }

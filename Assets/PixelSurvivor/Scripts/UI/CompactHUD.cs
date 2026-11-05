@@ -9,12 +9,16 @@ namespace PixelSurvivor
     {
         CampaignController c; RectTransform root,health; Image expFill,hpFill;
         Text level,timer,kills,gold; readonly Image[] weapons=new Image[7],passives=new Image[7];
-        readonly Image[] weaponFrames=new Image[7];
+        readonly Image[] weaponFrames=new Image[7],passiveFrames=new Image[7];
         Sprite coinSprite,killSprite; Texture2D coinTexture,killTexture;
         static readonly Color Border=new Color(.12f,.22f,.29f,.92f),Mint=new Color(.38f,.95f,.78f);
         public void Initialize(CampaignController owner,Action pause,Action<int> weapon,Action<int> passive)
         {
             c=owner;root=(RectTransform)transform;
+            var band=Panel("Combat HUD backdrop",root,new Vector2(.5f,1),new Vector2(0,-65),new Vector2(0,130),new Color(.025f,.05f,.09f,1f));
+            band.rectTransform.anchorMin=new Vector2(0,1);band.rectTransform.anchorMax=Vector2.one;
+            band.rectTransform.pivot=new Vector2(.5f,1);band.rectTransform.anchoredPosition=Vector2.zero;
+            band.rectTransform.sizeDelta=new Vector2(0,130);
             var exp=Panel("Top experience",root,new Vector2(.5f,1),Vector2.zero,new Vector2(0,24),Border);
             exp.rectTransform.anchorMin=new Vector2(0,1);exp.rectTransform.anchorMax=Vector2.one;exp.rectTransform.pivot=new Vector2(.5f,1);
             expFill=Panel("Experience fill",exp.transform,new Vector2(0,.5f),Vector2.zero,Vector2.zero,new Color(.25f,.68f,.95f));
@@ -24,7 +28,7 @@ namespace PixelSurvivor
             for(int i=0;i<7;i++)
             {
                 int index=i;weapons[i]=Slot("Attack slot "+i,34+i*48,-54,()=>weapon(index),out weaponFrames[i]);
-                Image frame;passives[i]=Slot("Passive slot "+i,34+i*48,-102,()=>passive(index),out frame);
+                passives[i]=Slot("Passive slot "+i,34+i*48,-102,()=>passive(index),out passiveFrames[i]);
             }
             coinSprite=Glyph(new[]{"...####...","..######..",".##++++##.","##++##++##","##++#+++##","##++##++##",".##++++##.","..######..","...####..."},new Color(1,.78f,.22f),out coinTexture);
             killSprite=Glyph(new[]{"..######..",".########.","###.##.###","###.##.###",".########.","..##..##..","..######..","...#..#...",".........."},new Color(.9f,.91f,.85f),out killTexture);
@@ -54,9 +58,9 @@ namespace PixelSurvivor
             for(int i=0;i<7;i++)
             {
                 bool has=i<c.Equipment.Weapons.Count;weapons[i].enabled=has;
-                weaponFrames[i].color=has&&c.Equipment.CanEvolve(c.Equipment.Weapons[i])?new Color(.12f,.5f,.36f):Border;
+                weaponFrames[i].color=has&&c.Equipment.CanEvolve(c.Equipment.Weapons[i])?new Color(.12f,.5f,.36f):has?Border:new Color(.12f,.22f,.29f,.28f);
                 if(has){var w=c.Equipment.Weapons[i];weapons[i].sprite=w.evolved?w.data.evolvedIcon:w.data.icon;}
-                has=i<c.Equipment.Passives.Count;passives[i].enabled=has;if(has)passives[i].sprite=c.Equipment.Passives[i].data.icon;
+                has=i<c.Equipment.Passives.Count;passives[i].enabled=has;passiveFrames[i].color=has?Border:new Color(.12f,.22f,.29f,.28f);if(has)passives[i].sprite=c.Equipment.Passives[i].data.icon;
             }
             bool show=DisplayOptions.HealthBar&&c.Game.State!=RunState.GameOver;
             health.gameObject.SetActive(show);

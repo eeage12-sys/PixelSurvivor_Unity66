@@ -96,10 +96,11 @@ namespace PixelSurvivor
             pausePage=PausePage.Options;NewModal("옵션","설정은 즉시 적용됩니다.");
             ButtonAt(modal.transform,"사물 피격 효과  "+(DisplayOptions.HitEffects?"켜짐":"꺼짐"),0,135,650,70,()=>{DisplayOptions.HitEffects=!DisplayOptions.HitEffects;ShowOptions();});
             ButtonAt(modal.transform,"캐릭터 발밑 체력바  "+(DisplayOptions.HealthBar?"켜짐":"꺼짐"),0,35,650,70,()=>{DisplayOptions.HealthBar=!DisplayOptions.HealthBar;ShowOptions();});
+            ButtonAt(modal.transform,"전투 효과음  "+(DisplayOptions.Sound?"켜짐":"꺼짐"),0,-65,650,70,()=>{DisplayOptions.Sound=!DisplayOptions.Sound;ShowOptions();});
 #if UNITY_EDITOR
-            TextAt(modal.transform,"전체 화면 전환은 Windows 실행 파일에서 사용할 수 있습니다.",0,-90,1250,70,22,Muted);
+            TextAt(modal.transform,"전체 화면 전환은 Windows 실행 파일에서 사용할 수 있습니다.",0,-165,1250,55,22,Muted);
 #else
-            ButtonAt(modal.transform,"전체 화면 / 창 모드 전환",0,-65,650,70,()=>{Screen.fullScreen=!Screen.fullScreen;});
+            ButtonAt(modal.transform,"전체 화면 / 창 모드 전환",0,-165,650,70,()=>{Screen.fullScreen=!Screen.fullScreen;});
 #endif
             ButtonAt(modal.transform,"뒤로",-240,-300,360,65,ShowPauseInformation);
             ButtonAt(modal.transform,"계속하기",240,-300,360,65,ResumePause);SelectFirst(modal);

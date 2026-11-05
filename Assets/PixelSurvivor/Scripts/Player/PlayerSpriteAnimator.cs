@@ -26,12 +26,19 @@ namespace PixelSurvivor
         public void Configure(Sprite[] down, Sprite[] up, Sprite[] left, Sprite[] right)
         { downFrames = down; upFrames = up; leftFrames = left; rightFrames = right; ResetAnimation(); }
         public void ResetAnimation() { phase = 0; facing = 0; ShowFrame(0); }
-        public void AnimateStep(Vector2 actualDisplacement)
+        public void AnimateStep(Vector2 actualDisplacement, Vector2 intendedDirection)
         {
             if (actualDisplacement.sqrMagnitude < 0.00000001f)
             { phase = 0; ShowFrame(0); return; }
-            int next = Mathf.Abs(actualDisplacement.x) > Mathf.Abs(actualDisplacement.y)
-                ? (actualDisplacement.x < 0 ? 2 : 3) : (actualDisplacement.y > 0 ? 1 : 0);
+            float horizontal = Mathf.Abs(intendedDirection.x), vertical = Mathf.Abs(intendedDirection.y);
+            int horizontalFacing = intendedDirection.x < 0 ? 2 : 3;
+            int verticalFacing = intendedDirection.y > 0 ? 1 : 0;
+            // Equal diagonal axes can differ by a few floats from frame to frame.
+            // Keep the current compatible facing instead of swapping sprites every frame.
+            bool nearDiagonal = horizontal > .1f && vertical > .1f &&
+                Mathf.Abs(horizontal - vertical) <= Mathf.Max(horizontal, vertical) * .15f;
+            int next = nearDiagonal && (facing == horizontalFacing || facing == verticalFacing)
+                ? facing : horizontal > vertical ? horizontalFacing : verticalFacing;
             if (next != facing) phase = 0;
             facing = next;
             phase = (phase + actualDisplacement.magnitude * framesPerUnit) % 4;

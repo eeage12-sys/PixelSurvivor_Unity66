@@ -37,6 +37,7 @@ namespace PixelSurvivor.Tests
         {
             Begin();game.Timer.AdvanceCampaign(1200);c.Stage.Tick(0);c.Stage.Tick(0);
             var boss=c.Stage.CurrentBoss;Assert.NotNull(boss);Assert.IsTrue(boss.IsFinalBoss);
+            Assert.AreSame(RedesignedSprites.Monster(3),boss.GetComponent<SpriteRenderer>().sprite);
             boss.TakeDamage(boss.CurrentHP+1);
             Assert.AreEqual(RunState.Playing,game.State);Assert.AreEqual(2,c.Save.Progress.unlockedStages);
             Assert.AreEqual(1,c.BossKills);c.OpenChest(true,true);c.CloseChest();Assert.AreEqual(RunState.Playing,game.State);
@@ -52,7 +53,8 @@ namespace PixelSurvivor.Tests
         }
         [Test] public void EliteAlwaysDropsChestAndBombDoesNotInstakillHealthyBoss()
         {
-            Begin();var elite=c.Stage.SpawnEnemy(true);int before=c.Field.Items.Count;elite.TakeDamage(elite.CurrentHP+1);Assert.AreEqual(before+1,c.Field.Items.Count);
+            Begin();var elite=c.Stage.SpawnEnemy(true);Assert.AreSame(RedesignedSprites.Elite(),elite.GetComponent<SpriteRenderer>().sprite);
+            int before=c.Field.Items.Count;elite.TakeDamage(elite.CurrentHP+1);Assert.AreEqual(before+1,c.Field.Items.Count);
             var boss=c.Stage.SpawnBoss(true);float hp=boss.CurrentHP;c.Field.Bomb();Assert.IsTrue(boss.IsAlive);Assert.AreEqual(hp-c.Data.bombSpecialDamage,boss.CurrentHP,0.01f);
         }
         [Test] public void PermanentPurchaseAppliesNextRunAndRunEquipmentResets()
@@ -83,7 +85,7 @@ namespace PixelSurvivor.Tests
                 Assert.AreEqual(ch.maxHP+c.Bonus(StatKind.MaxHP),game.Stats.MaxHP,0.001f);
                 Assert.AreEqual(ch.moveSpeed*(1+c.Bonus(StatKind.MoveSpeed)),game.Stats.MoveSpeed,0.001f);
                 Assert.AreEqual(ch.damage*(1+c.Bonus(StatKind.Damage)),game.Stats.Damage,0.001f);
-                Assert.AreSame(ch.downFrames[0],game.Player.GetComponent<SpriteRenderer>().sprite);
+                Assert.AreSame(RedesignedSprites.Direction(i,0)[0],game.Player.GetComponent<SpriteRenderer>().sprite);
                 Assert.AreSame(ch.startingWeapon,c.Equipment.Weapons[0].data);
                 game.EndRun(false);game.ReturnToMenu();
             }

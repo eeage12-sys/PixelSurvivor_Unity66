@@ -8,7 +8,12 @@ namespace PixelSurvivor
         [SerializeField] MapBounds bounds;
         Camera view;
         public void Configure(Transform follow, MapBounds map) { target = follow; bounds = map; }
-        void Awake() => view = GetComponent<Camera>();
+        void Awake()
+        {
+            view = GetComponent<Camera>();
+            // Keep the player and enemies legible at the actual Game view size.
+            view.orthographicSize = 5.5f;
+        }
         void LateUpdate() => Snap();
         public void Snap()
         {

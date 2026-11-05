@@ -56,7 +56,7 @@ namespace PixelSurvivor.Editor
             GameObject runtime = new GameObject("RuntimeObjects");
             GameObject cameraObject = new GameObject("Main Camera"); cameraObject.tag = "MainCamera";
             Camera camera = cameraObject.AddComponent<Camera>();
-            camera.orthographic = true; camera.orthographicSize = 9;
+            camera.orthographic = true; camera.orthographicSize = 5.5f;
             camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(0.025f, 0.05f, 0.07f);
             camera.nearClipPlane = 0.1f; camera.farClipPlane = 100; cameraObject.transform.position = new Vector3(0, 0, -10);
             CameraFollow follow = cameraObject.AddComponent<CameraFollow>();
