@@ -15,7 +15,7 @@ MonoBehaviour:
   id: p7
   title: "\uC30D\uB465\uC774 \uD504\uB9AC\uC998"
   description: "\uB808\uBCA8\uB2F9 \uD22C\uC0AC\uCCB4 \uC218 +1."
-  icon: {fileID: 21300000, guid: efbe1b9660bd0974a808965150559016, type: 3}
+  icon: {fileID: 21300000, guid: 5fc2ce95ae04d1f42923599de7e7cd24, type: 3}
   maxLevel: 3
   bonus:
     kind: 6

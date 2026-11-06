@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef113a13de9f0147a82a1b3c4613eb2, type: 3}
+  m_Name: Passive_8
+  m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.PassiveEquipmentData
+  id: p8
+  title: "\uCCA0\uBCBD \uBB38\uC7A5"
+  description: "\uBC1B\uB294 \uD53C\uD574\uB97C \uB808\uBCA8\uB9C8\uB2E4 1 \uC904\uC785\uB2C8\uB2E4."
+  icon: {fileID: 21300000, guid: 173d73c0d12bb844b8e763b2c4ca8edc, type: 3}
+  maxLevel: 5
+  bonus:
+    kind: 8
+    amount: 1

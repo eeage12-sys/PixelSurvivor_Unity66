@@ -11,6 +11,8 @@ namespace PixelSurvivor
         PausePage pausePage;
         public void HandlePauseInput()
         {
+            if((c.Game.IsPlaying || c.Game.State==RunState.Paused) && Keyboard.current!=null && Keyboard.current.mKey.wasPressedThisFrame)
+            { c.Game.ReturnToMenu();return; }
             if(cancelAction==null)
             {
                 var input=Object.FindAnyObjectByType<InputSystemUIInputModule>();
@@ -40,8 +42,10 @@ namespace PixelSurvivor
             pausePage=PausePage.Information;
             NewModal("일시정지",c.Character.title+"  ·  LV"+c.Game.Level.Level+"  ·  "+SurvivalRules.Clock(c.Stage.Elapsed));
             var plate=Box("Character information",modal.transform,new Vector2(-545,-10),new Vector2(390,450),Panel);
-            Icon(plate.transform,c.Character.portrait,0,168,70,Color.white);
-            TextAt(plate.transform,"캐릭터 정보",0,104,350,42,27,Mint);
+            var frames=RedesignedSprites.Direction(c.CharacterIndex,0);
+            var portrait=frames!=null && frames.Length>0?frames[0]:c.Character.portrait;
+            Icon(plate.transform,portrait,0,158,90,Color.white);
+            TextAt(plate.transform,"캐릭터 정보",0,90,350,42,27,Mint);
             var g=c.Game;
             string stats="체력  "+Mathf.CeilToInt(g.Health.CurrentHP)+" / "+g.Stats.MaxHP.ToString("0")+
                 "\n기본 공격력  "+g.Stats.Damage.ToString("0.#")+"\n이동속도  "+g.Stats.MoveSpeed.ToString("0.00")+
@@ -65,9 +69,10 @@ namespace PixelSurvivor
                     p==null?0:p.level,p==null?0:p.data.maxLevel,false);
             }
             TextAt(modal.transform,"밝은 칸: 현재 레벨    빈 칸: 남은 성장 단계",240,-185,950,45,20,Muted);
-            ButtonAt(modal.transform,"옵션",-510,-310,280,65,ShowOptions);
-            ButtonAt(modal.transform,"조합법 열기",-110,-310,330,65,ShowRecipes);
-            ButtonAt(modal.transform,"계속하기",400,-310,420,65,ResumePause);
+            ButtonAt(modal.transform,"옵션",-590,-310,220,65,ShowOptions);
+            ButtonAt(modal.transform,"조합법 열기",-285,-310,280,65,ShowRecipes);
+            ButtonAt(modal.transform,"메인 메뉴 (M)",75,-310,280,65,()=>c.Game.ReturnToMenu());
+            ButtonAt(modal.transform,"계속하기",480,-310,320,65,ResumePause);
             SelectFirst(modal);
         }
         void EquipmentTile(float x,float y,Sprite sprite,string title,int current,int maximum,bool evolved)

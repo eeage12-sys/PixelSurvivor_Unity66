@@ -11,6 +11,7 @@ namespace PixelSurvivor
         public List<SurvivalRecord> records=new List<SurvivalRecord>();
         public List<SavedUpgrade> upgrades=new List<SavedUpgrade>();
         public List<string> unlockedCharacters=new List<string>();
+        public List<string> discoveredEquipment=new List<string>();
     }
     public sealed class SaveManager
     {
@@ -23,13 +24,35 @@ namespace PixelSurvivor
             try { Progress=string.IsNullOrEmpty(key)?new MetaProgress():JsonUtility.FromJson<MetaProgress>(PlayerPrefs.GetString(key,"")); }
             catch(Exception) { Progress=null; }
             if(Progress==null) Progress=new MetaProgress();
-            Progress.version=2;
+            Progress.version=3;
+            if(Progress.discoveredEquipment==null)Progress.discoveredEquipment=new List<string>();
             if(Progress.records==null)Progress.records=new List<SurvivalRecord>();
             Progress.gold=Mathf.Max(0,Progress.gold);
             Progress.unlockedStages=Mathf.Clamp(Progress.unlockedStages,1,data.stages.Length);
             if(Progress.upgrades==null) Progress.upgrades=new List<SavedUpgrade>();
             if(Progress.unlockedCharacters==null) Progress.unlockedCharacters=new List<string>();
             foreach(var c in data.characters) if(c!=null && !Progress.unlockedCharacters.Contains(c.id)) Progress.unlockedCharacters.Add(c.id);
+            bool newlyUnlocked=false;
+            foreach(var weapon in data.weapons)
+            {
+                if(weapon==null)continue;
+                string normal="weapon."+weapon.id,evolved="evolution."+weapon.id;
+                if(!Progress.discoveredEquipment.Contains(normal)){Progress.discoveredEquipment.Add(normal);newlyUnlocked=true;}
+                if(!Progress.discoveredEquipment.Contains(evolved)){Progress.discoveredEquipment.Add(evolved);newlyUnlocked=true;}
+            }
+            foreach(var passive in data.passives)
+            {
+                if(passive==null)continue;
+                string id="passive."+passive.id;
+                if(!Progress.discoveredEquipment.Contains(id)){Progress.discoveredEquipment.Add(id);newlyUnlocked=true;}
+            }
+            if(newlyUnlocked)Save();
+        }
+        public bool Discovered(string id) => !string.IsNullOrEmpty(id) && Progress.discoveredEquipment.Contains(id);
+        public void Discover(string id)
+        {
+            if(string.IsNullOrEmpty(id) || Discovered(id))return;
+            Progress.discoveredEquipment.Add(id);Save();
         }
         public int Level(string id) { var s=Progress.upgrades.Find(x=>x!=null && x.id==id); return s==null ? 0 : Mathf.Max(0,s.level); }
         public void AddGold(int value) { Progress.gold=(int)Math.Min(int.MaxValue,(long)Progress.gold+Mathf.Max(0,value)); }

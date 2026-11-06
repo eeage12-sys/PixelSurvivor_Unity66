@@ -10,8 +10,7 @@ namespace PixelSurvivor
         public void Reset(){cooldowns.Clear();}
         public Vector2 Facing
         {
-            get {var a=c.Game.Player.GetComponent<PlayerSpriteAnimator>();int f=a!=null?a.Facing:0;
-                return f==1?Vector2.up:f==2?Vector2.left:f==3?Vector2.right:Vector2.down;}
+            get {var a=c.Game.Player.GetComponent<PlayerSpriteAnimator>();return a!=null?a.AimDirection:Vector2.down;}
         }
         public Enemy Nearest(Vector2 origin,float range=24)
         {
@@ -54,12 +53,15 @@ namespace PixelSurvivor
             int pierce=d.penetration+(state.evolved?d.evolvedPenetration:0);
             float knock=d.knockback*(1+c.Bonus(StatKind.Knockback));
             Vector2 direction=(target-origin).normalized;if(direction.sqrMagnitude<0.001f)direction=Facing;
+            if(d.pattern!=WeaponPattern.Storm)
+                PixelAttackFlash.Spawn(c,d.pattern,
+                    d.pattern==WeaponPattern.Whip?origin+direction*area*.45f:origin,direction,area);
             switch(d.pattern)
             {
                 case WeaponPattern.Whip:
-                    HurtCircle(origin,area,damage,knock,direction,0.15f);
+                    HurtCircle(origin,area,damage,knock,direction,0.15f,d.color);
                     Zone(origin+direction*area*0.45f,area*0.65f,0,0.18f,d.color,false,false,0);
-                    if(count>1)HurtCircle(origin,area*0.8f,damage*0.6f,knock,-direction,0.15f);
+                    if(count>1)HurtCircle(origin,area*0.8f,damage*0.6f,knock,-direction,0.15f,d.color);
                     break;
                 case WeaponPattern.Orbit:
                     Zone(origin,area,damage,Mathf.Max(0.4f,duration),d.color,true,true,knock);break;
@@ -67,12 +69,23 @@ namespace PixelSurvivor
                     for(int i=0;i<count;i++)
                     {
                         Vector2 spot=i==0?target:target+Random.insideUnitCircle*area*1.5f;
-                        HurtCircle(spot,area,damage,knock,Vector2.zero,-1);Zone(spot,area,0,0.3f,d.color,false,false,0);
+                        HurtCircle(spot,area,damage,knock,Vector2.zero,-1,d.color);
+                        PixelAttackFlash.Spawn(c,d.pattern,spot,Vector2.down,area);
+                        Zone(spot,area,0,0.3f,d.color,false,false,0);
                     }break;
                 case WeaponPattern.Nova:
-                    HurtCircle(origin,area,damage,knock,Vector2.zero,-1);Zone(origin,area,0,0.5f,d.color,false,false,0);break;
+                    HurtCircle(origin,area,damage,knock,Vector2.zero,-1,d.color);Zone(origin,area,0,0.5f,d.color,false,false,0);break;
+                case WeaponPattern.Cross:
+                    for(int i=0;i<Mathf.Max(4,count);i++)
+                    {
+                        float angle=2*Mathf.PI*i/Mathf.Max(4,count);
+                        Shoot(origin,new Vector2(Mathf.Cos(angle),Mathf.Sin(angle)),damage,d.projectileSpeed,Mathf.Max(1,duration),pierce,area,d.color,d.pattern,knock);
+                    }break;
+                case WeaponPattern.Trap:
+                    PixelAttackFlash.Spawn(c,d.pattern,target,Vector2.up,area);
+                    Zone(target,area,damage,Mathf.Max(1,duration),d.color,false,false,knock);break;
                 default:
-                    if(d.pattern==WeaponPattern.Dagger)direction=Facing;
+                    if(d.pattern==WeaponPattern.Dagger || d.pattern==WeaponPattern.Spear)direction=Facing;
                     for(int i=0;i<count;i++)
                     {
                         float angle=(i-(count-1)*0.5f)*12*Mathf.Deg2Rad;
@@ -84,11 +97,15 @@ namespace PixelSurvivor
         public void Shoot(Vector2 origin,Vector2 direction,float damage,float speed,float duration,int pierce,float area,Color color,WeaponPattern pattern,float knock)
         {
             var go=new GameObject(pattern.ToString());go.transform.SetParent(c.Game.RuntimeRoot,false);go.transform.position=origin;
-            var sr=go.AddComponent<SpriteRenderer>();sr.sprite=c.Data.projectileSprite;sr.color=color;sr.sortingOrder=14;
+            var sr=go.AddComponent<SpriteRenderer>();
+            var pixel=PixelCombatArt.Projectile(pattern);
+            sr.sprite=pixel!=null?pixel:c.Data.projectileSprite;
+            sr.color=pixel!=null?Color.white:color;sr.sortingOrder=14;
             go.transform.localScale=Vector3.one*Mathf.Clamp(area,0.5f,3);
-            go.AddComponent<ArsenalProjectile>().Initialize(c,direction,damage,speed,duration,pierce,0.14f*Mathf.Clamp(area,0.5f,3),pattern,knock);
+            go.transform.rotation=Quaternion.Euler(0,0,Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg-90);
+            go.AddComponent<ArsenalProjectile>().Initialize(c,direction,damage,speed,duration,pierce,0.14f*Mathf.Clamp(area,0.5f,3),pattern,knock,color);
         }
-        public void HurtCircle(Vector2 center,float radius,float damage,float knock,Vector2 forward,float dotLimit)
+        public void HurtCircle(Vector2 center,float radius,float damage,float knock,Vector2 forward,float dotLimit,Color? hitColor=null)
         {
             if(!c.Game.IsPlaying)return;
             var enemies=new List<Enemy>(c.Game.Spawner.ActiveEnemies);
@@ -96,7 +113,7 @@ namespace PixelSurvivor
             {
                 if(e==null || !e.IsAlive)continue;Vector2 delta=(Vector2)e.transform.position-center;
                 if(delta.magnitude>radius+e.Radius || (forward!=Vector2.zero && Vector2.Dot(delta.normalized,forward)<dotLimit))continue;
-                e.TakeDamage(c.RollDamage(damage));e.Knockback(delta,knock);
+                e.TakeDamage(c.RollDamage(damage),hitColor);e.Knockback(delta,knock);
             }
             foreach(var p in c.Field.Props.ToArray())
             {

@@ -13,6 +13,7 @@ namespace PixelSurvivor
         EnemySpawner spawner;
         SpriteRenderer visual;
         float flash;
+        float lastVfxTime=-1f;
         Color tint=Color.white;
         Vector3 visualScale;
         public bool IsElite {get;private set;}
@@ -81,11 +82,13 @@ namespace PixelSurvivor
             visual.color = flash > 0 ? new Color(1, 0.5f, 0.4f) : tint;
             transform.localScale = visualScale * (flash > 0 ? 1.13f : 1f);
         }
-        public void TakeDamage(float amount)
+        public void TakeDamage(float amount,Color? impactColor=null)
         {
             if (!IsAlive || game == null || !game.IsPlaying || amount <= 0) return;
             CurrentHP = Mathf.Max(0, CurrentHP - amount); flash = 0.08f;
             CombatAudio.Hit(CurrentHP <= 0);
+            if(CurrentHP<=0 || Time.time-lastVfxTime>=0.12f)
+            { CombatVfx.Hit(game,transform.position,radius,CurrentHP<=0,IsBoss || IsElite,impactColor);lastVfxTime=Time.time; }
             if (CurrentHP > 0) return;
             IsAlive = false; // Guard against double kills/drop in the same frame.
             game.RegisterKill();

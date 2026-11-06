@@ -1,7 +1,7 @@
 using UnityEngine;
 namespace PixelSurvivor
 {
-    public enum WeaponPattern { Bolt, Dagger, Whip, Orbit, Scythe, Storm, Nova, Seeker }
+    public enum WeaponPattern { Bolt, Dagger, Whip, Orbit, Scythe, Storm, Nova, Seeker, Fan, Cross, Trap, Spear }
     [CreateAssetMenu(menuName="Pixel Survivor/Weapon")]
     public sealed class WeaponData : ScriptableObject
     {

@@ -10,7 +10,13 @@ namespace PixelSurvivor
         float damage, speed, age;
         bool spent;
         public void Initialize(GameManager owner, Vector2 heading, float power, float velocity)
-        { game = owner; direction = heading.normalized; damage = power; speed = velocity; age = 0; spent = false; }
+        {
+            game = owner; direction = heading.normalized; damage = power; speed = velocity; age = 0; spent = false;
+            var pixel=PixelCombatArt.Projectile(WeaponPattern.Bolt);
+            var renderer=GetComponent<SpriteRenderer>();
+            if(renderer!=null && pixel!=null){renderer.sprite=pixel;renderer.color=Color.white;}
+            transform.rotation=Quaternion.Euler(0,0,Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg-90);
+        }
         void Update()
         {
             if (game == null || !game.IsPlaying || spent) return;

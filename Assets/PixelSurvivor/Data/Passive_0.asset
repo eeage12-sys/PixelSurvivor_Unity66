@@ -15,7 +15,7 @@ MonoBehaviour:
   id: p0
   title: "\uD798\uC758 \uBB38\uC7A5"
   description: "\uB808\uBCA8\uB2F9 \uBAA8\uB4E0 \uBB34\uAE30 \uD53C\uD574\uB7C9 +10%."
-  icon: {fileID: 21300000, guid: c5823d0f60a26a2459f796ccc79ef833, type: 3}
+  icon: {fileID: 21300000, guid: a6679b47677abbb4891891491b5703ba, type: 3}
   maxLevel: 5
   bonus:
     kind: 0

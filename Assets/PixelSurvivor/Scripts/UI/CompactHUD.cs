@@ -10,6 +10,7 @@ namespace PixelSurvivor
         CampaignController c; RectTransform root,health; Image expFill,hpFill;
         Text level,timer,kills,gold; readonly Image[] weapons=new Image[7],passives=new Image[7];
         readonly Image[] weaponFrames=new Image[7],passiveFrames=new Image[7];
+        readonly Text[] weaponLevels=new Text[7],passiveLevels=new Text[7];
         Sprite coinSprite,killSprite; Texture2D coinTexture,killTexture;
         static readonly Color Border=new Color(.12f,.22f,.29f,.92f),Mint=new Color(.38f,.95f,.78f);
         public void Initialize(CampaignController owner,Action pause,Action<int> weapon,Action<int> passive)
@@ -27,8 +28,8 @@ namespace PixelSurvivor
             timer=Label("Single timer",root,"00:00:00",new Vector2(.5f,1),new Vector2(0,-52),new Vector2(260,46),32);
             for(int i=0;i<7;i++)
             {
-                int index=i;weapons[i]=Slot("Attack slot "+i,34+i*48,-54,()=>weapon(index),out weaponFrames[i]);
-                passives[i]=Slot("Passive slot "+i,34+i*48,-102,()=>passive(index),out passiveFrames[i]);
+                int index=i;weapons[i]=Slot("Attack slot "+i,34+i*48,-54,()=>weapon(index),out weaponFrames[i],out weaponLevels[i]);
+                passives[i]=Slot("Passive slot "+i,34+i*48,-102,()=>passive(index),out passiveFrames[i],out passiveLevels[i]);
             }
             coinSprite=Glyph(new[]{"...####...","..######..",".##++++##.","##++##++##","##++#+++##","##++##++##",".##++++##.","..######..","...####..."},new Color(1,.78f,.22f),out coinTexture);
             killSprite=Glyph(new[]{"..######..",".########.","###.##.###","###.##.###",".########.","..##..##..","..######..","...#..#...",".........."},new Color(.9f,.91f,.85f),out killTexture);
@@ -43,11 +44,16 @@ namespace PixelSurvivor
             hpFill=Panel("Health fill",health,new Vector2(.5f,.5f),Vector2.zero,new Vector2(44,3),new Color(.95f,.3f,.4f));
             hpFill.sprite=c.Data.whiteSprite;hpFill.type=Image.Type.Filled;hpFill.fillMethod=Image.FillMethod.Horizontal;
         }
-        Image Slot(string name,float x,float y,Action action,out Image frame)
+        Image Slot(string name,float x,float y,Action action,out Image frame,out Text badge)
         {
             frame=Panel(name,root,new Vector2(0,1),new Vector2(x,y),new Vector2(42,42),Border);
             frame.raycastTarget=true;frame.gameObject.AddComponent<Button>().onClick.AddListener(()=>action());
-            return Panel("Equipment icon",frame.transform,new Vector2(.5f,.5f),Vector2.zero,new Vector2(34,34),Color.white);
+            var inset=Panel("Inset",frame.transform,new Vector2(.5f,.5f),Vector2.zero,new Vector2(38,38),new Color(.035f,.075f,.13f));
+            var accent=Panel("Sigil edge",frame.transform,new Vector2(.5f,1),new Vector2(0,-2),new Vector2(36,2),new Color(.38f,.95f,.78f,.65f));
+            badge=Label("Equipment level",frame.transform,"",new Vector2(1,0),new Vector2(-9,9),new Vector2(17,17),14);
+            badge.color=new Color(1,.85f,.45f);
+            var icon=Panel("Equipment icon",frame.transform,new Vector2(.5f,.5f),Vector2.zero,new Vector2(29,29),Color.white);
+            icon.transform.SetSiblingIndex(2);return icon;
         }
         void LateUpdate()
         {
@@ -58,9 +64,10 @@ namespace PixelSurvivor
             for(int i=0;i<7;i++)
             {
                 bool has=i<c.Equipment.Weapons.Count;weapons[i].enabled=has;
-                weaponFrames[i].color=has&&c.Equipment.CanEvolve(c.Equipment.Weapons[i])?new Color(.12f,.5f,.36f):has?Border:new Color(.12f,.22f,.29f,.28f);
+                weaponFrames[i].color=has&&c.Equipment.CanEvolve(c.Equipment.Weapons[i])?new Color(.32f,.9f,.68f):has&&c.Equipment.Weapons[i].evolved?new Color(1,.72f,.34f):has?new Color(.26f,.55f,.64f):new Color(.12f,.22f,.29f,.28f);
+                weaponLevels[i].text=has?c.Equipment.Weapons[i].level.ToString():"";
                 if(has){var w=c.Equipment.Weapons[i];weapons[i].sprite=w.evolved?w.data.evolvedIcon:w.data.icon;}
-                has=i<c.Equipment.Passives.Count;passives[i].enabled=has;passiveFrames[i].color=has?Border:new Color(.12f,.22f,.29f,.28f);if(has)passives[i].sprite=c.Equipment.Passives[i].data.icon;
+                has=i<c.Equipment.Passives.Count;passives[i].enabled=has;passiveFrames[i].color=has?new Color(.58f,.42f,.74f):new Color(.12f,.22f,.29f,.28f);passiveLevels[i].text=has?c.Equipment.Passives[i].level.ToString():"";if(has)passives[i].sprite=c.Equipment.Passives[i].data.icon;
             }
             bool show=DisplayOptions.HealthBar&&c.Game.State!=RunState.GameOver;
             health.gameObject.SetActive(show);
@@ -92,3 +99,4 @@ namespace PixelSurvivor
         void OnDestroy(){if(coinSprite!=null)Destroy(coinSprite);if(killSprite!=null)Destroy(killSprite);if(coinTexture!=null)Destroy(coinTexture);if(killTexture!=null)Destroy(killTexture);}
     }
 }
+

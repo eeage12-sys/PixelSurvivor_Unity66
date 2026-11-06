@@ -66,6 +66,7 @@ namespace PixelSurvivor.Editor
                 d.whiteSprite=Art("White");d.ringSprite=Art("AttackRing");d.projectileSprite=Art("Projectile");d.chestSprite=Art("TreasureChest");d.propSprite=Art("SupplyCrate");d.itemSprite=Art("FieldItem");d.supportSprite=Art("SupportDrone");
                 d.commonUpgrades=new[]{Upgrade("damage","Attack",StatKind.Damage,0.04f),Upgrade("hp","Maximum HP",StatKind.MaxHP,10),Upgrade("move","Move speed",StatKind.MoveSpeed,0.025f),Upgrade("armor","Armor",StatKind.Armor,1),Upgrade("exp","Experience",StatKind.Experience,0.04f),Upgrade("gold","Gold gain",StatKind.Gold,0.05f),Upgrade("pickup","Pickup range",StatKind.Pickup,0.08f)};
             });
+            CampaignEquipmentExpansion.Ensure(result);
             // Add missing art fields on existing data without resetting player-tuned stats.
             for(int i=0;i<result.characters.Length;i++)
             {

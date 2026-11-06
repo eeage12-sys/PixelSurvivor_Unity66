@@ -127,7 +127,8 @@ namespace PixelSurvivor
         }
         public void ReturnToMenu()
         {
-            if(State!=RunState.GameOver)return;
+            if(State!=RunState.GameOver && State!=RunState.Paused && State!=RunState.Playing)return;
+            if((State==RunState.Paused || State==RunState.Playing) && Campaign!=null)Campaign.LeaveRunEarly();
             for(int i=runtimeRoot.childCount-1;i>=0;i--){var go=runtimeRoot.GetChild(i).gameObject;go.SetActive(false);Destroy(go);}
             State=RunState.Menu;Time.timeScale=0;resultUI.Hide();levelUpUI.Hide();gameUI.ShowMenu();
             if(Campaign!=null)Campaign.ReturnMenu();

@@ -29,7 +29,7 @@ namespace PixelSurvivor
                 foreach(var w in e.Weapons) if(e.CanEvolve(w)) ready.Add(w);
                 if(ready.Count>0)
                 {
-                    var w=ready[Random.Range(0,ready.Count)];e.Evolve(w);
+                    var w=ready[Random.Range(0,ready.Count)];e.Evolve(w);campaign.DiscoverEvolution(w.data);
                     result.Add("진화: "+w.data.title+" > "+w.Name);continue;
                 }
                 var bag=new List<EquipmentChoice>();

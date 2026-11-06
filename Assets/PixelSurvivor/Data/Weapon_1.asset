@@ -18,8 +18,8 @@ MonoBehaviour:
   description: "\uBC14\uB77C\uBCF4\uB294 \uBC29\uD5A5\uC73C\uB85C \uC801\uC744 \uAD00\uD1B5\uD558\uB294 \uB2E8\uAC80\uC744 \uB358\uC9D1\uB2C8\uB2E4."
   pattern: 1
   evolutionPartner: {fileID: 11400000, guid: 629a7c37300f4cd4f831152957dc6491, type: 2}
-  icon: {fileID: 21300000, guid: 3e9768db5c65f794384285f38d05515e, type: 3}
-  evolvedIcon: {fileID: 21300000, guid: 64e70221ebde709439f35345cc32f5b4, type: 3}
+  icon: {fileID: 21300000, guid: 0202900691c7389408881cb9bc295e64, type: 3}
+  evolvedIcon: {fileID: 21300000, guid: d660b1eb15d3b134bb9311e9eb9c3d4a, type: 3}
   color: {r: 1, g: 0.8625, b: 0.45, a: 1}
   maxLevel: 5
   damage: 9

@@ -16,6 +16,7 @@ namespace PixelSurvivor
         float phase;
         int facing; // 0 down, 1 up, 2 left, 3 right
         public int Facing => facing;
+        public Vector2 AimDirection { get; private set; } = Vector2.down;
         public bool IsConfigured => Valid(downFrames) && Valid(upFrames) && Valid(leftFrames) && Valid(rightFrames);
         static bool Valid(Sprite[] frames)
         {
@@ -25,9 +26,11 @@ namespace PixelSurvivor
         }
         public void Configure(Sprite[] down, Sprite[] up, Sprite[] left, Sprite[] right)
         { downFrames = down; upFrames = up; leftFrames = left; rightFrames = right; ResetAnimation(); }
-        public void ResetAnimation() { phase = 0; facing = 0; ShowFrame(0); }
+        public void ResetAnimation() { phase = 0; facing = 0; AimDirection = Vector2.down; ShowFrame(0); }
         public void AnimateStep(Vector2 actualDisplacement, Vector2 intendedDirection)
         {
+            if (intendedDirection.sqrMagnitude > 0.0001f)
+                AimDirection = intendedDirection.normalized;
             if (actualDisplacement.sqrMagnitude < 0.00000001f)
             { phase = 0; ShowFrame(0); return; }
             float horizontal = Mathf.Abs(intendedDirection.x), vertical = Mathf.Abs(intendedDirection.y);

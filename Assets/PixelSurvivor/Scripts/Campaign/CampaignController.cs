@@ -56,7 +56,7 @@ namespace PixelSurvivor
                 RedesignedSprites.Direction(CharacterIndex,2)??Character.leftFrames,
                 RedesignedSprites.Direction(CharacterIndex,3)??Character.rightFrames);
             Game.Player.GetComponent<SpriteRenderer>().color=redesigned!=null?Color.white:Character.tint;
-            Equipment.Reset(Character.startingWeapon); RefreshStats(false); Game.Health.ResetHealth();
+            Equipment.Reset(Character.startingWeapon); DiscoverWeapon(Character.startingWeapon); RefreshStats(false); Game.Health.ResetHealth();
             Stage.Begin(); Arsenal.Reset(); Field.Reset(); Supports.Reset(); UI.ShowGameplay();
         }
         public void Tick(float dt)
@@ -114,11 +114,14 @@ namespace PixelSurvivor
             var c=choices[index];
             switch(c.kind)
             {
-                case EquipmentChoiceKind.Weapon: Equipment.Add(c.weapon); break;
-                case EquipmentChoiceKind.Passive: Equipment.Add(c.passive); break;
+                case EquipmentChoiceKind.Weapon: Equipment.Add(c.weapon); DiscoverWeapon(c.weapon); break;
+                case EquipmentChoiceKind.Passive: Equipment.Add(c.passive); DiscoverPassive(c.passive); break;
             }
             choices=null;RefreshStats(true);UI.HideModal();return true;
         }
+        public void DiscoverWeapon(WeaponData weapon){if(!Practice && weapon!=null)Save.Discover("weapon."+weapon.id);}
+        public void DiscoverPassive(PassiveEquipmentData passive){if(!Practice && passive!=null)Save.Discover("passive."+passive.id);}
+        public void DiscoverEvolution(WeaponData weapon){if(!Practice && weapon!=null)Save.Discover("evolution."+weapon.id);}
         public void OpenChest(bool boss,bool final)
         {
             if(!Game.IsPlaying)return;
@@ -147,6 +150,12 @@ namespace PixelSurvivor
             }
         }
         public void ClearCharacterSelection(){HasCharacterSelection=false;}
+        public void LeaveRunEarly()
+        {
+            if((Game.State!=RunState.Paused && Game.State!=RunState.Playing) || Practice)return;
+            Save.Record(Character.id,StageData.id,Stage.Elapsed);
+            Save.Save();
+        }
         public void ReturnMenu() { Supports.Reset(); Equipment.Reset(null); HasCharacterSelection=false; UI.ShowMenu(); }
         void Persist()
         {
