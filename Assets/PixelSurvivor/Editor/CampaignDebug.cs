@@ -11,6 +11,18 @@ namespace PixelSurvivor.Editor
             {Debug.LogWarning("QA commands require FAST TEST mode and an active, unpaused run.");return null;}
             return game.Campaign;
         }
+        [MenuItem("Tools/Pixel Survivor/Unlock all stages for map preview")]
+        static void UnlockAllStages()
+        {
+            var campaign=Object.FindAnyObjectByType<CampaignController>();
+            var data=campaign!=null && campaign.IsConfigured?campaign.Data:AssetDatabase.LoadAssetAtPath<CampaignData>("Assets/PixelSurvivor/Data/Campaign.asset");
+            if(data==null || data.stages==null || data.stages.Length==0)
+            {Debug.LogWarning("Campaign stage data is missing.");return;}
+            var save=campaign!=null && campaign.Save!=null?campaign.Save:new SaveManager(data);
+            save.UnlockNext(data.stages.Length-2,data.stages.Length);
+            if(campaign!=null && campaign.Save!=null && campaign.Game.State==RunState.Menu)campaign.UI.ShowMenu();
+            Debug.Log("All "+data.stages.Length+" stages unlocked; existing gold, upgrades and records kept.");
+        }
         [MenuItem("Tools/Pixel Survivor/QA Fast Test/Grant 100 EXP")]
         static void Experience(){var c=Get();if(c!=null)c.Game.Level.AddExperience(100);}
         [MenuItem("Tools/Pixel Survivor/QA Fast Test/Max starter and give evolution partner")]

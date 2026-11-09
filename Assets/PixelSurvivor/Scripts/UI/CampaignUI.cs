@@ -91,7 +91,7 @@ namespace PixelSurvivor
             }
             selection.text=c.HasCharacterSelection?"선택: "+CharacterName(c.Character):"함께할 캐릭터를 선택하세요.";
             characterNext.interactable=c.HasCharacterSelection;stageStart.interactable=c.HasCharacterSelection;
-            stageInfo.text=c.StageData.description+"\n\n캐릭터: "+c.Character.title+"\n최고 생존 기록: "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n\n제한시간 없이 생존하세요. 보스는 10분마다 등장합니다.\n20분 보스를 처치하면 다음 구역이 열리고 현재 전투는 계속됩니다.";
+            stageInfo.text=c.StageData.description+"\n\n캐릭터: "+CharacterName(c.Character)+"\n최고 생존 기록: "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n\n제한시간 없이 생존하세요. 보스는 10분마다 등장합니다.\n20분 보스를 처치하면 다음 구역이 열리고 현재 전투는 계속됩니다.";
             gold.text="보유 골드  "+c.Save.Progress.gold;
             practiceLabel.text=c.Practice?"빠른 테스트 켜짐 · 보스 30초 간격 · 골드/기록/해금 저장 안 함":"빠른 테스트 꺼짐 · 무한 생존";
         }
@@ -164,7 +164,7 @@ namespace PixelSurvivor
         }
         public void ShowResult(bool won)
         {
-            NewModal("게임 종료",c.StageData.title+" / "+c.Character.title);
+            NewModal("게임 종료",c.StageData.title+" / "+CharacterName(c.Character));
             TextAt(modal.transform,"생존 시간  "+SurvivalRules.Clock(c.Stage.Elapsed)+"\n도달 레벨  "+c.Game.Level.Level+"    총 처치  "+c.Game.KillCount+
                 "\n엘리트 처치  "+c.EliteKills+"    보스 처치  "+c.BossKills+"\n획득 골드  "+c.RunGold+
                 "\n최고 생존 기록  "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n"+

@@ -40,7 +40,7 @@ namespace PixelSurvivor
         void ShowPauseInformation()
         {
             pausePage=PausePage.Information;
-            NewModal("일시정지",c.Character.title+"  ·  LV"+c.Game.Level.Level+"  ·  "+SurvivalRules.Clock(c.Stage.Elapsed));
+            NewModal("일시정지",c.Character.title.Split('·')[0].Trim()+"  ·  LV"+c.Game.Level.Level+"  ·  "+SurvivalRules.Clock(c.Stage.Elapsed));
             var plate=Box("Character information",modal.transform,new Vector2(-545,-10),new Vector2(390,450),Panel);
             var frames=RedesignedSprites.Direction(c.CharacterIndex,0);
             var portrait=frames!=null && frames.Length>0?frames[0]:c.Character.portrait;
