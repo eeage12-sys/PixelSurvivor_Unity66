@@ -23,30 +23,30 @@ MonoBehaviour:
   bossInterval: 600
   minimumEliteInterval: 20
   eliteRateGrowthPerMinute: 0.05
-  bossHealthGrowthPerWave: 0.75
-  bossDamageGrowthPerWave: 0.25
-  bossHastePerWave: 0.12
-  bossAttackInterval: 5
-  minimumBossAttackInterval: 1.2
-  bossBaseProjectiles: 4
+  bossHealthGrowthPerWave: 0.9
+  bossDamageGrowthPerWave: 0.3
+  bossHastePerWave: 0.15
+  bossAttackInterval: 4.3
+  minimumBossAttackInterval: 1.1
+  bossBaseProjectiles: 5
   bossExtraProjectilesPerWave: 2
-  bossMaxProjectiles: 24
-  bossProjectileSpeed: 4
+  bossMaxProjectiles: 28
+  bossProjectileSpeed: 4.5
   bossProjectileLife: 6
-  bossAttackDamage: 20
-  bossAreaGrowthPerWave: 0.1
+  bossAttackDamage: 25
+  bossAreaGrowthPerWave: 0.12
   firstEliteTime: 60
-  eliteInterval: 90
+  eliteInterval: 75
   difficulty: 1.9
   healthGrowthPerMinute: 0.12
   damageGrowthPerMinute: 0.04
   speedGrowthPerMinute: 0.01
-  initialSpawnInterval: 1.3
-  minimumSpawnInterval: 0.28
+  initialSpawnInterval: 1.15
+  minimumSpawnInterval: 0.25
   initialSpawnCount: 1
-  maxSpawnCount: 6
+  maxSpawnCount: 7
   propsCount: 76
-  extraSpawnEvery: 180
+  extraSpawnEvery: 150
   mothUnlock: 0
   beetleUnlock: 30
   mothWeight: 0.3
@@ -58,5 +58,5 @@ MonoBehaviour:
   eliteHP: 6
   eliteDamage: 1.6
   eliteSpeed: 1.1
-  bossHP: 1200
-  unlockBossHP: 4500
+  bossHP: 2000
+  unlockBossHP: 6500

@@ -21,42 +21,42 @@ MonoBehaviour:
   layoutSeed: 41
   unlockBossTime: 1200
   bossInterval: 600
-  minimumEliteInterval: 20
-  eliteRateGrowthPerMinute: 0.05
-  bossHealthGrowthPerWave: 0.75
-  bossDamageGrowthPerWave: 0.25
-  bossHastePerWave: 0.12
-  bossAttackInterval: 5
-  minimumBossAttackInterval: 1.2
-  bossBaseProjectiles: 4
-  bossExtraProjectilesPerWave: 2
-  bossMaxProjectiles: 24
-  bossProjectileSpeed: 4
+  minimumEliteInterval: 30
+  eliteRateGrowthPerMinute: 0.04
+  bossHealthGrowthPerWave: 0.6
+  bossDamageGrowthPerWave: 0.18
+  bossHastePerWave: 0.09
+  bossAttackInterval: 6
+  minimumBossAttackInterval: 1.6
+  bossBaseProjectiles: 3
+  bossExtraProjectilesPerWave: 1
+  bossMaxProjectiles: 18
+  bossProjectileSpeed: 3.5
   bossProjectileLife: 6
-  bossAttackDamage: 20
-  bossAreaGrowthPerWave: 0.1
-  firstEliteTime: 90
-  eliteInterval: 90
-  difficulty: 1
-  healthGrowthPerMinute: 0.12
-  damageGrowthPerMinute: 0.04
-  speedGrowthPerMinute: 0.01
-  initialSpawnInterval: 1.3
-  minimumSpawnInterval: 0.28
+  bossAttackDamage: 14
+  bossAreaGrowthPerWave: 0.08
+  firstEliteTime: 150
+  eliteInterval: 110
+  difficulty: 0.9
+  healthGrowthPerMinute: 0.1
+  damageGrowthPerMinute: 0.035
+  speedGrowthPerMinute: 0.008
+  initialSpawnInterval: 1.6
+  minimumSpawnInterval: 0.35
   initialSpawnCount: 1
-  maxSpawnCount: 6
+  maxSpawnCount: 5
   propsCount: 72
-  extraSpawnEvery: 180
-  mothUnlock: 30
-  beetleUnlock: 90
+  extraSpawnEvery: 240
+  mothUnlock: 60
+  beetleUnlock: 150
   mothWeight: 0.3
   beetleWeight: 0.2
-  boneCrawlerUnlock: 150
-  emberWraithUnlock: 240
+  boneCrawlerUnlock: 240
+  emberWraithUnlock: 360
   boneCrawlerWeight: 0.15
   emberWraithWeight: 0.12
   eliteHP: 6
   eliteDamage: 1.6
   eliteSpeed: 1.1
-  bossHP: 1200
-  unlockBossHP: 4500
+  bossHP: 1000
+  unlockBossHP: 3600
