@@ -56,18 +56,20 @@ namespace PixelSurvivor
             int k=passive?kind+12:kind;
             switch(k)
             {
-                case 0: // crackling bolt
-                    p.Line(15,21,8,12,dark,2);p.Line(8,12,14,12,dark,2);p.Line(14,12,8,3,dark,2);
-                    p.Line(15,21,8,12,color,1);p.Line(8,12,14,12,color,1);p.Line(14,12,8,3,color,1);
-                    p.Line(13,19,10,13,light);p.Line(12,11,9,5,light);break;
-                case 1: // wind dagger
-                    p.Line(5,5,18,20,dark,2);p.Line(7,7,17,19,new Color(.76f,.88f,1),1);
-                    p.Line(9,9,17,18,Color.white);p.Line(4,9,9,4,new Color(1,.73f,.28f),1);
-                    p.Dot(5,5,light,1);break;
-                case 2: // luminous whip
-                    p.Line(4,5,8,5,dark,2);p.Line(8,5,12,8,color,1);
-                    p.Line(12,8,16,12,color,1);p.Line(16,12,19,18,light,1);
-                    p.Line(19,18,16,21,Color.white);p.Dot(5,5,new Color(.75f,.42f,.2f),2);break;
+                case 0: // rogue throwing dagger
+                    p.Line(12,20,12,8,dark,2);p.Line(12,19,12,9,new Color(.72f,.84f,.88f),1);
+                    p.Line(11,17,11,10,Color.white);p.Line(6,7,18,7,dark,1);
+                    p.Line(7,8,17,8,color);p.Line(12,6,12,3,dark,1);p.Dot(12,3,color,1);break;
+                case 1: // wind sword wave
+                    p.Line(3,7,7,16,dark,2);p.Line(7,16,14,20,dark,2);p.Line(14,20,21,13,dark,2);
+                    p.Line(4,8,8,16,color,1);p.Line(8,16,14,19,light,1);p.Line(14,19,20,13,Color.white,1);
+                    p.Line(4,5,10,9,light);p.Line(7,3,14,7,light);break;
+                case 2: // shield impact
+                    p.Line(5,19,12,22,dark,2);p.Line(12,22,19,19,dark,2);
+                    p.Line(5,19,7,9,color,1);p.Line(19,19,17,9,color,1);
+                    p.Line(7,9,12,4,light,1);p.Line(17,9,12,4,light,1);
+                    p.Rect(10,10,4,8,light);p.Line(12,13,12,20,Color.white);
+                    p.Dot(3,10,Color.white);p.Dot(21,10,Color.white);break;
                 case 3: // orbital sphere
                     p.Ring(12,12,7,dark,3);p.Ring(12,12,7,color,1);
                     p.Dot(12,19,light,2);p.Dot(5,11,light,1);p.Dot(19,12,light,1);p.Dot(12,12,Color.white,2);break;
@@ -155,17 +157,27 @@ namespace PixelSurvivor
         static Texture2D Flash(int kind,Color color)
         {
             var p=new Pixels(48);Color light=Bright(color);
-            if(kind==2)
+            if(kind==0)
             {
-                // One solid crescent across the attack direction.
-                for(int j=0;j<8;j++)
-                {
-                    float a=(-.85f+j*.24f)*Mathf.PI;
-                    int x=24+Mathf.RoundToInt(Mathf.Cos(a)*18),y=24+Mathf.RoundToInt(Mathf.Sin(a)*18);
-                    int x2=24+Mathf.RoundToInt(Mathf.Cos(a+.24f*Mathf.PI)*18);
-                    int y2=24+Mathf.RoundToInt(Mathf.Sin(a+.24f*Mathf.PI)*18);
-                    p.Line(x,y,x2,y2,j<3?light:color,1);
-                }
+                // A paired steel glint follows the thrown blade, not a magic burst.
+                p.Line(17,9,25,35,color,2);p.Line(20,12,27,34,Color.white);
+                p.Line(31,11,26,30,light,1);p.Line(12,18,18,23,light);
+            }
+            else if(kind==1)
+            {
+                // The leading crescent and trailing lines read as moving air.
+                p.Line(8,13,15,29,color,2);p.Line(15,29,28,39,light,2);
+                p.Line(28,39,40,25,Color.white,1);p.Line(13,12,23,20,light);
+                p.Line(8,7,18,14,color);p.Line(18,7,30,15,light);
+            }
+            else if(kind==2)
+            {
+                // A broad shield blow with a hard contact edge and broken fragments.
+                p.Line(9,18,15,32,color,2);p.Line(15,32,24,38,light,2);
+                p.Line(24,38,33,32,Color.white,2);p.Line(33,32,39,18,color,2);
+                p.Line(14,18,24,26,light,1);p.Line(24,26,34,18,light,1);
+                p.Rect(5,26,4,4,light);p.Rect(39,25,4,4,light);
+                p.Rect(11,37,3,3,color);p.Rect(35,37,3,3,color);
             }
             else if(kind==5)
             {
@@ -173,12 +185,54 @@ namespace PixelSurvivor
                 p.Line(25,28,18,7,Color.white,2);p.Line(18,7,29,19,color,1);
                 p.Line(29,19,23,2,light,1);
             }
-            else if(kind==6 || kind==3)
+            else if(kind==3)
             {
-                p.Ring(24,24,kind==6?15:19,color,2);
+                p.Ring(24,24,17,color,2);p.Ring(24,24,11,light,1);
+                p.Dot(24,41,Color.white,3);p.Dot(7,24,light,2);p.Dot(41,24,light,2);
+            }
+            else if(kind==4)
+            {
+                p.Line(8,8,34,35,color,2);p.Line(34,35,40,28,light,1);
+                p.Line(8,8,23,12,light,2);p.Line(23,12,36,25,Color.white,1);
+                p.Line(36,25,40,36,light,1);p.Dot(8,8,Color.white,2);
+            }
+            else if(kind==6)
+            {
+                p.Ring(24,24,15,color,2);
                 for(int i=0;i<8;i++){float a=i*Mathf.PI/4;p.Line(24+Mathf.RoundToInt(Mathf.Cos(a)*8),24+Mathf.RoundToInt(Mathf.Sin(a)*8),
                     24+Mathf.RoundToInt(Mathf.Cos(a)*21),24+Mathf.RoundToInt(Mathf.Sin(a)*21),i%2==0?light:color,1);}
                 p.Dot(24,24,Color.white,3);
+            }
+            else if(kind==7)
+            {
+                p.Line(13,7,9,24,color,2);p.Line(9,24,22,39,light,2);
+                p.Line(22,39,31,30,Color.white,1);p.Line(31,30,39,12,color,2);
+                p.Line(20,14,24,32,light,1);p.Dot(25,26,Color.white,2);
+            }
+            else if(kind==8)
+            {
+                for(int i=0;i<5;i++)
+                {int x=5+i*9;p.Line(24,6,x,36,color,1);p.Dot(x,36,light,2);}
+                p.Dot(24,6,Color.white,2);
+            }
+            else if(kind==9)
+            {
+                p.Line(24,5,24,43,color,2);p.Line(5,24,43,24,color,2);
+                p.Line(10,10,38,38,light,1);p.Line(10,38,38,10,light,1);
+                p.Ring(24,24,8,Color.white,1);
+            }
+            else if(kind==10)
+            {
+                p.Ring(24,24,17,color,2);
+                for(int i=0;i<8;i++)
+                {float a=i*Mathf.PI/4;p.Line(24+Mathf.RoundToInt(Mathf.Cos(a)*14),24+Mathf.RoundToInt(Mathf.Sin(a)*14),
+                    24+Mathf.RoundToInt(Mathf.Cos(a)*22),24+Mathf.RoundToInt(Mathf.Sin(a)*22),light,1);}
+            }
+            else if(kind==11)
+            {
+                p.Line(24,5,24,41,color,2);p.Line(24,41,15,28,light,1);
+                p.Line(24,41,33,28,light,1);p.Line(18,34,30,34,Color.white,1);
+                p.Dot(24,41,Color.white,2);
             }
             else
             {

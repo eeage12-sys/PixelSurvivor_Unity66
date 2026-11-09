@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Weapon_0
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.WeaponData
   id: w0
-  title: "\uC5D0\uB108\uC9C0 \uBCFC\uD2B8"
-  evolvedTitle: "\uD504\uB9AC\uC998 \uD0C4\uB9C9"
-  description: "\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC801\uC744 \uC790\uB3D9 \uACF5\uACA9\uD569\uB2C8\uB2E4. \uC131\uC7A5\uD558\uBA74 \uD53C\uD574\uB7C9\uACFC \uD0C4 \uC218\uAC00 \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  title: "\uB2E8\uAC80 \uD22C\uCC99"
+  evolvedTitle: "\uADF8\uB9BC\uC790 \uB2E8\uAC80\uBE44"
+  description: "\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC801\uC5D0\uAC8C \uB2E8\uAC80\uC744 \uC790\uB3D9\uC73C\uB85C \uB358\uC9D1\uB2C8\uB2E4. \uC131\uC7A5\uD558\uBA74 \uD53C\uD574\uB7C9\uACFC \uD22C\uCC99 \uC218\uAC00 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   pattern: 0
   evolutionPartner: {fileID: 11400000, guid: 204b951a1c2466944bfa87d9e3039f24, type: 2}
   icon: {fileID: 21300000, guid: 16379ce9684f4e240b81c60a813f291b, type: 3}

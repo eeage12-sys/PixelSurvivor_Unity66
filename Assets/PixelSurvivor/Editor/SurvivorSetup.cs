@@ -66,12 +66,14 @@ namespace PixelSurvivor.Editor
             Enemy enemyPrefab = MakeEnemyPrefab(gemPrefab);
             Enemy mothPrefab = MakeVariantPrefab(gemPrefab, "EnemyMoth", 10, 3.4f, 8, 0.32f);
             Enemy beetlePrefab = MakeVariantPrefab(gemPrefab, "EnemyBeetle", 60, 1.25f, 18, 0.46f);
+            Enemy[] addedMonsters = MonsterRosterSetup.BuildVariants(gemPrefab);
             GameObject playerPrefab = MakePlayerPrefab(reference, projectilePrefab);
             GameObject playerObject = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
             playerObject.name = "Player";
             PlayerMovement player = playerObject.GetComponent<PlayerMovement>();
             follow.Configure(player.transform, bounds); follow.Snap();
             EnemySpawner spawner = new GameObject("EnemySpawner").AddComponent<EnemySpawner>(); spawner.SetEnemy(enemyPrefab); spawner.SetVariants(mothPrefab, beetlePrefab);
+            spawner.SetAdditionalVariants(addedMonsters[0], addedMonsters[1]);
             GameObject managerObject = new GameObject("GameManager");
             GameTimer timer = managerObject.AddComponent<GameTimer>();
             GameManager game = managerObject.AddComponent<GameManager>();
@@ -198,6 +200,7 @@ namespace PixelSurvivor.Editor
             ExperienceGem gem = game.Spawner.EnemyPrefab.GemPrefab;
             Enemy moth = MakeVariantPrefab(gem, "EnemyMoth", 10, 3.4f, 8, 0.32f);
             Enemy beetle = MakeVariantPrefab(gem, "EnemyBeetle", 60, 1.25f, 18, 0.46f);
+            Enemy[] addedMonsters = MonsterRosterSetup.BuildVariants(gem);
             string playerPath = Root + "/Prefabs/Player.prefab";
             if (File.Exists(playerPath))
             {
@@ -207,6 +210,7 @@ namespace PixelSurvivor.Editor
             }
             ConfigureAnimation(game.Player.gameObject);
             game.Spawner.SetVariants(moth, beetle); EditorUtility.SetDirty(game.Spawner);
+            game.Spawner.SetAdditionalVariants(addedMonsters[0], addedMonsters[1]);
             if (PrefabUtility.IsPartOfPrefabInstance(game.Player.gameObject))
             {
                 PrefabUtility.RecordPrefabInstancePropertyModifications(game.Player.GetComponent<SpriteRenderer>());

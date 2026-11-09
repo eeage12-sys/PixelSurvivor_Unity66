@@ -6,7 +6,7 @@ namespace PixelSurvivor
     {
         public string id, title;
         [TextArea] public string description;
-        public Vector2 halfSize=new Vector2(32,20);
+        public Vector2 halfSize=new Vector2(96,64);
         public Color groundColor=Color.white, detailColor=Color.white;
         public int layoutSeed=41;
         [UnityEngine.Serialization.FormerlySerializedAs("duration")]
@@ -29,6 +29,8 @@ namespace PixelSurvivor
         [Min(1)] public float extraSpawnEvery=300;
         [Min(0)] public float mothUnlock=30, beetleUnlock=90;
         [Range(0,1)] public float mothWeight=0.3f, beetleWeight=0.2f;
+        [Min(0)] public float boneCrawlerUnlock=150, emberWraithUnlock=240;
+        [Range(0,1)] public float boneCrawlerWeight=0.15f, emberWraithWeight=0.12f;
         [Min(1)] public float eliteHP=6, eliteDamage=1.6f, eliteSpeed=1.1f;
         [Min(1)] public float bossHP=1200;
         [UnityEngine.Serialization.FormerlySerializedAs("finalBossHP")]

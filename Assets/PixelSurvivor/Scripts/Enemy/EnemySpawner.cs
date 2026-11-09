@@ -7,12 +7,18 @@ namespace PixelSurvivor
         [SerializeField] Enemy enemyPrefab;
         [SerializeField] Enemy mothPrefab;
         [SerializeField] Enemy beetlePrefab;
+        [SerializeField] Enemy boneCrawlerPrefab;
+        [SerializeField] Enemy emberWraithPrefab;
         [SerializeField, Min(0)] float mothUnlockSeconds = 30;
         [SerializeField, Min(0)] float beetleUnlockSeconds = 90;
         public Enemy MothPrefab => mothPrefab;
         public Enemy BeetlePrefab => beetlePrefab;
+        public Enemy BoneCrawlerPrefab => boneCrawlerPrefab;
+        public Enemy EmberWraithPrefab => emberWraithPrefab;
         public bool HasExpandedRoster => enemyPrefab != null && mothPrefab != null && beetlePrefab != null;
+        public bool HasFullRoster => HasExpandedRoster && boneCrawlerPrefab != null && emberWraithPrefab != null;
         public void SetVariants(Enemy moth, Enemy beetle) { mothPrefab = moth; beetlePrefab = beetle; }
+        public void SetAdditionalVariants(Enemy boneCrawler, Enemy emberWraith) { boneCrawlerPrefab=boneCrawler; emberWraithPrefab=emberWraith; }
         // One random sample per spawn. Missing optional prefabs fall back to the slime.
         public Enemy SelectPrefab(float elapsed, float sample)
         {
@@ -28,6 +34,8 @@ namespace PixelSurvivor
         [SerializeField, Min(1)] float spawnDistance = 12;
         [SerializeField, Min(0.5f)] float screenPadding = 1.5f;
         [SerializeField, Min(1)] int maxEnemyCount = 120;
+        public int MaxEnemyCount => maxEnemyCount;
+        public void SetMaxEnemyCount(int value) => maxEnemyCount = Mathf.Max(1, value);
         readonly List<Enemy> enemies = new List<Enemy>();
         GameManager game;
         float countdown;

@@ -5,12 +5,18 @@ namespace PixelSurvivor
     {
         CampaignController c;float hp;bool broken;
         SpriteRenderer visual;Color baseColor;Vector3 baseScale;float hitTime;
-        public void Initialize(CampaignController owner){c=owner;hp=c.Data.propHP;visual=GetComponent<SpriteRenderer>();if(visual!=null)baseColor=visual.color;baseScale=transform.localScale;}
+        public void Initialize(CampaignController owner){c=owner;visual=GetComponent<SpriteRenderer>();if(visual!=null)baseColor=visual.color;baseScale=transform.localScale;ResetForRespawn();}
+        public void ResetForRespawn()
+        {
+            hp=c.Data.propHP;broken=false;hitTime=0;
+            transform.localScale=baseScale;
+            if(visual!=null)visual.color=baseColor;
+        }
         public void TakeDamage(float amount)
         {
             if(c==null || !c.Game.IsPlaying || broken || amount<=0)return;
             hp-=amount;hitTime=.16f;PropHitEffect.Spawn(c,transform.position,hp<=0);if(hp>0)return;
-            broken=true;c.Field.BreakProp(this,transform.position);gameObject.SetActive(false);Destroy(gameObject);
+            broken=true;c.Field.BreakProp(this,transform.position);gameObject.SetActive(false);
         }
         void Update()
         {

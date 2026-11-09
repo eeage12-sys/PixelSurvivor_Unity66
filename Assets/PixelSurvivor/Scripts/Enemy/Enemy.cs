@@ -9,6 +9,7 @@ namespace PixelSurvivor
         [SerializeField, Min(0)] float contactDamage = 10;
         [SerializeField, Min(0.01f)] float radius = 0.38f;
         [SerializeField] ExperienceGem gemPrefab;
+        [SerializeField] Sprite appearanceOverride;
         GameManager game;
         EnemySpawner spawner;
         SpriteRenderer visual;
@@ -49,12 +50,13 @@ namespace PixelSurvivor
         { hp = Mathf.Max(1, health); moveSpeed = Mathf.Max(0, speed); contactDamage = Mathf.Max(0, damage); radius = Mathf.Max(0.01f, hitRadius); }
         public ExperienceGem GemPrefab => gemPrefab;
         public void SetGem(ExperienceGem prefab) => gemPrefab = prefab;
+        public void SetAppearance(Sprite sprite) => appearanceOverride = sprite;
         public void Initialize(GameManager owner, EnemySpawner source)
         {
             game = owner; spawner = source; CurrentHP = hp; IsAlive = true;
             visual = GetComponent<SpriteRenderer>(); visualScale = transform.localScale;
             int kind=name.Contains("Moth")?1:name.Contains("Beetle")?2:0;
-            var redesigned=RedesignedSprites.Monster(kind);
+            var redesigned=appearanceOverride!=null?appearanceOverride:RedesignedSprites.Monster(kind);
             if(redesigned!=null) visual.sprite=redesigned;
         }
         void Update()

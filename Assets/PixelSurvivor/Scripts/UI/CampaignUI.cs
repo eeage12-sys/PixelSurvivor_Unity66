@@ -356,11 +356,61 @@ namespace PixelSurvivor
         Text TextAt(Transform parent,string content,float x,float y,float w,float h,int size,Color color)
         {var r=Rect("Text",parent,x,y,w,h);var t=r.gameObject.AddComponent<Text>();t.font=font;t.text=content;t.fontSize=size;t.resizeTextForBestFit=true;t.resizeTextMinSize=Mathf.Max(14,size-4);t.resizeTextMaxSize=size;t.color=color;t.alignment=TextAnchor.MiddleCenter;t.raycastTarget=false;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Truncate;return t;}
         Button ButtonAt(Transform parent,string title,float x,float y,float w,float h,UnityEngine.Events.UnityAction action)
-        {var image=Box(title+" Button",parent,new Vector2(x,y),new Vector2(w,h),Panel);var b=image.gameObject.AddComponent<Button>();b.targetGraphic=image;b.onClick.AddListener(action);TextAt(b.transform,title,0,0,w-16,h-8,24,Color.white);return b;}
+        {var image=Box(title+" Button",parent,new Vector2(x,y),new Vector2(w,h),Panel);var b=image.gameObject.AddComponent<Button>();b.targetGraphic=image;b.onClick.AddListener(action);b.gameObject.AddComponent<ButtonHoverFeedback>();TextAt(b.transform,title,0,0,w-16,h-8,24,Color.white);return b;}
         Image Icon(Transform parent,Sprite sprite,float x,float y,float size,Color color)
         {var image=Box("Icon",parent,new Vector2(x,y),Vector2.one*size,color);image.sprite=sprite;image.preserveAspect=true;image.raycastTarget=false;return image;}
         static void SelectFirst(GameObject root)
         {if(EventSystem.current!=null){var b=root.GetComponentInChildren<Button>();EventSystem.current.SetSelectedGameObject(b!=null?b.gameObject:null);}}
+    }
+
+    // Clear pointer and keyboard focus feedback on every campaign button.
+    internal sealed class ButtonHoverFeedback : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
+    {
+        Button button;
+        Outline outline;
+        Vector3 originalScale;
+        bool pointer, selected;
+
+        void Awake()
+        {
+            button=GetComponent<Button>();
+            // Unity's programmatic first selection must not look like a mouse hover.
+            var colors=button.colors;
+            colors.selectedColor=colors.normalColor;
+            colors.highlightedColor=colors.normalColor;
+            button.colors=colors;
+            originalScale=transform.localScale;
+            outline=gameObject.AddComponent<Outline>();
+            outline.effectColor=new Color(.38f,1f,.82f,1f);
+            outline.effectDistance=new Vector2(3,-3);
+            outline.useGraphicAlpha=false;
+            outline.enabled=false;
+        }
+
+        void Update()
+        {
+            if(button!=null && !button.interactable && (pointer || selected))
+            {pointer=false;selected=false;Refresh();}
+        }
+
+        public void OnPointerEnter(PointerEventData eventData){pointer=true;Refresh();}
+        public void OnPointerExit(PointerEventData eventData){pointer=false;Refresh();}
+        public void OnSelect(BaseEventData eventData)
+        {
+            // AxisEventData is sent by deliberate keyboard/gamepad navigation.
+            // SelectFirst uses plain BaseEventData when a page opens.
+            selected=eventData is AxisEventData;
+            Refresh();
+        }
+        public void OnDeselect(BaseEventData eventData){selected=false;Refresh();}
+        void OnDisable(){pointer=false;selected=false;Refresh();}
+
+        void Refresh()
+        {
+            bool active=button!=null && button.interactable && (pointer || selected);
+            if(outline!=null)outline.enabled=active;
+            transform.localScale=originalScale*(active?1.035f:1f);
+        }
     }
 
 }

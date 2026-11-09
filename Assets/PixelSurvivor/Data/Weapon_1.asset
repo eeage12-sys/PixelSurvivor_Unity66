@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Weapon_1
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.WeaponData
   id: w1
-  title: "\uBC14\uB78C \uB2E8\uAC80"
+  title: "\uBC14\uB78C \uAC80\uAE30"
   evolvedTitle: "\uC9C8\uD48D\uC758 \uCE7C\uB0A0"
-  description: "\uBC14\uB77C\uBCF4\uB294 \uBC29\uD5A5\uC73C\uB85C \uC801\uC744 \uAD00\uD1B5\uD558\uB294 \uB2E8\uAC80\uC744 \uB358\uC9D1\uB2C8\uB2E4."
+  description: "\uBC14\uB77C\uBCF4\uB294 \uBC29\uD5A5\uC73C\uB85C \uBC14\uB78C \uAC80\uAE30\uB97C \uB0A0\uB824 \uC801\uC744 \uAD00\uD1B5\uD569\uB2C8\uB2E4."
   pattern: 1
   evolutionPartner: {fileID: 11400000, guid: 629a7c37300f4cd4f831152957dc6491, type: 2}
   icon: {fileID: 21300000, guid: 0202900691c7389408881cb9bc295e64, type: 3}
   evolvedIcon: {fileID: 21300000, guid: d660b1eb15d3b134bb9311e9eb9c3d4a, type: 3}
-  color: {r: 1, g: 0.8625, b: 0.45, a: 1}
+  color: {r: 0.38, g: 0.85, b: 1, a: 1}
   maxLevel: 5
   damage: 9
   cooldown: 0.65

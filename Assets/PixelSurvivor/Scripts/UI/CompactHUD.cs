@@ -39,6 +39,7 @@ namespace PixelSurvivor
             gold=Label("Run gold",root,"0",new Vector2(1,1),new Vector2(-52,-54),new Vector2(90,35),23);
             var button=Panel("Pause",root,new Vector2(1,1),new Vector2(-42,-102),new Vector2(60,36),Border);
             button.raycastTarget=true;button.gameObject.AddComponent<Button>().onClick.AddListener(()=>pause());
+            button.gameObject.AddComponent<ButtonHoverFeedback>();
             Label("Pause symbol",button.transform,"Ⅱ",new Vector2(.5f,.5f),Vector2.zero,new Vector2(50,32),22);
             health=Panel("Player foot health",root,new Vector2(.5f,.5f),Vector2.zero,new Vector2(48,7),new Color(.04f,.05f,.07f,.95f)).rectTransform;
             hpFill=Panel("Health fill",health,new Vector2(.5f,.5f),Vector2.zero,new Vector2(44,3),new Color(.95f,.3f,.4f));
@@ -48,6 +49,7 @@ namespace PixelSurvivor
         {
             frame=Panel(name,root,new Vector2(0,1),new Vector2(x,y),new Vector2(42,42),Border);
             frame.raycastTarget=true;frame.gameObject.AddComponent<Button>().onClick.AddListener(()=>action());
+            frame.gameObject.AddComponent<ButtonHoverFeedback>();
             var inset=Panel("Inset",frame.transform,new Vector2(.5f,.5f),Vector2.zero,new Vector2(38,38),new Color(.035f,.075f,.13f));
             var accent=Panel("Sigil edge",frame.transform,new Vector2(.5f,1),new Vector2(0,-2),new Vector2(36,2),new Color(.38f,.95f,.78f,.65f));
             badge=Label("Equipment level",frame.transform,"",new Vector2(1,0),new Vector2(-9,9),new Vector2(17,17),14);

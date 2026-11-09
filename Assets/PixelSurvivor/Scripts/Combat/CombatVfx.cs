@@ -33,12 +33,24 @@ namespace PixelSurvivor
         public static void Trail(GameManager game,Vector3 position,Color tint)
         {
             if(game==null || game.Campaign==null || game.Campaign.Data.whiteSprite==null)return;
-            CountFrame();if(trailsThisFrame>=5)return;
+            CountFrame();if(trailsThisFrame>=8)return;
             trailsThisFrame++;
             var root=new GameObject("Projectile afterglow");
             root.transform.SetParent(game.RuntimeRoot,false);root.transform.position=position;
             var effect=root.AddComponent<CombatVfxInstance>();
             effect.SetupTrail(game.Campaign.Data.whiteSprite,tint);
+        }
+
+        public static void Trail(GameManager game,Transform source,SpriteRenderer visual,Color tint)
+        {
+            if(game==null || visual==null || visual.sprite==null)return;
+            CountFrame();if(trailsThisFrame>=12)return;
+            trailsThisFrame++;
+            var root=new GameObject("Projectile silhouette");
+            root.transform.SetParent(game.RuntimeRoot,false);
+            root.transform.SetPositionAndRotation(source.position,source.rotation);
+            var effect=root.AddComponent<CombatVfxInstance>();
+            effect.SetupSilhouette(visual.sprite,tint,source.localScale.x);
         }
     }
 
@@ -79,6 +91,16 @@ namespace PixelSurvivor
             transform.localScale=Vector3.one*4;sparks[0]=sprite;
         }
 
+        public void SetupSilhouette(Sprite sprite,Color color,float scale)
+        {
+            trail=true;tint=new Color(color.r,color.g,color.b,0.42f);lifetime=.18f;
+            sparks=new SpriteRenderer[1];velocities=new Vector3[1];
+            var image=gameObject.AddComponent<SpriteRenderer>();
+            image.sprite=sprite;image.color=tint;image.sortingOrder=12;
+            transform.localScale=Vector3.one*scale;
+            ringSize=scale;sparks[0]=image;
+        }
+
         void Update()
         {
             age+=Time.deltaTime;
@@ -88,7 +110,7 @@ namespace PixelSurvivor
                 if(!trail)sparks[i].transform.localPosition+=velocities[i]*Time.deltaTime;
                 sparks[i].color=new Color(tint.r,tint.g,tint.b,tint.a*remaining);
             }
-            if(trail)transform.localScale=Vector3.one*(2+2*remaining);
+            if(trail)transform.localScale=Vector3.one*(ringSize>0?ringSize*Mathf.Lerp(.7f,1f,remaining):2+2*remaining);
             if(ring!=null)
             {
                 ring.transform.localScale=Vector3.one*ringSize*Mathf.Lerp(0.45f,1.3f,1-remaining);

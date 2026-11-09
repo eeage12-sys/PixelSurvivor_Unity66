@@ -22,8 +22,9 @@ namespace PixelSurvivor
             else transform.rotation=Quaternion.Euler(0,0,Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg-90);
             Vector2 from=transform.position,to=from+direction*speed*Time.deltaTime;
             trailClock+=Time.deltaTime;
-            if(trailClock>=0.075f)
-            {trailClock=0;CombatVfx.Trail(c.Game,from,trailColor);}
+            float trailInterval=pattern==WeaponPattern.Dagger || pattern==WeaponPattern.Bolt ? .045f : .08f;
+            if(trailClock>=trailInterval)
+            {trailClock=0;CombatVfx.Trail(c.Game,transform,visual,trailColor);}
             while(remaining>0)
             {
                 Enemy enemy=null;DestructibleProp prop=null;float first=float.PositiveInfinity;
@@ -34,6 +35,8 @@ namespace PixelSurvivor
                 if(enemy==null && prop==null)break;
                 if(enemy!=null){hits.Add(enemy);enemy.TakeDamage(c.RollDamage(damage),trailColor);enemy.Knockback(direction,knock);}
                 else {propHits.Add(prop);prop.TakeDamage(damage);}
+                if(pattern==WeaponPattern.Bolt || pattern==WeaponPattern.Dagger)
+                    PixelAttackFlash.Spawn(c,pattern,Vector2.Lerp(from,to,first),direction,.55f,trailColor);
                 remaining--;
             }
             transform.position=to;

@@ -15,6 +15,7 @@ namespace PixelSurvivor.Editor
             value=ScriptableObject.CreateInstance<T>();initialize(value);AssetDatabase.CreateAsset(value,path);return value;
         }
         static Sprite Art(string name)=>AssetDatabase.LoadAssetAtPath<Sprite>(SurvivorSetup.Root+"/Art/"+name+".png");
+        static Sprite CombatArt(string name)=>AssetDatabase.LoadAssetAtPath<Sprite>(SurvivorSetup.Root+"/Resources/PixelCombat/"+name+".png");
         static PermanentUpgrade Upgrade(string id,string title,StatKind kind,float amount,int cost=40,int max=10)
         {return new PermanentUpgrade{id=id,title=title,bonus=new StatBonus(kind,amount),baseCost=cost,maxLevel=max,costGrowth=1.4f};}
         public static CampaignData EnsureData()
@@ -33,14 +34,14 @@ namespace PixelSurvivor.Editor
             StatKind[] kinds={StatKind.Damage,StatKind.MaxHP,StatKind.Cooldown,StatKind.Area,StatKind.Duration,StatKind.MoveSpeed,StatKind.Pickup,StatKind.Projectiles};
             float[] amounts={0.1f,20,0.06f,0.12f,0.2f,0.08f,0.25f,1};
             var passives=new PassiveEquipmentData[8];
-            for(int i=0;i<8;i++){int k=i;passives[i]=Asset<PassiveEquipmentData>("Passive_"+i,p=>{p.id="p"+k;p.title=pn[k];p.description=pd[k];p.maxLevel=k==7?3:5;p.bonus=new StatBonus(kinds[k],amounts[k]);p.icon=Art("Passive"+k);});}
-            string[] wn={"Energy Bolt","Wind Dagger","Light Whip","Orbit Orb","Crescent Scythe","Storm Mark","Pulse Nova","Seeking Spark"};
-            string[] en={"Prism Barrage","Gale Knives","Lifeline Lash","Solar Halo","Eclipse Reaper","Thunder Crown","Supernova","Star Swarm"};
-            string[] wd={"Fires at the nearest target. Levels add damage and bolts.","Throws knives in your facing direction; pierces targets.","Sweeps a wide arc toward enemies. Extra count adds a rear sweep.","A rotating ring damages enemies around you for several seconds.","A piercing blade travels outward then returns toward you.","Lightning strikes the target and nearby ground.","A circular shockwave damages enemies around you.","Homing sparks continually track nearby enemies."};
+            for(int i=0;i<8;i++){int k=i;passives[i]=Asset<PassiveEquipmentData>("Passive_"+i,p=>{p.id="p"+k;p.title=pn[k];p.description=pd[k];p.maxLevel=k==7?3:5;p.bonus=new StatBonus(kinds[k],amounts[k]);p.icon=CombatArt("Passive"+k);});}
+            string[] wn={"Throwing Daggers","Wind Blade","Radiant Slam","Orbit Orb","Crescent Scythe","Storm Mark","Pulse Nova","Seeking Spark"};
+            string[] en={"Shadow Daggerstorm","Gale Knives","Guardian Slam","Solar Halo","Eclipse Reaper","Thunder Crown","Supernova","Star Swarm"};
+            string[] wd={"Throws daggers at the nearest enemy. Levels add damage and blades.","Sends a piercing wind blade in your facing direction.","Slams a shield forward and knocks enemies back. Extra count adds a rear shockwave.","A rotating ring damages enemies around you for several seconds.","A piercing blade travels outward then returns toward you.","Lightning strikes the target and nearby ground.","A circular shockwave damages enemies around you.","Homing sparks continually track nearby enemies."};
             float[] dmg={10,9,20,7,18,24,22,8},cd={0.8f,0.65f,1.4f,5,1.8f,2.4f,2.5f,1},area={1,0.7f,3.2f,2.5f,1.6f,1.5f,3.2f,0.8f},duration={3,2,0.2f,4,2,0.4f,0.4f,4};
             int[] partners={7,5,1,4,0,3,2,6};
             var weapons=new WeaponData[8];
-            for(int i=0;i<8;i++){int k=i;weapons[i]=Asset<WeaponData>("Weapon_"+i,w=>{w.id="w"+k;w.title=wn[k];w.evolvedTitle=en[k];w.description=wd[k];w.pattern=(WeaponPattern)k;w.evolutionPartner=passives[partners[k]];w.icon=Art("Weapon"+k);w.damage=dmg[k];w.cooldown=cd[k];w.area=area[k];w.duration=duration[k];w.penetration=k==1?1:k==4?8:0;w.color=Color.HSVToRGB(k/8f,0.55f,1);w.projectileSpeed=k==1?12:8;w.knockback=k==2?0.6f:0.15f;});}
+            for(int i=0;i<8;i++){int k=i;weapons[i]=Asset<WeaponData>("Weapon_"+i,w=>{w.id="w"+k;w.title=wn[k];w.evolvedTitle=en[k];w.description=wd[k];w.pattern=(WeaponPattern)k;w.evolutionPartner=passives[partners[k]];w.icon=CombatArt("Weapon"+k);w.damage=dmg[k];w.cooldown=cd[k];w.area=area[k];w.duration=duration[k];w.penetration=k==1?1:k==4?8:0;w.color=Color.HSVToRGB(k/8f,0.55f,1);w.projectileSpeed=k==1?12:8;w.knockback=k==2?0.6f:0.15f;});}
             string[] cn={"Ari - Balanced","Vela - Swift","Bram - Power","Mira - Mage","Nox - Reaper"};
             string[] desc={"Flexible mixed-weapon explorer.","Fragile, fast-moving knife specialist.","Heavy close-range sweeper with high health.","Fragile mage with large persistent attacks.","High-risk fighter who grows stronger as health falls."};
             string[] passiveDesc={"Experience +10%","Dodge chance +8%","Knockback +40%, armor +2","Area +20%, projectiles +1","Up to +80% damage at low HP"};
@@ -60,7 +61,7 @@ namespace PixelSurvivor.Editor
                 });
             }
             var stages=new StageData[3];string[] sn={"Stage 1 - Lumen Field","Stage 2 - Amber Basin","Stage 3 - Violet Ruins"};
-            for(int i=0;i<3;i++){int k=i;stages[i]=Asset<StageData>("Stage_"+i,s=>{s.id="stage"+k;s.title=sn[k];s.description="Infinite survival. "+(k==0?"Balanced monster mix.":k==1?"Wide basin; more fast moths.":"Tall ruins; more armored beetles.");s.halfSize=k==0?new Vector2(32,20):k==1?new Vector2(40,24):new Vector2(25,34);s.layoutSeed=41+k*101;s.difficulty=1+k*0.45f;s.groundColor=k==0?Color.white:k==1?new Color(1,0.72f,0.42f):new Color(0.8f,0.6f,1);s.detailColor=k==0?Color.white:k==1?new Color(1,0.85f,0.55f):new Color(0.8f,0.65f,1);s.mothWeight=k==1?0.5f:0.3f;s.beetleWeight=k==2?0.45f:0.2f;s.mothUnlock=k==0?30:0;s.beetleUnlock=k==0?90:30;s.propsCount=28+k*8;s.firstEliteTime=90-k*15;});}
+            for(int i=0;i<3;i++){int k=i;stages[i]=Asset<StageData>("Stage_"+i,s=>{s.id="stage"+k;s.title=sn[k];s.description="Infinite survival. "+(k==0?"Balanced monster mix.":k==1?"Wide basin; more fast moths.":"Tall ruins; more armored beetles.");s.halfSize=k==0?new Vector2(96,64):k==1?new Vector2(120,76):new Vector2(80,100);s.layoutSeed=41+k*101;s.difficulty=1+k*0.45f;s.groundColor=k==0?Color.white:k==1?new Color(1,0.72f,0.42f):new Color(0.8f,0.6f,1);s.detailColor=k==0?Color.white:k==1?new Color(1,0.85f,0.55f):new Color(0.8f,0.65f,1);s.mothWeight=k==1?0.5f:0.3f;s.beetleWeight=k==2?0.45f:0.2f;s.mothUnlock=k==0?30:0;s.beetleUnlock=k==0?90:30;s.propsCount=k==0?72:k==1?80:76;s.boneCrawlerUnlock=k==0?150:k==1?90:45;s.emberWraithUnlock=k==0?240:k==1?150:90;s.boneCrawlerWeight=k==0?0.15f:0.12f;s.emberWraithWeight=k==0?0.12f:0.1f;s.firstEliteTime=90-k*15;});}
             var result=Asset<CampaignData>("Campaign",d=>{
                 d.weapons=weapons;d.passives=passives;d.characters=characters;d.stages=stages;
                 d.whiteSprite=Art("White");d.ringSprite=Art("AttackRing");d.projectileSprite=Art("Projectile");d.chestSprite=Art("TreasureChest");d.propSprite=Art("SupplyCrate");d.itemSprite=Art("FieldItem");d.supportSprite=Art("SupportDrone");
@@ -80,7 +81,7 @@ namespace PixelSurvivor.Editor
                 if(!ValidFrames(ch.rightFrames))ch.rightFrames=Frames(i,"Right");
                 EditorUtility.SetDirty(ch);
             }
-            for(int i=0;i<result.weapons.Length;i++){if(result.weapons[i].evolvedIcon==null)result.weapons[i].evolvedIcon=Art("EvolvedWeapon"+i);EditorUtility.SetDirty(result.weapons[i]);}
+            for(int i=0;i<result.weapons.Length;i++){if(result.weapons[i].evolvedIcon==null)result.weapons[i].evolvedIcon=CombatArt("Evolved"+i);EditorUtility.SetDirty(result.weapons[i]);}
             foreach(var stage in result.stages)
             {
                 stage.description=(stage.description??"").Replace("20 minutes + final boss.","Infinite survival.");
@@ -137,3 +138,5 @@ namespace PixelSurvivor.Editor
         }
     }
 }
+
+

@@ -88,9 +88,9 @@ MAIN MENU: 메뉴로 복귀. UPGRADE의 CHANGE CHARACTER로 고유 강화 대상
 QUIT은 Windows 빌드에서 종료합니다. Editor에서는 상단 Play 버튼으로 정지합니다.
 
 [캐릭터]
-Ari 밸런스: HP100, 이동5, 대미지10, 간격0.8, Energy Bolt, EXP+10%.
-Vela 속도: HP70, 이동6.4, 대미지9, 간격0.65, Wind Dagger, 회피8%.
-Bram 파워: HP150, 이동3.8, 대미지15, 간격1.05, Light Whip, 넉백+40%/방어2.
+Ari 밸런스: HP100, 이동5, 대미지10, 간격0.8, 단검 투척, EXP+10%.
+Vela 속도: HP70, 이동6.4, 대미지9, 간격0.65, 바람 검기, 회피8%.
+Bram 파워: HP150, 이동3.8, 대미지15, 간격1.05, 빛의 강타, 넉백+40%/방어2.
 Mira 메이지: HP75, 이동4.7, 대미지10, 간격0.85, Orbit Orb, 범위+20%/탄+1.
 Nox 리퍼: HP65, 이동5.5, 대미지12, 간격0.8, Crescent Scythe, 잃은 HP에 비례 대미지 증가.
 카드의 ATTACKS/SEC는 기본 공격 간격의 역수이며, 각 무기 고유 쿨다운도 적용됩니다.

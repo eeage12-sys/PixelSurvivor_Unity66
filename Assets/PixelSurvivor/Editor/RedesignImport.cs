@@ -7,7 +7,8 @@ namespace PixelSurvivor.Editor
     {
         void OnPreprocessTexture()
         {
-            if (!assetPath.Contains("/Resources/Redesign/")) return;
+            if (!assetPath.Contains("/Resources/Redesign/") ||
+                assetPath.EndsWith("/BoneCrawler.png") || assetPath.EndsWith("/EmberWraith.png")) return;
             var importer = (TextureImporter)assetImporter;
             importer.textureType = TextureImporterType.Default;
             importer.alphaIsTransparency = true;

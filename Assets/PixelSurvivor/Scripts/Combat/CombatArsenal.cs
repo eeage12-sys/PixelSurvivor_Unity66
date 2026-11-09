@@ -55,7 +55,7 @@ namespace PixelSurvivor
             Vector2 direction=(target-origin).normalized;if(direction.sqrMagnitude<0.001f)direction=Facing;
             if(d.pattern!=WeaponPattern.Storm)
                 PixelAttackFlash.Spawn(c,d.pattern,
-                    d.pattern==WeaponPattern.Whip?origin+direction*area*.45f:origin,direction,area);
+                    d.pattern==WeaponPattern.Whip?origin+direction*area*.45f:origin,direction,area,d.color);
             switch(d.pattern)
             {
                 case WeaponPattern.Whip:
@@ -70,7 +70,7 @@ namespace PixelSurvivor
                     {
                         Vector2 spot=i==0?target:target+Random.insideUnitCircle*area*1.5f;
                         HurtCircle(spot,area,damage,knock,Vector2.zero,-1,d.color);
-                        PixelAttackFlash.Spawn(c,d.pattern,spot,Vector2.down,area);
+                        PixelAttackFlash.Spawn(c,d.pattern,spot,Vector2.down,area,d.color);
                         Zone(spot,area,0,0.3f,d.color,false,false,0);
                     }break;
                 case WeaponPattern.Nova:
@@ -82,7 +82,7 @@ namespace PixelSurvivor
                         Shoot(origin,new Vector2(Mathf.Cos(angle),Mathf.Sin(angle)),damage,d.projectileSpeed,Mathf.Max(1,duration),pierce,area,d.color,d.pattern,knock);
                     }break;
                 case WeaponPattern.Trap:
-                    PixelAttackFlash.Spawn(c,d.pattern,target,Vector2.up,area);
+                    PixelAttackFlash.Spawn(c,d.pattern,target,Vector2.up,area,d.color);
                     Zone(target,area,damage,Mathf.Max(1,duration),d.color,false,false,knock);break;
                 default:
                     if(d.pattern==WeaponPattern.Dagger || d.pattern==WeaponPattern.Spear)direction=Facing;
@@ -101,7 +101,8 @@ namespace PixelSurvivor
             var pixel=PixelCombatArt.Projectile(pattern);
             sr.sprite=pixel!=null?pixel:c.Data.projectileSprite;
             sr.color=pixel!=null?Color.white:color;sr.sortingOrder=14;
-            go.transform.localScale=Vector3.one*Mathf.Clamp(area,0.5f,3);
+            float readability=pattern==WeaponPattern.Dagger?1.65f:pattern==WeaponPattern.Bolt?1.25f:1f;
+            go.transform.localScale=Vector3.one*Mathf.Clamp(area*readability,0.65f,3.5f);
             go.transform.rotation=Quaternion.Euler(0,0,Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg-90);
             go.AddComponent<ArsenalProjectile>().Initialize(c,direction,damage,speed,duration,pierce,0.14f*Mathf.Clamp(area,0.5f,3),pattern,knock,color);
         }

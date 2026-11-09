@@ -14,6 +14,7 @@ namespace PixelSurvivor
             var d=c.StageData;spawnTimer=0.5f;nextElite=d.firstEliteTime;
             bossWaves=0;CurrentBoss=null;
             c.Game.Bounds.SetSize(d.halfSize);
+            c.Game.Spawner.SetMaxEnemyCount(220);
             Transform map=c.Game.Bounds.transform;
             foreach(var sr in map.GetComponentsInChildren<SpriteRenderer>())
             {
@@ -51,8 +52,12 @@ namespace PixelSurvivor
             var d=c.StageData;var s=c.Game.Spawner;float sample=Random.value;
             float beetle=Elapsed>=d.beetleUnlock ? d.beetleWeight : 0;
             float moth=Elapsed>=d.mothUnlock ? d.mothWeight : 0;
+            float bone=Elapsed>=d.boneCrawlerUnlock ? d.boneCrawlerWeight : 0;
+            float ember=Elapsed>=d.emberWraithUnlock ? d.emberWraithWeight : 0;
             if(sample<beetle && s.BeetlePrefab!=null)return s.BeetlePrefab;
             if(sample<beetle+moth && s.MothPrefab!=null)return s.MothPrefab;
+            if(sample<beetle+moth+bone && s.BoneCrawlerPrefab!=null)return s.BoneCrawlerPrefab;
+            if(sample<beetle+moth+bone+ember && s.EmberWraithPrefab!=null)return s.EmberWraithPrefab;
             return s.EnemyPrefab;
         }
         public Enemy SpawnEnemy(bool elite)
