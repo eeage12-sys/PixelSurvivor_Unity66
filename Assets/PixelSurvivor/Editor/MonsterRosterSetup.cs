@@ -27,12 +27,13 @@ namespace PixelSurvivor
             return sprite;
         }
 
-        static Enemy Create(ExperienceGem gem,string name,Sprite sprite,float hp,float speed,float damage,float radius)
+        static Enemy Create(ExperienceGem gem,string name,Sprite sprite,float hp,float speed,float damage,float radius,EnemyTacticKind tactic)
         {
             var go=new GameObject(name);
             var visual=go.AddComponent<SpriteRenderer>();visual.sprite=sprite;visual.sortingOrder=5;
             var enemy=go.AddComponent<Enemy>();enemy.SetGem(gem);enemy.SetAppearance(sprite);
             enemy.ConfigureStats(hp,speed,damage,radius);
+            go.AddComponent<EnemyTactics>().Configure(tactic);
             string path=Root+"/Prefabs/"+name+".prefab";
             var saved=PrefabUtility.SaveAsPrefabAsset(go,path);
             UnityEngine.Object.DestroyImmediate(go);
@@ -44,8 +45,8 @@ namespace PixelSurvivor
             if(gem==null)throw new InvalidOperationException("Enemy experience gem prefab is missing");
             return new[]
             {
-                Create(gem,"EnemyBoneCrawler",Import("BoneCrawler"),45,1.7f,14,.42f),
-                Create(gem,"EnemyEmberWraith",Import("EmberWraith"),24,2.8f,12,.35f)
+                Create(gem,"EnemyBoneCrawler",Import("BoneCrawler"),45,1.7f,14,.42f,EnemyTacticKind.Charger),
+                Create(gem,"EnemyEmberWraith",Import("EmberWraith"),24,2.8f,12,.35f,EnemyTacticKind.EmberCaster)
             };
         }
 

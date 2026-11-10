@@ -37,6 +37,10 @@ namespace PixelSurvivor
         public int MaxEnemyCount => maxEnemyCount;
         public void SetMaxEnemyCount(int value) => maxEnemyCount = Mathf.Max(1, value);
         readonly List<Enemy> enemies = new List<Enemy>();
+        const float SeparationCellSize=0.8f;
+        readonly Dictionary<long,List<Enemy>> nearby = new Dictionary<long,List<Enemy>>();
+        readonly Stack<List<Enemy>> cellPool = new Stack<List<Enemy>>();
+        int nearbyFrame=-1;
         GameManager game;
         float countdown;
         public IReadOnlyList<Enemy> ActiveEnemies => enemies;
@@ -44,8 +48,30 @@ namespace PixelSurvivor
         public float CurrentInterval => GameRules.SpawnInterval(game != null ? game.Timer.Elapsed : 0, spawnIntervals);
         public void SetEnemy(Enemy prefab) => enemyPrefab = prefab;
         public void Initialize(GameManager owner) => game = owner;
-        public void ResetSpawner() { enemies.Clear(); countdown = 0.5f; }
+        public void ResetSpawner() { enemies.Clear(); countdown = 0.5f; nearbyFrame=-1; }
         public void Unregister(Enemy enemy) => enemies.Remove(enemy);
+        static long CellKey(int x,int y) => ((long)x<<32)|(uint)y;
+        public int SeparationCell(float coordinate) => Mathf.FloorToInt(coordinate/SeparationCellSize);
+        public IReadOnlyList<Enemy> NearbyCell(int x,int y)
+        {
+            if(nearbyFrame!=Time.frameCount)
+            {
+                foreach(var cell in nearby.Values){cell.Clear();cellPool.Push(cell);}
+                nearby.Clear();
+                foreach(var enemy in enemies)
+                {
+                    if(enemy==null || !enemy.IsAlive)continue;
+                    Vector2 position=enemy.transform.position;
+                    long key=CellKey(SeparationCell(position.x),SeparationCell(position.y));
+                    if(!nearby.TryGetValue(key,out var cell))
+                    {cell=cellPool.Count>0?cellPool.Pop():new List<Enemy>(4);nearby.Add(key,cell);}
+                    cell.Add(enemy);
+                }
+                nearbyFrame=Time.frameCount;
+            }
+            nearby.TryGetValue(CellKey(x,y),out var result);
+            return result;
+        }
         void Update()
         {
             if (game == null || !game.IsPlaying || enemyPrefab == null || game.Campaign!=null) return;
@@ -60,21 +86,37 @@ namespace PixelSurvivor
             Camera camera = game.View;
             Vector2 center = camera.transform.position;
             float h = camera.orthographicSize + screenPadding, w = camera.orthographicSize * camera.aspect + screenPadding;
-            Vector2 position;
-            switch (Random.Range(0, 4))
+            for(int attempt=0;attempt<20;attempt++)
             {
-                case 0: position = center + new Vector2(-w, Random.Range(-h, h)); break;
-                case 1: position = center + new Vector2(w, Random.Range(-h, h)); break;
-                case 2: position = center + new Vector2(Random.Range(-w, w), -h); break;
-                default: position = center + new Vector2(Random.Range(-w, w), h); break;
+                Vector2 position;
+                switch (Random.Range(0, 4))
+                {
+                    case 0: position = center + new Vector2(-w, Random.Range(-h, h)); break;
+                    case 1: position = center + new Vector2(w, Random.Range(-h, h)); break;
+                    case 2: position = center + new Vector2(Random.Range(-w, w), -h); break;
+                    default: position = center + new Vector2(Random.Range(-w, w), h); break;
+                }
+                Vector2 offset = position - (Vector2)game.Player.transform.position;
+                if (offset.magnitude < spawnDistance) position = (Vector2)game.Player.transform.position + offset.normalized * spawnDistance;
+                if(game.Campaign==null || !game.Campaign.Terrain.IsBlocked(position,.5f))return position;
             }
-            Vector2 offset = position - (Vector2)game.Player.transform.position;
-            if (offset.magnitude < spawnDistance) position = (Vector2)game.Player.transform.position + offset.normalized * spawnDistance;
-            return position;
+            return game.Bounds.Clamp((Vector2)game.Player.transform.position+Vector2.right*(spawnDistance+4),1);
         }
-        public Enemy SpawnSpecial(Vector2 position,Enemy prefab)
+        public Enemy SpawnSpecial(Vector2 position,Enemy prefab,bool boss=false)
         {
             if(game==null || prefab==null)return null;
+            if(enemies.Count>=maxEnemyCount)
+            {
+                Enemy retire=null;
+                foreach(var candidate in enemies)
+                    if(candidate!=null && !candidate.IsBoss && !candidate.IsElite){retire=candidate;break;}
+                if(retire==null && boss)
+                    foreach(var candidate in enemies)
+                        if(candidate!=null && !candidate.IsFinalBoss){retire=candidate;break;}
+                if(retire==null)return null;
+                retire.gameObject.SetActive(false);
+                Destroy(retire.gameObject);
+            }
             Enemy enemy=Instantiate(prefab,position,Quaternion.identity,game.RuntimeRoot);
             enemy.Initialize(game,this);enemies.Add(enemy);return enemy;
         }

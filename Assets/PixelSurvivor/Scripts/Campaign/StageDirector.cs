@@ -55,6 +55,7 @@ namespace PixelSurvivor
                 else sr.color=d.detailColor;
             }
             ApplyFloorLayout(map,d);
+            c.Terrain.Build(map);
             c.Game.View.GetComponent<CameraFollow>().Snap();
         }
         void ApplyFloorLayout(Transform map,StageData d)
@@ -96,6 +97,7 @@ namespace PixelSurvivor
         public float Elapsed => c.Game.Timer.Elapsed*c.TimelineScale;
         public void Tick(float dt)
         {
+            c.Terrain.Tick(dt);
             var d=c.StageData;float time=Elapsed;
             // Catch up scheduled waves, keeping the original wave identity if a prior boss is alive.
             int due=SurvivalRules.DueBosses(time,d.bossInterval);
@@ -141,7 +143,7 @@ namespace PixelSurvivor
             var d=c.StageData;wave=Mathf.Max(1,wave);
             bool unlock=SurvivalRules.IsUnlockWave(wave,d.bossInterval,d.unlockBossTime);
             Enemy prefab=c.StageIndex==1?c.Game.Spawner.MothPrefab:c.StageIndex==2?c.Game.Spawner.EnemyPrefab:c.Game.Spawner.BeetlePrefab;
-            Enemy enemy=c.Game.Spawner.SpawnSpecial(c.Game.Spawner.ChooseSpawnPosition(),prefab??c.Game.Spawner.EnemyPrefab);
+            Enemy enemy=c.Game.Spawner.SpawnSpecial(c.Game.Spawner.ChooseSpawnPosition(),prefab??c.Game.Spawner.EnemyPrefab,true);
             if(enemy==null)return null;
             int unlockWave=Mathf.Max(1,Mathf.CeilToInt(d.unlockBossTime/d.bossInterval));
             float hp=wave>=unlockWave?Mathf.Max(d.bossHP,d.unlockBossHP)*SurvivalRules.Growth(wave-unlockWave+1,d.bossHealthGrowthPerWave):d.bossHP*SurvivalRules.Growth(wave,d.bossHealthGrowthPerWave);

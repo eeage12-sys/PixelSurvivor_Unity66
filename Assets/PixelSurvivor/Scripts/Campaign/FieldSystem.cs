@@ -42,9 +42,14 @@ namespace PixelSurvivor
             if(nearPlayer && TryHiddenPosition(out Vector2 nearby)){CreateProp(nearby);return;}
             Vector2 half=c.Game.Bounds.HalfSize-Vector2.one*2;
             Vector2 center=c.Game.Bounds.transform.position;
-            Vector2 pos=center+new Vector2((float)(layout.NextDouble()*2-1)*half.x,(float)(layout.NextDouble()*2-1)*half.y);
-            if((pos-center).magnitude<3)pos+=Vector2.right*4;
-            CreateProp(pos);
+            for(int attempt=0;attempt<20;attempt++)
+            {
+                Vector2 pos=center+new Vector2((float)(layout.NextDouble()*2-1)*half.x,(float)(layout.NextDouble()*2-1)*half.y);
+                if((pos-center).magnitude<3)pos+=Vector2.right*4;
+                if(c.Terrain.IsBlocked(pos,.65f))continue;
+                CreateProp(pos);return;
+            }
+            CreateProp(center+Vector2.up*7);
         }
         void CreateProp(Vector2 pos)
         {
@@ -72,6 +77,7 @@ namespace PixelSurvivor
                 Vector3 viewport=view.WorldToViewportPoint(sample);
                 if(viewport.x>-.1f && viewport.x<1.1f && viewport.y>-.1f && viewport.y<1.1f)continue;
                 if(((Vector2)c.Game.Player.transform.position-sample).sqrMagnitude<25)continue;
+                if(c.Terrain.IsBlocked(sample,.65f))continue;
                 bool occupied=false;
                 foreach(var prop in Props)
                     if(prop!=null && ((Vector2)prop.transform.position-sample).sqrMagnitude<2.25f){occupied=true;break;}

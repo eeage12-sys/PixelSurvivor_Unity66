@@ -13,6 +13,7 @@ namespace PixelSurvivor
         GameManager game;
         EnemySpawner spawner;
         SpriteRenderer visual;
+        EnemyTactics tactics;
         float flash;
         float lastVfxTime=-1f;
         Color tint=Color.white;
@@ -38,6 +39,7 @@ namespace PixelSurvivor
             if(!IsAlive)return;
             Vector2 from=transform.position;Vector2 to=from+direction.normalized*force*(IsBoss?0.1f:1);
             if(game.Campaign!=null)to=game.Campaign.Supports.ResolveMove(from,to,radius);
+            if(game.Campaign!=null)to=game.Campaign.Terrain.ResolveMove(from,to,radius);
             transform.position=to;
         }
         public bool IsAlive { get; private set; }
@@ -58,24 +60,43 @@ namespace PixelSurvivor
             int kind=name.Contains("Moth")?1:name.Contains("Beetle")?2:0;
             var redesigned=appearanceOverride!=null?appearanceOverride:RedesignedSprites.Monster(kind);
             if(redesigned!=null) visual.sprite=redesigned;
+            tactics=GetComponent<EnemyTactics>();
+            if(tactics!=null)tactics.Initialize(owner,this);
         }
         void Update()
         {
             if (game == null || !game.IsPlaying || !IsAlive) return;
             Vector2 offset = game.Player.transform.position - transform.position;
-            Vector2 velocity = offset.normalized * moveSpeed;
-            // Gentle separation, no physics-body jitter. Maximum 120 enemies by default.
+            Vector2 velocity = tactics!=null?tactics.Velocity(offset,moveSpeed,contactDamage,Time.deltaTime):offset.normalized*moveSpeed;
+            // Separate only enemies in adjacent spatial cells; this stays bounded as waves grow.
             Vector2 separation = Vector2.zero;
-            foreach (Enemy other in spawner.ActiveEnemies)
+            int cellX=spawner.SeparationCell(transform.position.x),cellY=spawner.SeparationCell(transform.position.y);
+            for(int x=cellX-1;x<=cellX+1;x++)for(int y=cellY-1;y<=cellY+1;y++)
             {
-                if (other == this || other == null || !other.IsAlive) continue;
-                Vector2 away = transform.position - other.transform.position;
-                float sqr = away.sqrMagnitude;
-                if (sqr > 0.0001f && sqr < 0.49f) separation += away.normalized * (0.7f - Mathf.Sqrt(sqr));
+                var cell=spawner.NearbyCell(x,y);
+                if(cell==null)continue;
+                foreach(Enemy other in cell)
+                {
+                    if(other==this || other==null || !other.IsAlive)continue;
+                    Vector2 away=transform.position-other.transform.position;
+                    float sqr=away.sqrMagnitude;
+                    if(sqr>0.0001f && sqr<0.49f)separation+=away.normalized*(0.7f-Mathf.Sqrt(sqr));
+                }
             }
-            velocity += Vector2.ClampMagnitude(separation * 2, moveSpeed * 0.65f);
+            if(tactics==null || !tactics.IsCommitting)
+                velocity += Vector2.ClampMagnitude(separation * 2, moveSpeed * 0.65f);
             Vector2 from=transform.position,to=from+velocity*Time.deltaTime;
             if(game.Campaign!=null)to=game.Campaign.Supports.ResolveMove(from,to,radius);
+            if(game.Campaign!=null)
+            {
+                Vector2 resolved=game.Campaign.Terrain.ResolveMove(from,to,radius);
+                if((resolved-from).sqrMagnitude<0.0001f && velocity.sqrMagnitude>0.001f)
+                {
+                    Vector2 tangent=new Vector2(-velocity.y,velocity.x).normalized*moveSpeed*Time.deltaTime;
+                    resolved=game.Campaign.Terrain.ResolveMove(from,from+tangent,radius);
+                }
+                to=resolved;
+            }
             transform.position=to;
             float reach = radius + game.Player.Radius;
             if (((Vector2)(game.Player.transform.position - transform.position)).sqrMagnitude <= reach * reach)

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1570874257879805895}
   - component: {fileID: 842845015583019226}
   - component: {fileID: 709774365516526573}
+  - component: {fileID: 9160371634398520210}
   m_Layer: 0
   m_Name: EnemyBoneCrawler
   m_TagString: Untagged
@@ -103,7 +104,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 77ef512133cac6440b2fd5b7442095cb, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.Enemy
   hp: 45
   moveSpeed: 1.7
@@ -111,3 +112,16 @@ MonoBehaviour:
   radius: 0.42
   gemPrefab: {fileID: 3676734111985373855, guid: 135c29dceba629d43a25efe64c44acd5, type: 3}
   appearanceOverride: {fileID: 21300000, guid: 0ff2a8ee29610044098fe4482f481d62, type: 3}
+--- !u!114 &9160371634398520210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6253891243202431302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828be7f2cbd946f40abeb84defb39076, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.EnemyTactics
+  kind: 0

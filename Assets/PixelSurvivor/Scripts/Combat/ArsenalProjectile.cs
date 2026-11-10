@@ -14,13 +14,18 @@ namespace PixelSurvivor
         void Update()
         {
             if(c==null || !c.Game.IsPlaying)return;
-            age+=Time.deltaTime;if(age>=duration){Destroy(gameObject);return;}
+            age+=Time.deltaTime;
+            bool returning=pattern==WeaponPattern.Scythe && age>=duration*0.5f;
+            if(pattern!=WeaponPattern.Scythe && age>=duration){Destroy(gameObject);return;}
             if(pattern==WeaponPattern.Seeker)
             {var target=c.Arsenal.Nearest(transform.position);if(target!=null)direction=((Vector2)(target.transform.position-transform.position)).normalized;}
-            if(pattern==WeaponPattern.Scythe && age>duration*0.5f)direction=((Vector2)(c.Game.Player.transform.position-transform.position)).normalized;
+            Vector2 playerPosition=c.Game.Player.transform.position;
+            if(returning)direction=(playerPosition-(Vector2)transform.position).normalized;
             if(pattern==WeaponPattern.Scythe)transform.Rotate(0,0,300*Time.deltaTime);
             else transform.rotation=Quaternion.Euler(0,0,Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg-90);
-            Vector2 from=transform.position,to=from+direction*speed*Time.deltaTime;
+            Vector2 from=transform.position;
+            float returnSpeed=returning?Mathf.Max(speed*1.25f,Vector2.Distance(from,playerPosition)*1.5f):speed;
+            Vector2 to=returning?Vector2.MoveTowards(from,playerPosition,returnSpeed*Time.deltaTime):from+direction*speed*Time.deltaTime;
             trailClock+=Time.deltaTime;
             float trailInterval=pattern==WeaponPattern.Dagger || pattern==WeaponPattern.Bolt ? .045f : .08f;
             if(trailClock>=trailInterval)
@@ -40,7 +45,9 @@ namespace PixelSurvivor
                 remaining--;
             }
             transform.position=to;
-            if(remaining<=0)Destroy(gameObject);
+            if(returning && (to-playerPosition).sqrMagnitude<=0.18f*0.18f)
+            {transform.position=playerPosition;Destroy(gameObject);}
+            else if(pattern!=WeaponPattern.Scythe && remaining<=0)Destroy(gameObject);
         }
     }
 }

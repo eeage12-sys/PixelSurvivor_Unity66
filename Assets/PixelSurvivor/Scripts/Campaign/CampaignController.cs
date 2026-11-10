@@ -13,6 +13,7 @@ namespace PixelSurvivor
         public StageDirector Stage {get;private set;}
         public CombatArsenal Arsenal {get;private set;}
         public FieldSystem Field {get;private set;}
+        public StageTerrain Terrain {get;private set;}
         public SupportUnitManager Supports {get;private set;}
         public CampaignUI UI {get;private set;}
         public int CharacterIndex {get;private set;}
@@ -25,8 +26,10 @@ namespace PixelSurvivor
         public int BossKills {get;private set;}
         public bool HasCharacterSelection {get;private set;}
         public bool HasEquipmentChoices => Equipment.RollChoices(data).Length>0;
-        public float BestTime => Mathf.Max(Save.Best(Character.id,StageData.id), Practice?0:Stage.Elapsed);
+        public float BestTime => Mathf.Max(Save.Best(Character.id,StageData.id), NoProgress?0:Stage.Elapsed);
         public bool Practice {get;private set;}
+        public bool PreviewStages {get;private set;}
+        public bool NoProgress => Practice || PreviewStages;
         public float TimelineScale => Practice ? 20 : 1;
         float saveCountdown, expRemainder;
         EquipmentChoice[] choices;
@@ -36,16 +39,22 @@ namespace PixelSurvivor
             KoreanText.LocalizeData(data);
             Game=owner; Equipment=new EquipmentManager(); Save=new SaveManager(data);
             Chests=new TreasureChestSystem(this); Stage=new StageDirector(this);
-            Arsenal=new CombatArsenal(this); Field=new FieldSystem(this); Supports=new SupportUnitManager(this);
+            Arsenal=new CombatArsenal(this); Field=new FieldSystem(this); Terrain=new StageTerrain(this); Supports=new SupportUnitManager(this);
             UI=new CampaignUI(this); UI.Build(); UI.ShowMenu();
         }
         // Used by automated tests or disposable sessions; does not touch the player's saved profile.
         public void UseTemporaryProgress(){if(Game.State==RunState.Menu)Save=new SaveManager(data,null);}
         public bool SelectStage(int index)
-        { if(Game.State!=RunState.Menu || index<0 || index>=data.stages.Length || index>=Save.Progress.unlockedStages) return false; StageIndex=index;return true; }
+        { if(Game.State!=RunState.Menu || index<0 || index>=data.stages.Length || (!PreviewStages && index>=Save.Progress.unlockedStages)) return false; StageIndex=index;return true; }
         public void SelectCharacter(int index)
         { if(Game.State==RunState.Menu && index>=0 && index<data.characters.Length && Save.Progress.unlockedCharacters.Contains(data.characters[index].id)) {CharacterIndex=index;HasCharacterSelection=true;} }
         public void TogglePractice() { if(Game.State==RunState.Menu) Practice=!Practice; }
+        public void ToggleStagePreview()
+        {
+            if(Game.State!=RunState.Menu)return;
+            PreviewStages=!PreviewStages;
+            if(!PreviewStages && StageIndex>=Save.Progress.unlockedStages)StageIndex=0;
+        }
         public void BeginRun()
         {
             RunGold=0; expRemainder=0; EliteKills=0;BossKills=0;saveCountdown=15;
@@ -64,7 +73,7 @@ namespace PixelSurvivor
             Stage.Tick(dt); if(!Game.IsPlaying) return;
             Arsenal.Tick(dt); if(!Game.IsPlaying) return;
             Field.Tick(dt); Supports.Tick(dt);
-            saveCountdown-=dt;if(saveCountdown<=0){ if(!Practice) {Save.Record(Character.id,StageData.id,Stage.Elapsed);Save.Save();}saveCountdown=15; }
+            saveCountdown-=dt;if(saveCountdown<=0){ if(!NoProgress) {Save.Record(Character.id,StageData.id,Stage.Elapsed);Save.Save();}saveCountdown=15; }
             UI.Tick();
         }
         public float Bonus(StatKind kind)
@@ -104,7 +113,7 @@ namespace PixelSurvivor
         public void AddGold(int amount)
         {
             LastGoldAward=Mathf.Max(0,Mathf.RoundToInt(amount*(1+Bonus(StatKind.Gold))));
-            RunGold=(int)System.Math.Min(int.MaxValue,(long)RunGold+LastGoldAward);if(!Practice)Save.AddGold(LastGoldAward);
+            RunGold=(int)System.Math.Min(int.MaxValue,(long)RunGold+LastGoldAward);if(!NoProgress)Save.AddGold(LastGoldAward);
         }
         public void ShowChoices()
         { choices=Equipment.RollChoices(data);UI.ShowChoices(choices); }
@@ -119,9 +128,9 @@ namespace PixelSurvivor
             }
             choices=null;RefreshStats(true);UI.HideModal();return true;
         }
-        public void DiscoverWeapon(WeaponData weapon){if(!Practice && weapon!=null)Save.Discover("weapon."+weapon.id);}
-        public void DiscoverPassive(PassiveEquipmentData passive){if(!Practice && passive!=null)Save.Discover("passive."+passive.id);}
-        public void DiscoverEvolution(WeaponData weapon){if(!Practice && weapon!=null)Save.Discover("evolution."+weapon.id);}
+        public void DiscoverWeapon(WeaponData weapon){if(!NoProgress && weapon!=null)Save.Discover("weapon."+weapon.id);}
+        public void DiscoverPassive(PassiveEquipmentData passive){if(!NoProgress && passive!=null)Save.Discover("passive."+passive.id);}
+        public void DiscoverEvolution(WeaponData weapon){if(!NoProgress && weapon!=null)Save.Discover("evolution."+weapon.id);}
         public void OpenChest(bool boss,bool final)
         {
             if(!Game.IsPlaying)return;
@@ -135,7 +144,7 @@ namespace PixelSurvivor
         }
         public void Finish(bool won)
         {
-            if(!Practice){Save.Record(Character.id,StageData.id,Stage.Elapsed);Save.Save();}
+            if(!NoProgress){Save.Record(Character.id,StageData.id,Stage.Elapsed);Save.Save();}
             UI.ShowResult(false);Supports.Reset();Equipment.Reset(null);
         }
         public void RegisterSpecialKill(Enemy enemy)
@@ -143,7 +152,7 @@ namespace PixelSurvivor
             if(enemy.IsElite)EliteKills++;
             if(!enemy.IsBoss)return;
             BossKills++;
-            if(enemy.IsFinalBoss && !Practice && StageIndex+1<data.stages.Length && Save.Progress.unlockedStages<StageIndex+2)
+            if(enemy.IsFinalBoss && !NoProgress && StageIndex+1<data.stages.Length && Save.Progress.unlockedStages<StageIndex+2)
             {
                 Save.UnlockNext(StageIndex,data.stages.Length);
                 UI.Notify("구역 "+(StageIndex+2)+" 해금! 현재 구역에서 계속 생존하세요.");
@@ -152,7 +161,7 @@ namespace PixelSurvivor
         public void ClearCharacterSelection(){HasCharacterSelection=false;}
         public void LeaveRunEarly()
         {
-            if((Game.State!=RunState.Paused && Game.State!=RunState.Playing) || Practice)return;
+            if((Game.State!=RunState.Paused && Game.State!=RunState.Playing) || NoProgress)return;
             Save.Record(Character.id,StageData.id,Stage.Elapsed);
             Save.Save();
         }
@@ -160,7 +169,7 @@ namespace PixelSurvivor
         void Persist()
         {
             if(Save==null)return;
-            if(!Practice && Game!=null && Game.State!=RunState.Menu && Stage!=null && HasCharacterSelection)
+            if(!NoProgress && Game!=null && Game.State!=RunState.Menu && Stage!=null && HasCharacterSelection)
                 Save.Record(Character.id,StageData.id,Stage.Elapsed);
             Save.Save();
         }
