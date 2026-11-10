@@ -17,9 +17,14 @@ namespace PixelSurvivor
         public void TakeDamage(float damage)
         {
             if (game == null || !game.IsPlaying || invulnerability > 0 || damage <= 0) return;
+            if(game.Campaign!=null && game.Campaign.Stage.DoomAppeared)return;
             if(game.Campaign!=null) damage=game.Campaign.IncomingDamage(damage);
             if(damage<=0) return;
             CurrentHP = Mathf.Max(0, CurrentHP - damage);
+            CombatVfx.PlayerHurt(game,transform.position);
+            var feedback=GetComponent<HitFeedbackVisual>();
+            if(feedback==null)feedback=gameObject.AddComponent<HitFeedbackVisual>();
+            feedback.Play(.22f,.11f,new Color(1f,.18f,.22f));
             CombatAudio.Hurt();
             invulnerability = invulnerabilitySeconds;
             if (CurrentHP <= 0) game.EndRun(false);

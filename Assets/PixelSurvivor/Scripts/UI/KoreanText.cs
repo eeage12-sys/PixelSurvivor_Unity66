@@ -115,7 +115,7 @@ namespace PixelSurvivor
             {"Stage 1 - Lumen Field","1구역 · 빛의 들판"},
             {"Stage 2 - Amber Basin","2구역 · 호박빛 분지"},
             {"Stage 3 - Violet Ruins","3구역 · 보랏빛 폐허"},
-            {"Infinite survival. Balanced monster mix.","다양한 몬스터가 등장하는 들판에서 끝없이 생존하세요."},
+            {"Infinite survival. Balanced monster mix.","다양한 몬스터가 등장하는 들판에서 20분을 버티세요."},
             {"Infinite survival. Wide basin; more fast moths.","넓은 분지입니다. 빠른 나방이 더 자주 등장합니다."},
             {"Infinite survival. Tall ruins; more armored beetles.","세로로 긴 폐허입니다. 단단한 딱정벌레가 더 자주 등장합니다."},
         };

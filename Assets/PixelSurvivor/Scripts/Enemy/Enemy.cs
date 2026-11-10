@@ -28,10 +28,10 @@ namespace PixelSurvivor
             float size=boss ? 2.8f : elite ? 1.4f : 1;
             transform.localScale=Vector3.one*size;radius*=size;
             visualScale=transform.localScale;
-            if(boss && RedesignedSprites.Monster(3)!=null) visual.sprite=RedesignedSprites.Monster(3);
-            else if(elite && RedesignedSprites.Elite()!=null) visual.sprite=RedesignedSprites.Elite();
+            if(appearanceOverride==null && boss && RedesignedSprites.Monster(3)!=null) visual.sprite=RedesignedSprites.Monster(3);
+            else if(appearanceOverride==null && elite && RedesignedSprites.Elite()!=null) visual.sprite=RedesignedSprites.Elite();
             tint=boss ? new Color(1,0.45f,0.45f) : elite ? new Color(0.45f,1,0.85f) : tint;
-            if((boss && RedesignedSprites.Monster(3)!=null) || (elite && RedesignedSprites.Elite()!=null)) tint=Color.white;
+            if(appearanceOverride!=null || (boss && RedesignedSprites.Monster(3)!=null) || (elite && RedesignedSprites.Elite()!=null)) tint=Color.white;
             visual.color=tint;
         }
         public void Knockback(Vector2 direction,float force)
@@ -102,13 +102,16 @@ namespace PixelSurvivor
             if (((Vector2)(game.Player.transform.position - transform.position)).sqrMagnitude <= reach * reach)
                 game.Health.TakeDamage(contactDamage);
             flash = Mathf.Max(0, flash - Time.deltaTime);
-            visual.color = flash > 0 ? new Color(1, 0.5f, 0.4f) : tint;
-            transform.localScale = visualScale * (flash > 0 ? 1.13f : 1f);
+            visual.color = flash > 0 ? new Color(1, 0.18f, 0.2f) : tint;
+            transform.localScale = visualScale * (flash > 0 ? 1.07f : 1f);
         }
         public void TakeDamage(float amount,Color? impactColor=null)
         {
             if (!IsAlive || game == null || !game.IsPlaying || amount <= 0) return;
-            CurrentHP = Mathf.Max(0, CurrentHP - amount); flash = 0.08f;
+            CurrentHP = Mathf.Max(0, CurrentHP - amount); flash = 0.16f;
+            var feedback=GetComponent<HitFeedbackVisual>();
+            if(feedback==null)feedback=gameObject.AddComponent<HitFeedbackVisual>();
+            feedback.Play(.16f,IsBoss?.085f:.12f,new Color(1f,.1f,.16f));
             CombatAudio.Hit(CurrentHP <= 0);
             if(CurrentHP<=0 || Time.time-lastVfxTime>=0.12f)
             { CombatVfx.Hit(game,transform.position,radius,CurrentHP<=0,IsBoss || IsElite,impactColor);lastVfxTime=Time.time; }

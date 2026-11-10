@@ -9,16 +9,30 @@ namespace PixelSurvivor
         [SerializeField] Enemy beetlePrefab;
         [SerializeField] Enemy boneCrawlerPrefab;
         [SerializeField] Enemy emberWraithPrefab;
+        [SerializeField] Enemy meadowFoxPrefab;
+        [SerializeField] Enemy amberKestrelPrefab;
+        [SerializeField] Enemy ruinBatPrefab;
+        [SerializeField] Enemy lumenStagBossPrefab;
+        [SerializeField] Enemy amberCicadaBossPrefab;
+        [SerializeField] Enemy violetLichBossPrefab;
         [SerializeField, Min(0)] float mothUnlockSeconds = 30;
         [SerializeField, Min(0)] float beetleUnlockSeconds = 90;
         public Enemy MothPrefab => mothPrefab;
         public Enemy BeetlePrefab => beetlePrefab;
         public Enemy BoneCrawlerPrefab => boneCrawlerPrefab;
         public Enemy EmberWraithPrefab => emberWraithPrefab;
+        public Enemy MeadowFoxPrefab => meadowFoxPrefab;
+        public Enemy AmberKestrelPrefab => amberKestrelPrefab;
+        public Enemy RuinBatPrefab => ruinBatPrefab;
+        public Enemy LumenStagBossPrefab => lumenStagBossPrefab;
+        public Enemy AmberCicadaBossPrefab => amberCicadaBossPrefab;
+        public Enemy VioletLichBossPrefab => violetLichBossPrefab;
         public bool HasExpandedRoster => enemyPrefab != null && mothPrefab != null && beetlePrefab != null;
         public bool HasFullRoster => HasExpandedRoster && boneCrawlerPrefab != null && emberWraithPrefab != null;
         public void SetVariants(Enemy moth, Enemy beetle) { mothPrefab = moth; beetlePrefab = beetle; }
         public void SetAdditionalVariants(Enemy boneCrawler, Enemy emberWraith) { boneCrawlerPrefab=boneCrawler; emberWraithPrefab=emberWraith; }
+        public void SetThemedVariants(Enemy fox,Enemy kestrel,Enemy bat,Enemy stag,Enemy cicada,Enemy lich)
+        {meadowFoxPrefab=fox;amberKestrelPrefab=kestrel;ruinBatPrefab=bat;lumenStagBossPrefab=stag;amberCicadaBossPrefab=cicada;violetLichBossPrefab=lich;}
         // One random sample per spawn. Missing optional prefabs fall back to the slime.
         public Enemy SelectPrefab(float elapsed, float sample)
         {
@@ -49,6 +63,17 @@ namespace PixelSurvivor
         public void SetEnemy(Enemy prefab) => enemyPrefab = prefab;
         public void Initialize(GameManager owner) => game = owner;
         public void ResetSpawner() { enemies.Clear(); countdown = 0.5f; nearbyFrame=-1; }
+        public void DespawnAll()
+        {
+            for(int i=enemies.Count-1;i>=0;i--)
+            {
+                var enemy=enemies[i];
+                if(enemy==null)continue;
+                enemy.gameObject.SetActive(false);
+                Destroy(enemy.gameObject);
+            }
+            enemies.Clear();nearbyFrame=-1;
+        }
         public void Unregister(Enemy enemy) => enemies.Remove(enemy);
         static long CellKey(int x,int y) => ((long)x<<32)|(uint)y;
         public int SeparationCell(float coordinate) => Mathf.FloorToInt(coordinate/SeparationCellSize);

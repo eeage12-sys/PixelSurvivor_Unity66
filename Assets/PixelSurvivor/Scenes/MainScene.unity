@@ -5739,6 +5739,12 @@ MonoBehaviour:
   beetlePrefab: {fileID: 561991258689681694, guid: 5262e2638b158a848bb538f1322ab09d, type: 3}
   boneCrawlerPrefab: {fileID: 709774365516526573, guid: 0a8009e377f8d1442a68c8fe52456ef2, type: 3}
   emberWraithPrefab: {fileID: 1962384148395079121, guid: 0731003ab15c7834299e8b7bda7eb357, type: 3}
+  meadowFoxPrefab: {fileID: 6800670239041285993, guid: fd652f3c859083846b3382af47ddd4f5, type: 3}
+  amberKestrelPrefab: {fileID: 4188165737194281175, guid: 32a58840b9c4986488b4d7790bab95e6, type: 3}
+  ruinBatPrefab: {fileID: 7188704800478460600, guid: 07a7edca583e3984786b2b89b8a97f61, type: 3}
+  lumenStagBossPrefab: {fileID: 7847558536379826233, guid: 62405c211793653498fca5d7e836573e, type: 3}
+  amberCicadaBossPrefab: {fileID: 319110476342006543, guid: 74db56a8486f01449aababe55e6a0ef9, type: 3}
+  violetLichBossPrefab: {fileID: 3458547117822043602, guid: e0550618a9c801b4a8c22d511624767c, type: 3}
   mothUnlockSeconds: 30
   beetleUnlockSeconds: 90
   spawnIntervals:

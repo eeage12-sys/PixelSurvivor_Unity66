@@ -12,7 +12,9 @@ namespace PixelSurvivor
         int codexPage;
         Button characterNext,stageStart;
         
-        Text selection,gold,notice,boss,stageInfo;
+        Text selection,gold,notice,boss,stageInfo,doomTitle,doomSubtitle;
+        Image doomVeil,doomBanner;
+        float doomWarningUntil;
         CompactHUD compactHud;
         readonly List<Button> characterButtons=new List<Button>(),stageButtons=new List<Button>();
         
@@ -41,7 +43,7 @@ namespace PixelSurvivor
             }
             const float lobbyX=300;
             TextAt(menu.transform,"픽셀 서바이버",lobbyX,245,850,100,64,Mint);
-            TextAt(menu.transform,"무한 생존",lobbyX,155,850,60,28,Muted);
+            TextAt(menu.transform,"20분 생존 도전",lobbyX,155,850,60,28,Muted);
             TextAt(menu.transform,"장비를 조합하고 보스를 쓰러뜨리며 오래 살아남으세요.",lobbyX,85,850,55,24,Color.white);
             ButtonAt(menu.transform,"시작",lobbyX,-30,450,75,()=>ShowCharacters(true));
             ButtonAt(menu.transform,"영구 강화",lobbyX,-130,450,75,()=>ShowShop());
@@ -78,6 +80,12 @@ namespace PixelSurvivor
             boss=TextAt(hud.transform,"",0,-120,850,40,22,new Color(1,0.5f,0.4f));
             PinTop(boss.rectTransform);
             notice=TextAt(hud.transform,"",0,-165,1250,60,22,Color.white);PinTop(notice.rectTransform);
+            doomVeil=Box("Doom screen tint",hud.transform,Vector2.zero,Vector2.zero,Color.clear);
+            Stretch(doomVeil.rectTransform);doomVeil.raycastTarget=false;
+            doomBanner=Box("Doom warning banner",hud.transform,new Vector2(0,-255),new Vector2(1350,125),Color.clear);
+            doomBanner.raycastTarget=false;
+            doomTitle=TextAt(hud.transform,"",0,-230,1200,65,42,new Color(1f,.72f,.78f));doomTitle.raycastTarget=false;
+            doomSubtitle=TextAt(hud.transform,"",0,-276,1200,45,24,Color.white);doomSubtitle.raycastTarget=false;
             shop.SetActive(false);codex.SetActive(false);hud.SetActive(false);characters.SetActive(false);stages.SetActive(false);
         }
         void RefreshMenu()
@@ -92,9 +100,9 @@ namespace PixelSurvivor
             }
             selection.text=c.HasCharacterSelection?"선택: "+CharacterName(c.Character):"함께할 캐릭터를 선택하세요.";
             characterNext.interactable=c.HasCharacterSelection;stageStart.interactable=c.HasCharacterSelection;
-            stageInfo.text=c.StageData.description+"\n\n캐릭터: "+CharacterName(c.Character)+"\n최고 생존 기록: "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n\n제한시간 없이 생존하세요. 보스는 10분마다 등장합니다.\n20분 보스를 처치하면 다음 구역이 열리고 현재 전투는 계속됩니다."+(c.PreviewStages?"\n체험 전투는 골드·기록·해금이 저장되지 않습니다.":"");
+            stageInfo.text=c.StageData.description+"\n\n캐릭터: "+CharacterName(c.Character)+"\n최고 생존 기록: "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n\n10분에 보스가 등장합니다. 20분 생존 시 다음 구역이 열립니다.\n그때 불사의 추격자가 등장합니다. 닿으면 전투가 끝납니다."+(c.PreviewStages?"\n체험 전투는 골드·기록·해금이 저장되지 않습니다.":"");
             gold.text="보유 골드  "+c.Save.Progress.gold;
-            practiceLabel.text=c.Practice?"빠른 테스트 켜짐 · 보스 30초 간격 · 골드/기록/해금 저장 안 함":"빠른 테스트 꺼짐 · 무한 생존";
+            practiceLabel.text=c.Practice?"빠른 테스트 켜짐 · 20분까지 약 1분 · 저장 안 함":"빠른 테스트 꺼짐 · 20분 생존 도전";
             previewLabel.text=c.PreviewStages?"스테이지 체험 켜짐 · 저장하지 않음":"잠긴 스테이지 체험하기";
         }
         void Only(GameObject screen)
@@ -102,7 +110,7 @@ namespace PixelSurvivor
         public void ShowMenu(){Only(menu);RefreshMenu();SelectFirst(menu);}
         void ShowCharacters(bool fresh){if(fresh)c.ClearCharacterSelection();Only(characters);RefreshMenu();SelectFirst(characters);}
         void ShowStages(){if(!c.HasCharacterSelection)return;Only(stages);RefreshMenu();SelectFirst(stages);}
-        public void ShowGameplay(){Only(hud);Tick();}
+        public void ShowGameplay(){Only(hud);doomWarningUntil=0;doomTitle.text="";doomSubtitle.text="";Tick();}
         void Quit()
         {
             c.Save.Save();
@@ -119,8 +127,20 @@ namespace PixelSurvivor
             if(hud==null)return;
             var b=c.Stage.CurrentBoss;boss.text=b!=null && b.IsAlive?(b.IsFinalBoss?"해금 보스":"보스")+"  "+Mathf.CeilToInt(b.CurrentHP)+" / "+Mathf.CeilToInt(b.MaxHP):"";
             if(Time.unscaledTime>noticeUntil)notice.text="";
+            float remaining=Mathf.Max(0,doomWarningUntil-Time.unscaledTime);
+            doomVeil.color=new Color(.55f,.02f,.11f,remaining>0 ? .08f+.14f*Mathf.Min(1,remaining) : 0);
+            doomBanner.color=new Color(.04f,.015f,.08f,remaining>0 ? .88f : 0);
+            if(remaining<=0){doomTitle.text="";doomSubtitle.text="";}
         }
         public void Notify(string message){if(notice==null)return;notice.text=message;noticeUntil=Time.unscaledTime+4;}
+        public void ShowDoomWarning(bool unlocked)
+        {
+            doomWarningUntil=Time.unscaledTime+3.5f;
+            doomTitle.text="20분 생존 · 종말의 추격자";
+            doomSubtitle.text=unlocked?"다음 구역 해금! 화면 밖에서 무적의 추격자가 다가옵니다.":"화면 밖에서 무적의 추격자가 다가옵니다.";
+            CombatAudio.Doom();
+            Tick();
+        }
         void InspectWeapon(int index){if(index<c.Equipment.Weapons.Count)ShowPause();}
         void InspectPassive(int index){if(index<c.Equipment.Passives.Count)ShowPause();}
         public void ShowChoices(EquipmentChoice[] choices)
@@ -166,7 +186,7 @@ namespace PixelSurvivor
         }
         public void ShowResult(bool won)
         {
-            NewModal("게임 종료",c.StageData.title+" / "+CharacterName(c.Character));
+            NewModal(c.Stage.DoomCaughtPlayer?"종말의 추격자에게 붙잡혔습니다":"게임 종료",c.StageData.title+" / "+CharacterName(c.Character));
             TextAt(modal.transform,"생존 시간  "+SurvivalRules.Clock(c.Stage.Elapsed)+"\n도달 레벨  "+c.Game.Level.Level+"    총 처치  "+c.Game.KillCount+
                 "\n엘리트 처치  "+c.EliteKills+"    보스 처치  "+c.BossKills+"\n획득 골드  "+c.RunGold+
                 "\n최고 생존 기록  "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n"+

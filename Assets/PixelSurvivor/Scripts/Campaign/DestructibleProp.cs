@@ -26,6 +26,6 @@ namespace PixelSurvivor
             visual.color=flash?new Color(2,2,2,1):baseColor;
             transform.localScale=baseScale*(flash?1+.12f*Mathf.Sin(hitTime*70):1);
         }
-        void OnDisable(){if(c!=null)c.Field.Props.Remove(this);}
+        void OnDisable(){if(c!=null && c.Field!=null)c.Field.Props.Remove(this);}
     }
 }

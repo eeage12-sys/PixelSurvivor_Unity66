@@ -152,11 +152,13 @@ namespace PixelSurvivor
             if(enemy.IsElite)EliteKills++;
             if(!enemy.IsBoss)return;
             BossKills++;
-            if(enemy.IsFinalBoss && !NoProgress && StageIndex+1<data.stages.Length && Save.Progress.unlockedStages<StageIndex+2)
-            {
-                Save.UnlockNext(StageIndex,data.stages.Length);
-                UI.Notify("구역 "+(StageIndex+2)+" 해금! 현재 구역에서 계속 생존하세요.");
-            }
+        }
+        public bool UnlockForSurvivingMilestone()
+        {
+            if(NoProgress || StageIndex+1>=data.stages.Length || Save.Progress.unlockedStages>=StageIndex+2)return false;
+            Save.UnlockNext(StageIndex,data.stages.Length);
+            Save.Save();
+            return true;
         }
         public void ClearCharacterSelection(){HasCharacterSelection=false;}
         public void LeaveRunEarly()

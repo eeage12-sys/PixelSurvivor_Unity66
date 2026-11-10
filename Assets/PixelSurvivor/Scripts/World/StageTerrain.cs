@@ -39,8 +39,8 @@ namespace PixelSurvivor
             {
                 for(int side=-1;side<=1;side+=2)
                     for(int i=-5;i<=5;i++)
-                        AddObstacle(root,new Vector2(side*(8+Mathf.Abs(i)%3*2),i*13),
-                            new Vector2(2.6f,4.2f),new Color(.27f,.18f,.38f));
+                        AddRuinsWall(root,new Vector2(side*(8+Mathf.Abs(i)%3*2),i*13),
+                            new Vector2(2.6f,4.2f));
                 AddCurse(root,new Vector2(-6,-20));
                 AddCurse(root,new Vector2(6,20));
                 AddCurse(root,new Vector2(-20,45));
@@ -53,22 +53,51 @@ namespace PixelSurvivor
             Vector2 center=(Vector2)root.position+local;
             obstacles.Add(new Rect(center-size*.5f,size));
             var go=new GameObject("Solid terrain");go.transform.SetParent(root,false);go.transform.localPosition=local;
-            var sr=go.AddComponent<SpriteRenderer>();sr.sprite=c.Data.whiteSprite;
-            sr.drawMode=SpriteDrawMode.Tiled;sr.size=size;sr.color=color;sr.sortingOrder=-4;
+            AddWallLayer(go.transform,"Stone face",Vector2.zero,size,color,-4,c.Data.whiteSprite);
             var top=new GameObject("Stone rim");top.transform.SetParent(go.transform,false);
             top.transform.localPosition=new Vector2(0,size.y*.4f);
-            var edge=top.AddComponent<SpriteRenderer>();edge.sprite=c.Data.whiteSprite;
-            edge.drawMode=SpriteDrawMode.Tiled;edge.size=new Vector2(size.x,.24f);
-            edge.color=Color.Lerp(color,Color.white,.32f);edge.sortingOrder=-3;
+            AddWallLayer(top.transform,"Stone highlight",Vector2.zero,new Vector2(size.x,.24f),
+                Color.Lerp(color,Color.white,.32f),-3,c.Data.whiteSprite);
+        }
+
+        void AddRuinsWall(Transform root,Vector2 local,Vector2 size)
+        {
+            obstacles.Add(new Rect((Vector2)root.position+local-size*.5f,size));
+            var wall=new GameObject("Solid ruins wall");
+            wall.transform.SetParent(root,false);wall.transform.localPosition=local;
+            Sprite tile=c.Data.whiteSprite;
+            AddWallLayer(wall.transform,"Deep shadow",new Vector2(.18f,-.26f),size+new Vector2(.9f,.75f),
+                new Color(.015f,.025f,.055f,1),-8,tile);
+            AddWallLayer(wall.transform,"Pale stone outline",Vector2.zero,size+new Vector2(.36f,.36f),
+                new Color(.66f,.82f,.83f,1),-6,tile);
+            AddWallLayer(wall.transform,"Raised dark stone",Vector2.zero,size,
+                new Color(.105f,.13f,.22f,1),-5,tile);
+            AddWallLayer(wall.transform,"Lit top edge",new Vector2(0,size.y*.46f),new Vector2(size.x,.22f),
+                new Color(.91f,.87f,.65f,1),-3,tile);
+            AddWallLayer(wall.transform,"Left metal brace",new Vector2(-size.x*.38f,0),new Vector2(.15f,size.y*.72f),
+                new Color(.36f,.68f,.7f,1),-3,tile);
+            AddWallLayer(wall.transform,"Right metal brace",new Vector2(size.x*.38f,0),new Vector2(.15f,size.y*.72f),
+                new Color(.36f,.68f,.7f,1),-3,tile);
+            AddWallLayer(wall.transform,"Stone seam",new Vector2(0,-size.y*.28f),new Vector2(size.x*.62f,.09f),
+                new Color(.34f,.48f,.58f,1),-3,tile);
+        }
+
+        static void AddWallLayer(Transform parent,string name,Vector2 offset,Vector2 size,Color color,int order,Sprite sprite)
+        {
+            var part=new GameObject(name);part.transform.SetParent(parent,false);part.transform.localPosition=offset;
+            var image=part.AddComponent<SpriteRenderer>();image.sprite=sprite;
+            image.drawMode=SpriteDrawMode.Simple;
+            if(sprite!=null && sprite.bounds.size.x>0 && sprite.bounds.size.y>0)
+                part.transform.localScale=new Vector3(size.x/sprite.bounds.size.x,size.y/sprite.bounds.size.y,1);
+            image.color=color;image.sortingOrder=order;
         }
 
         void AddSlow(Transform root,Vector2 local,Vector2 size)
         {
             slowGround.Add(new Rect((Vector2)root.position+local-size*.5f,size));
             var go=new GameObject("Basin mire");go.transform.SetParent(root,false);go.transform.localPosition=local;
-            var sr=go.AddComponent<SpriteRenderer>();sr.sprite=c.Data.whiteSprite;
-            sr.drawMode=SpriteDrawMode.Tiled;sr.size=size;
-            sr.color=new Color(.52f,.28f,.08f,.58f);sr.sortingOrder=-8;
+            AddWallLayer(go.transform,"Mire color",Vector2.zero,size,
+                new Color(.52f,.28f,.08f,.58f),-8,c.Data.whiteSprite);
         }
 
         void AddCurse(Transform root,Vector2 local)

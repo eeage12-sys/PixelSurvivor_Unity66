@@ -6,13 +6,22 @@ namespace PixelSurvivor
         readonly CampaignController c;
         float spawnTimer, nextElite;
         int bossWaves;
+        bool doomAppeared;
+        bool doomCaughtPlayer;
+        Sprite originalGround;
         public int BossWaves => bossWaves;
         public Enemy CurrentBoss {get;private set;}
+        public DoomPursuer Doom {get;private set;}
+        public bool DoomAppeared => doomAppeared;
+        public bool DoomCaughtPlayer => doomCaughtPlayer;
+        // More enemies enter over the run without filling the absolute 220 cap in the opening minutes.
+        public int DensityCap => Mathf.Min(c.Game.Spawner.MaxEnemyCount,
+            70+c.StageIndex*10+Mathf.FloorToInt(Elapsed/60f)*7);
         public StageDirector(CampaignController owner){c=owner;}
         public void Begin()
         {
             var d=c.StageData;spawnTimer=0.5f;nextElite=d.firstEliteTime;
-            bossWaves=0;CurrentBoss=null;
+            bossWaves=0;CurrentBoss=null;Doom=null;doomAppeared=false;doomCaughtPlayer=false;
             c.Game.Bounds.SetSize(d.halfSize);
             c.Game.Spawner.SetMaxEnemyCount(220);
             Transform map=c.Game.Bounds.transform;
@@ -20,7 +29,14 @@ namespace PixelSurvivor
             int detailIndex=0;
             foreach(var sr in map.GetComponentsInChildren<SpriteRenderer>())
             {
-                if(sr.name=="Ground"){sr.size=d.halfSize*2;sr.color=d.groundColor;}
+                if(sr.name=="Ground")
+                {
+                    if(originalGround==null)originalGround=sr.sprite;
+                    var meadow=Resources.Load<Sprite>("StageCreatures/LumenGround");
+                    sr.sprite=c.StageIndex==0 && meadow!=null ? meadow : originalGround;
+                    sr.size=d.halfSize*2;
+                    sr.color=c.StageIndex==0 ? Color.white : d.groundColor;
+                }
                 else if(sr.name.Contains("boundary"))
                 {
                     bool horizontal=sr.name.StartsWith("North")||sr.name.StartsWith("South");
@@ -78,8 +94,8 @@ namespace PixelSurvivor
             {
                 for(int side=-1;side<=1;side+=2)
                     for(int i=-2;i<=2;i++)
-                        AddFloorBand(root,tile,"Ruins column",new Vector2(side*4,i*6.5f),
-                            new Vector2(2.2f,4.5f),new Color(0.42f,0.24f,0.63f,0.4f));
+                        AddFloorBand(root,tile,"Ruins paving",new Vector2(side*4,i*6.5f),
+                            new Vector2(1.1f,3.2f),new Color(0.12f,0.19f,0.28f,0.35f));
             }
         }
         static void AddFloorBand(Transform parent,Sprite sprite,string name,Vector2 position,Vector2 size,Color color)
@@ -89,8 +105,9 @@ namespace PixelSurvivor
             go.transform.localPosition=position;
             var sr=go.AddComponent<SpriteRenderer>();
             sr.sprite=sprite;
-            sr.drawMode=SpriteDrawMode.Tiled;
-            sr.size=size;
+            sr.drawMode=SpriteDrawMode.Simple;
+            if(sprite.bounds.size.x>0 && sprite.bounds.size.y>0)
+                go.transform.localScale=new Vector3(size.x/sprite.bounds.size.x,size.y/sprite.bounds.size.y,1);
             sr.color=color;
             sr.sortingOrder=-15;
         }
@@ -99,6 +116,20 @@ namespace PixelSurvivor
         {
             c.Terrain.Tick(dt);
             var d=c.StageData;float time=Elapsed;
+            if(!doomAppeared && time>=d.unlockBossTime)
+            {
+                doomAppeared=true;
+                bool unlocked=c.UnlockForSurvivingMilestone();
+                c.Game.Spawner.DespawnAll();
+                var go=new GameObject("Doom Pursuer");
+                go.transform.SetParent(c.Game.RuntimeRoot,false);
+                go.transform.position=c.Game.Spawner.ChooseSpawnPosition();
+                Doom=go.AddComponent<DoomPursuer>();Doom.Initialize(c);
+                CurrentBoss=null;
+                c.UI.ShowDoomWarning(unlocked);
+                return;
+            }
+            if(doomAppeared)return;
             // Catch up scheduled waves, keeping the original wave identity if a prior boss is alive.
             int due=SurvivalRules.DueBosses(time,d.bossInterval);
             if(bossWaves<due) {bossWaves++;SpawnBossWave(bossWaves);}
@@ -109,25 +140,27 @@ namespace PixelSurvivor
             {
                 spawnTimer=Mathf.Max(d.minimumSpawnInterval,d.initialSpawnInterval/(1+time/180));
                 int count=Mathf.Min(d.maxSpawnCount,d.initialSpawnCount+Mathf.FloorToInt(time/Mathf.Max(1,d.extraSpawnEvery)));
-                for(int i=0;i<count;i++)SpawnEnemy(false);
+                for(int i=0;i<count && c.Game.Spawner.ActiveEnemies.Count<DensityCap;i++)SpawnEnemy(false);
             }
         }
         Enemy ChoosePrefab()
         {
-            var d=c.StageData;var s=c.Game.Spawner;float sample=Random.value;
-            float beetle=Elapsed>=d.beetleUnlock ? d.beetleWeight : 0;
-            float moth=Elapsed>=d.mothUnlock ? d.mothWeight : 0;
-            float bone=Elapsed>=d.boneCrawlerUnlock ? d.boneCrawlerWeight : 0;
-            float ember=Elapsed>=d.emberWraithUnlock ? d.emberWraithWeight : 0;
-            if(sample<beetle && s.BeetlePrefab!=null)return s.BeetlePrefab;
-            if(sample<beetle+moth && s.MothPrefab!=null)return s.MothPrefab;
-            if(sample<beetle+moth+bone && s.BoneCrawlerPrefab!=null)return s.BoneCrawlerPrefab;
-            if(sample<beetle+moth+bone+ember && s.EmberWraithPrefab!=null)return s.EmberWraithPrefab;
-            return s.EnemyPrefab;
+            var s=c.Game.Spawner;float sample=Random.value;
+            if(c.StageIndex==0)
+                return sample<0.38f && s.MeadowFoxPrefab!=null ? s.MeadowFoxPrefab : s.EnemyPrefab;
+            if(c.StageIndex==1)
+            {
+                if(sample<0.34f && s.AmberKestrelPrefab!=null)return s.AmberKestrelPrefab;
+                if(sample<0.67f && s.MothPrefab!=null)return s.MothPrefab;
+                return s.BeetlePrefab!=null ? s.BeetlePrefab : s.MothPrefab;
+            }
+            if(sample<0.34f && s.RuinBatPrefab!=null)return s.RuinBatPrefab;
+            if(sample<0.67f && s.BoneCrawlerPrefab!=null)return s.BoneCrawlerPrefab;
+            return s.EmberWraithPrefab!=null ? s.EmberWraithPrefab : s.BoneCrawlerPrefab;
         }
         public Enemy SpawnEnemy(bool elite)
         {
-            var d=c.StageData;Vector2 position=c.Game.Spawner.ChooseSpawnPosition();Enemy prefab=ChoosePrefab();
+            var d=c.StageData;Vector2 position=c.Game.Spawner.ChooseSpawnPosition();Enemy prefab=elite ? ChooseElitePrefab() : ChoosePrefab();
             Enemy enemy=elite?c.Game.Spawner.SpawnSpecial(position,prefab):c.Game.Spawner.SpawnAt(position,prefab);
             if(enemy==null)return null;
             float minutes=Elapsed/60;
@@ -136,20 +169,34 @@ namespace PixelSurvivor
                 (1+minutes*d.damageGrowthPerMinute)*d.difficulty*(elite?d.eliteDamage:1),elite,false,false);
             return enemy;
         }
+        Enemy ChooseElitePrefab()
+        {
+            var s=c.Game.Spawner;
+            return c.StageIndex==0 ? s.MeadowFoxPrefab??s.EnemyPrefab :
+                c.StageIndex==1 ? s.BeetlePrefab??s.AmberKestrelPrefab :
+                s.BoneCrawlerPrefab??s.RuinBatPrefab;
+        }
         // Kept for QA callers; regular events use an explicit wave number.
         public Enemy SpawnBoss(bool unlock) => SpawnBossWave(unlock?Mathf.CeilToInt(c.StageData.unlockBossTime/c.StageData.bossInterval):1);
         public Enemy SpawnBossWave(int wave)
         {
             var d=c.StageData;wave=Mathf.Max(1,wave);
             bool unlock=SurvivalRules.IsUnlockWave(wave,d.bossInterval,d.unlockBossTime);
-            Enemy prefab=c.StageIndex==1?c.Game.Spawner.MothPrefab:c.StageIndex==2?c.Game.Spawner.EnemyPrefab:c.Game.Spawner.BeetlePrefab;
+            Enemy prefab=c.StageIndex==0 ? c.Game.Spawner.LumenStagBossPrefab :
+                c.StageIndex==1 ? c.Game.Spawner.AmberCicadaBossPrefab : c.Game.Spawner.VioletLichBossPrefab;
             Enemy enemy=c.Game.Spawner.SpawnSpecial(c.Game.Spawner.ChooseSpawnPosition(),prefab??c.Game.Spawner.EnemyPrefab,true);
             if(enemy==null)return null;
             int unlockWave=Mathf.Max(1,Mathf.CeilToInt(d.unlockBossTime/d.bossInterval));
             float hp=wave>=unlockWave?Mathf.Max(d.bossHP,d.unlockBossHP)*SurvivalRules.Growth(wave-unlockWave+1,d.bossHealthGrowthPerWave):d.bossHP*SurvivalRules.Growth(wave,d.bossHealthGrowthPerWave);
             enemy.ConfigureEncounter(hp*d.difficulty/enemy.MaxHP,0.9f,2.2f*d.difficulty*SurvivalRules.Growth(wave,d.bossDamageGrowthPerWave),false,true,unlock);
             enemy.gameObject.AddComponent<BossBrain>().Initialize(c,enemy,wave);
-            CurrentBoss=enemy;c.UI.Notify("보스 등장 · "+wave+(unlock?"회차 · 처치 시 다음 구역 해금":"회차"));return enemy;
+            CurrentBoss=enemy;c.UI.Notify("보스 등장 · "+wave+"회차");return enemy;
+        }
+        public void CaughtByDoom()
+        {
+            if(!doomAppeared || !c.Game.IsPlaying)return;
+            doomCaughtPlayer=true;
+            c.Game.EndRun(false);
         }
         public void EnemyDied(Enemy enemy,Vector2 position)
         {

@@ -33,17 +33,23 @@ namespace PixelSurvivor.Tests
             var partner=w.data.evolutionPartner;for(int i=0;i<partner.maxLevel;i++)c.Equipment.Add(partner);
             int gold=c.RunGold;var rewards=c.Chests.Resolve(5);Assert.AreEqual(5,rewards.Count);Assert.IsTrue(w.evolved);Assert.Greater(c.RunGold,gold);Assert.AreEqual(1,c.Equipment.Passives.Count);
         }
-        [Test] public void UnlockBossKillKeepsRunAliveAndLaterBossesContinue()
+        [Test] public void Surviving20MinutesUnlocksStageAndDoomCatchesPlayer()
         {
-            Begin();game.Timer.AdvanceCampaign(1200);c.Stage.Tick(0);c.Stage.Tick(0);
-            var boss=c.Stage.CurrentBoss;Assert.NotNull(boss);Assert.IsTrue(boss.IsFinalBoss);
-            Assert.AreSame(RedesignedSprites.Monster(3),boss.GetComponent<SpriteRenderer>().sprite);
-            boss.TakeDamage(boss.CurrentHP+1);
-            Assert.AreEqual(RunState.Playing,game.State);Assert.AreEqual(2,c.Save.Progress.unlockedStages);
-            Assert.AreEqual(1,c.BossKills);c.OpenChest(true,true);c.CloseChest();Assert.AreEqual(RunState.Playing,game.State);
-            game.Timer.AdvanceCampaign(600);c.Stage.Tick(0);Assert.AreEqual(3,c.Stage.BossWaves);
-            Assert.AreEqual(3,c.Stage.CurrentBoss.GetComponent<BossBrain>().Wave);
-            game.EndRun(false);game.ReturnToMenu();Assert.IsTrue(c.SelectStage(1));Begin();
+            Begin();game.Timer.AdvanceCampaign(600);c.Stage.Tick(0);
+            Assert.AreEqual(1,c.Stage.BossWaves);Assert.NotNull(c.Stage.CurrentBoss);
+            game.Timer.AdvanceCampaign(600);c.Stage.Tick(0);
+            Assert.IsTrue(c.Stage.DoomAppeared);Assert.NotNull(c.Stage.Doom);
+            Assert.AreEqual(2,c.Save.Progress.unlockedStages);
+            Assert.AreEqual(0,game.Spawner.ActiveEnemies.Count);
+            Assert.AreNotSame(RedesignedSprites.Monster(3),c.Stage.Doom.GetComponent<SpriteRenderer>().sprite);
+            Assert.IsNull(c.Stage.Doom.GetComponent<Enemy>());
+            Assert.AreEqual(RunState.Playing,game.State);
+            float hp=game.Health.CurrentHP;game.Health.TakeDamage(50);c.Field.Bomb();
+            Assert.AreEqual(hp,game.Health.CurrentHP);
+            Assert.IsTrue(c.Stage.Doom.gameObject.activeSelf);
+            c.Stage.Doom.Advance(10);
+            Assert.IsTrue(c.Stage.DoomCaughtPlayer);Assert.AreEqual(RunState.GameOver,game.State);
+            game.ReturnToMenu();Assert.IsTrue(c.SelectStage(1));Begin();
             Assert.AreEqual(0,game.Timer.Elapsed);Assert.AreEqual(1,c.Equipment.Weapons.Count);
         }
         [UnityTest] public IEnumerator MidBossDoesNotClearAndDropsBossChest()
@@ -53,9 +59,38 @@ namespace PixelSurvivor.Tests
         }
         [Test] public void EliteAlwaysDropsChestAndBombDoesNotInstakillHealthyBoss()
         {
-            Begin();var elite=c.Stage.SpawnEnemy(true);Assert.AreSame(RedesignedSprites.Elite(),elite.GetComponent<SpriteRenderer>().sprite);
+            Begin();var elite=c.Stage.SpawnEnemy(true);Assert.AreSame(game.Spawner.MeadowFoxPrefab.GetComponent<SpriteRenderer>().sprite,elite.GetComponent<SpriteRenderer>().sprite);
             int before=c.Field.Items.Count;elite.TakeDamage(elite.CurrentHP+1);Assert.AreEqual(before+1,c.Field.Items.Count);
             var boss=c.Stage.SpawnBoss(true);float hp=boss.CurrentHP;c.Field.Bomb();Assert.IsTrue(boss.IsAlive);Assert.AreEqual(hp-c.Data.bombSpecialDamage,boss.CurrentHP,0.01f);
+        }
+        [Test] public void EachStageUsesOnlyItsCreaturesAndAUniqueBoss()
+        {
+            c.ToggleStagePreview();
+            var normalNames=new[]
+            {
+                new[]{"Enemy", "EnemyMeadowFox"},
+                new[]{"EnemyMoth", "EnemyBeetle", "EnemyAmberKestrel"},
+                new[]{"EnemyBoneCrawler", "EnemyEmberWraith", "EnemyRuinBat"}
+            };
+            var bossSprites=new Sprite[3];
+            for(int stage=0;stage<3;stage++)
+            {
+                Assert.IsTrue(c.SelectStage(stage));c.SelectCharacter(0);Begin();
+                for(int i=0;i<20;i++)
+                {
+                    var enemy=c.Stage.SpawnEnemy(false);
+                    Assert.NotNull(enemy);
+                    string name=enemy.name.Replace("(Clone)","");
+                    CollectionAssert.Contains(normalNames[stage],name);
+                }
+                var boss=c.Stage.SpawnBossWave(1);
+                Assert.NotNull(boss);bossSprites[stage]=boss.GetComponent<SpriteRenderer>().sprite;
+                Assert.NotNull(bossSprites[stage]);
+                game.EndRun(false);game.ReturnToMenu();
+            }
+            Assert.AreNotSame(bossSprites[0],bossSprites[1]);
+            Assert.AreNotSame(bossSprites[1],bossSprites[2]);
+            Assert.AreNotSame(bossSprites[0],bossSprites[2]);
         }
         [Test] public void PermanentPurchaseAppliesNextRunAndRunEquipmentResets()
         {
@@ -90,11 +125,12 @@ namespace PixelSurvivor.Tests
                 game.EndRun(false);game.ReturnToMenu();
             }
         }
-        [Test] public void DelayedUnlockBossDeathStillUnlocksAndNeverEndsRun()
+        [Test] public void BossKillAloneDoesNotUnlockStage()
         {
             Begin();var milestone=c.Stage.SpawnBossWave(2);c.Stage.SpawnBossWave(3);
-            milestone.TakeDamage(milestone.CurrentHP+1);Assert.AreEqual(2,c.Save.Progress.unlockedStages);
+            milestone.TakeDamage(milestone.CurrentHP+1);Assert.AreEqual(1,c.Save.Progress.unlockedStages);
             Assert.AreEqual(RunState.Playing,game.State);Assert.AreEqual(1,c.BossKills);
+            game.Timer.AdvanceCampaign(1200);c.Stage.Tick(0);Assert.AreEqual(2,c.Save.Progress.unlockedStages);
         }
         [Test] public void BossHealthContinuesGrowingAfterUnlockWave()
         {
@@ -108,6 +144,28 @@ namespace PixelSurvivor.Tests
             var e=c.Stage.SpawnEnemy(true);e.TakeDamage(e.CurrentHP+1);Assert.AreEqual(1,c.EliteKills);Assert.AreEqual(1,game.KillCount);
         }
         [Test] public void FastTestCannotUnlockStagesOrSaveGold()
-        {c.TogglePractice();Begin();Assert.AreEqual(20,c.TimelineScale);int gold=c.Save.Progress.gold;c.AddGold(100);var boss=c.Stage.SpawnBoss(true);boss.TakeDamage(boss.CurrentHP+1);game.EndRun(false);Assert.AreEqual(gold,c.Save.Progress.gold);Assert.AreEqual(1,c.Save.Progress.unlockedStages);}
+        {c.TogglePractice();Begin();Assert.AreEqual(20,c.TimelineScale);int gold=c.Save.Progress.gold;c.AddGold(100);game.Timer.AdvanceCampaign(60);c.Stage.Tick(0);Assert.IsTrue(c.Stage.DoomAppeared);game.EndRun(false);Assert.AreEqual(gold,c.Save.Progress.gold);Assert.AreEqual(1,c.Save.Progress.unlockedStages);}
+        [Test] public void DamageFlashesAndShakesSpritesWithoutMovingCombatCoordinates()
+        {
+            Begin();var enemy=game.Spawner.SpawnAt(new Vector2(4,0));Vector3 enemyPosition=enemy.transform.position;
+            enemy.TakeDamage(1);
+            var enemyFeedback=enemy.GetComponent<HitFeedbackVisual>();
+            Assert.NotNull(enemyFeedback);Assert.IsTrue(enemyFeedback.IsShaking);
+            Assert.NotNull(enemyFeedback.Display);Assert.AreEqual(enemyPosition,enemy.transform.position);
+            float hp=game.Health.CurrentHP;game.Health.TakeDamage(10);
+            Assert.Less(game.Health.CurrentHP,hp);
+            Assert.IsTrue(game.Player.GetComponent<HitFeedbackVisual>().IsShaking);
+            Assert.NotNull(game.RuntimeRoot.Find("Player blood flecks"));
+        }
+        [UnityTest] public IEnumerator HitBurstReturnsToPoolAndIsReused()
+        {
+            Begin();
+            CombatVfx.Hit(game,new Vector3(2,2),.5f,false,false);
+            var first=game.RuntimeRoot.Find("Hit burst");Assert.NotNull(first);
+            yield return new WaitForSeconds(.4f);
+            Assert.IsFalse(first.gameObject.activeSelf);
+            CombatVfx.Hit(game,new Vector3(3,2),.5f,false,false);
+            Assert.AreSame(first,game.RuntimeRoot.Find("Hit burst"));
+        }
     }
 }
