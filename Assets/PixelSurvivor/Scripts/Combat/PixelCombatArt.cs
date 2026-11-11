@@ -5,7 +5,7 @@ namespace PixelSurvivor
     // All visuals are imported as point-filtered sprites from the generated pixel set.
     public static class PixelCombatArt
     {
-        static readonly Sprite[] projectiles=new Sprite[12],flashes=new Sprite[12];
+        static readonly Sprite[] projectiles=new Sprite[16],flashes=new Sprite[16];
 
         public static Sprite Projectile(WeaponPattern pattern)
         {

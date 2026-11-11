@@ -10,10 +10,12 @@ namespace PixelSurvivor
         [SerializeField, Min(0.01f)] float radius = 0.38f;
         [SerializeField] ExperienceGem gemPrefab;
         [SerializeField] Sprite appearanceOverride;
+        [SerializeField] Sprite eliteAppearanceOverride;
         GameManager game;
         EnemySpawner spawner;
         SpriteRenderer visual;
         EnemyTactics tactics;
+        HitFeedbackVisual feedback;
         float flash;
         float lastVfxTime=-1f;
         Color tint=Color.white;
@@ -29,9 +31,9 @@ namespace PixelSurvivor
             transform.localScale=Vector3.one*size;radius*=size;
             visualScale=transform.localScale;
             if(appearanceOverride==null && boss && RedesignedSprites.Monster(3)!=null) visual.sprite=RedesignedSprites.Monster(3);
-            else if(appearanceOverride==null && elite && RedesignedSprites.Elite()!=null) visual.sprite=RedesignedSprites.Elite();
+            else if(elite && eliteAppearanceOverride!=null) visual.sprite=eliteAppearanceOverride;
             tint=boss ? new Color(1,0.45f,0.45f) : elite ? new Color(0.45f,1,0.85f) : tint;
-            if(appearanceOverride!=null || (boss && RedesignedSprites.Monster(3)!=null) || (elite && RedesignedSprites.Elite()!=null)) tint=Color.white;
+            if(appearanceOverride!=null || eliteAppearanceOverride!=null || (boss && RedesignedSprites.Monster(3)!=null)) tint=Color.white;
             visual.color=tint;
         }
         public void Knockback(Vector2 direction,float force)
@@ -51,8 +53,10 @@ namespace PixelSurvivor
         public void ConfigureStats(float health, float speed, float damage, float hitRadius)
         { hp = Mathf.Max(1, health); moveSpeed = Mathf.Max(0, speed); contactDamage = Mathf.Max(0, damage); radius = Mathf.Max(0.01f, hitRadius); }
         public ExperienceGem GemPrefab => gemPrefab;
+        public Sprite EliteAppearance => eliteAppearanceOverride;
         public void SetGem(ExperienceGem prefab) => gemPrefab = prefab;
         public void SetAppearance(Sprite sprite) => appearanceOverride = sprite;
+        public void SetEliteAppearance(Sprite sprite) => eliteAppearanceOverride = sprite;
         public void Initialize(GameManager owner, EnemySpawner source)
         {
             game = owner; spawner = source; CurrentHP = hp; IsAlive = true;
@@ -62,6 +66,11 @@ namespace PixelSurvivor
             if(redesigned!=null) visual.sprite=redesigned;
             tactics=GetComponent<EnemyTactics>();
             if(tactics!=null)tactics.Initialize(owner,this);
+            feedback=GetComponent<HitFeedbackVisual>();
+            if(feedback==null)feedback=gameObject.AddComponent<HitFeedbackVisual>();
+            bool airborne=name.Contains("Moth") || name.Contains("Firefly") || name.Contains("Bat") ||
+                name.Contains("Wraith") || name.Contains("Kestrel") || name.Contains("WindLeaf") || name.Contains("Cicada");
+            feedback.ConfigureMotion(airborne);
         }
         void Update()
         {
@@ -98,6 +107,7 @@ namespace PixelSurvivor
                 to=resolved;
             }
             transform.position=to;
+            feedback.Move((to-from)/Mathf.Max(Time.deltaTime,.0001f),Time.deltaTime);
             float reach = radius + game.Player.Radius;
             if (((Vector2)(game.Player.transform.position - transform.position)).sqrMagnitude <= reach * reach)
                 game.Health.TakeDamage(contactDamage);
@@ -109,8 +119,6 @@ namespace PixelSurvivor
         {
             if (!IsAlive || game == null || !game.IsPlaying || amount <= 0) return;
             CurrentHP = Mathf.Max(0, CurrentHP - amount); flash = 0.16f;
-            var feedback=GetComponent<HitFeedbackVisual>();
-            if(feedback==null)feedback=gameObject.AddComponent<HitFeedbackVisual>();
             feedback.Play(.16f,IsBoss?.085f:.12f,new Color(1f,.1f,.16f));
             CombatAudio.Hit(CurrentHP <= 0);
             if(CurrentHP<=0 || Time.time-lastVfxTime>=0.12f)

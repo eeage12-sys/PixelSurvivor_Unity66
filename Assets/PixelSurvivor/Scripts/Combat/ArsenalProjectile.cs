@@ -40,6 +40,12 @@ namespace PixelSurvivor
                 if(enemy==null && prop==null)break;
                 if(enemy!=null){hits.Add(enemy);enemy.TakeDamage(c.RollDamage(damage),trailColor);enemy.Knockback(direction,knock);}
                 else {propHits.Add(prop);prop.TakeDamage(damage);}
+                if(pattern==WeaponPattern.Comet)
+                {
+                    Vector2 impact=Vector2.Lerp(from,to,first);
+                    c.Arsenal.HurtCircle(impact,radius*5f,damage*.65f,knock,Vector2.zero,-1,trailColor);
+                    PixelAttackFlash.Spawn(c,pattern,impact,direction,radius*5f,trailColor);
+                }
                 if(pattern==WeaponPattern.Bolt || pattern==WeaponPattern.Dagger)
                     PixelAttackFlash.Spawn(c,pattern,Vector2.Lerp(from,to,first),direction,.55f,trailColor);
                 remaining--;

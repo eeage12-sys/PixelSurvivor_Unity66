@@ -4,12 +4,13 @@ namespace PixelSurvivor
     [RequireComponent(typeof(PlayerStats), typeof(SpriteRenderer))]
     public sealed class PlayerHealth : MonoBehaviour
     {
-        [SerializeField, Min(0.05f)] float invulnerabilitySeconds = 0.65f;
+        [SerializeField, Min(0.05f)] float invulnerabilitySeconds = 1f;
         GameManager game;
         PlayerStats stats;
         SpriteRenderer visual;
         float invulnerability;
         public float CurrentHP { get; private set; }
+        public float InvulnerabilitySeconds => invulnerabilitySeconds;
         public void Initialize(GameManager owner)
         { game = owner; stats = GetComponent<PlayerStats>(); visual = GetComponent<SpriteRenderer>(); }
         public void ResetHealth() { CurrentHP = stats.MaxHP; invulnerability = 0; visual.color = Color.white; }

@@ -18,7 +18,7 @@ namespace PixelSurvivor
         CompactHUD compactHud;
         readonly List<Button> characterButtons=new List<Button>(),stageButtons=new List<Button>();
         
-        Text practiceLabel,previewLabel;float noticeUntil;
+        float noticeUntil;
         int shopConstellation=-2;
         static readonly string[] ConstellationNames={"새벽의 검자리","질풍의 제비자리","불굴의 방패자리","비전의 고리자리","그림자의 낫자리"};
         static readonly Color Ink=new Color(0.025f,0.05f,0.09f,0.98f), Panel=new Color(0.08f,0.15f,0.22f,1), Mint=new Color(0.38f,0.95f,0.78f), Muted=new Color(0.6f,0.68f,0.75f);
@@ -49,7 +49,6 @@ namespace PixelSurvivor
             ButtonAt(menu.transform,"영구 강화",lobbyX,-130,450,75,()=>ShowShop());
             ButtonAt(menu.transform,"도감",lobbyX,-230,450,65,()=>ShowCodex(0));
             ButtonAt(menu.transform,"종료",lobbyX,-305,450,58,()=>Quit());
-            var practice=ButtonAt(menu.transform,"",lobbyX,-385,850,40,()=>{c.TogglePractice();RefreshMenu();});practiceLabel=practice.GetComponentInChildren<Text>();
             gold=TextAt(menu.transform,"",lobbyX,360,850,45,25,new Color(1,0.85f,0.35f));
             TextAt(characters.transform,"캐릭터 선택",0,365,1450,70,44,Mint);
             selection=TextAt(characters.transform,"함께할 캐릭터를 선택하세요.",0,295,1450,55,23,Muted);
@@ -72,7 +71,6 @@ namespace PixelSurvivor
             for(int i=0;i<c.Data.stages.Length;i++)
             {int id=i;var b=ButtonAt(stages.transform,c.Data.stages[i].title,-480+i*480,190,440,100,()=>{c.SelectStage(id);RefreshMenu();});stageButtons.Add(b);}
             stageInfo=TextAt(stages.transform,"",0,-30,1400,260,25,Color.white);
-            var preview=ButtonAt(stages.transform,"",0,-210,720,50,()=>{c.ToggleStagePreview();RefreshMenu();});previewLabel=preview.GetComponentInChildren<Text>();
             ButtonAt(stages.transform,"뒤로",-360,-300,320,65,()=>ShowCharacters(false));
             stageStart=ButtonAt(stages.transform,"전투 시작",360,-300,440,75,()=>c.Game.BeginRun());
             compactHud=hud.AddComponent<CompactHUD>();
@@ -94,16 +92,14 @@ namespace PixelSurvivor
                 characterButtons[i].GetComponent<Image>().color=c.HasCharacterSelection && i==c.CharacterIndex?new Color(0.15f,0.42f,0.35f):Panel;
             for(int i=0;i<stageButtons.Count;i++)
             {
-                bool unlocked=i<c.Save.Progress.unlockedStages;stageButtons[i].interactable=unlocked || c.PreviewStages;
-                stageButtons[i].GetComponentInChildren<Text>().text=c.Data.stages[i].title+(unlocked?"":c.PreviewStages?"  [체험]":"  [잠김]");
+                bool unlocked=i<c.Save.Progress.unlockedStages;stageButtons[i].interactable=unlocked;
+                stageButtons[i].GetComponentInChildren<Text>().text=c.Data.stages[i].title+(unlocked?"":"  [잠김]");
                 stageButtons[i].GetComponent<Image>().color=i==c.StageIndex?new Color(0.15f,0.42f,0.35f):Panel;
             }
             selection.text=c.HasCharacterSelection?"선택: "+CharacterName(c.Character):"함께할 캐릭터를 선택하세요.";
             characterNext.interactable=c.HasCharacterSelection;stageStart.interactable=c.HasCharacterSelection;
-            stageInfo.text=c.StageData.description+"\n\n캐릭터: "+CharacterName(c.Character)+"\n최고 생존 기록: "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n\n10분에 보스가 등장합니다. 20분 생존 시 다음 구역이 열립니다.\n그때 불사의 추격자가 등장합니다. 닿으면 전투가 끝납니다."+(c.PreviewStages?"\n체험 전투는 골드·기록·해금이 저장되지 않습니다.":"");
+            stageInfo.text=c.StageData.description+"\n\n캐릭터: "+CharacterName(c.Character)+"\n최고 생존 기록: "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n\n10분에 보스가 등장합니다. 20분 생존 시 다음 구역이 열립니다.\n그때 불사의 추격자가 등장합니다. 닿으면 전투가 끝납니다.";
             gold.text="보유 골드  "+c.Save.Progress.gold;
-            practiceLabel.text=c.Practice?"빠른 테스트 켜짐 · 20분까지 약 1분 · 저장 안 함":"빠른 테스트 꺼짐 · 20분 생존 도전";
-            previewLabel.text=c.PreviewStages?"스테이지 체험 켜짐 · 저장하지 않음":"잠긴 스테이지 체험하기";
         }
         void Only(GameObject screen)
         {HideModal();menu.SetActive(screen==menu);characters.SetActive(screen==characters);stages.SetActive(screen==stages);shop.SetActive(screen==shop);codex.SetActive(screen==codex);hud.SetActive(screen==hud);}
@@ -190,7 +186,7 @@ namespace PixelSurvivor
             TextAt(modal.transform,"생존 시간  "+SurvivalRules.Clock(c.Stage.Elapsed)+"\n도달 레벨  "+c.Game.Level.Level+"    총 처치  "+c.Game.KillCount+
                 "\n엘리트 처치  "+c.EliteKills+"    보스 처치  "+c.BossKills+"\n획득 골드  "+c.RunGold+
                 "\n최고 생존 기록  "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n"+
-                (c.NoProgress?"체험 전투의 골드, 기록, 해금은 저장되지 않습니다.":"골드와 성장 기록을 저장했습니다. 전투 장비는 초기화됩니다."),0,10,1400,350,28,Color.white);
+                "골드와 성장 기록을 저장했습니다. 전투 장비는 초기화됩니다.",0,10,1400,350,28,Color.white);
             ButtonAt(modal.transform,"메인 메뉴",-260,-280,420,70,()=>c.Game.ReturnToMenu());
             ButtonAt(modal.transform,"다시 시작",260,-280,420,70,()=>c.Game.BeginRun());SelectFirst(modal);
         }

@@ -127,7 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b4e44015da7e504ebc2285774a8c710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.PlayerHealth
-  invulnerabilitySeconds: 0.65
+  invulnerabilitySeconds: 1
 --- !u!114 &6239942946261299143
 MonoBehaviour:
   m_ObjectHideFlags: 0

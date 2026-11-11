@@ -125,3 +125,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.EnemyTactics
   kind: 0
+  chargeDuration: 0.24
+  chargeSpeedMultiplier: 2.1
+  chargeMinimumSpeed: 5.5

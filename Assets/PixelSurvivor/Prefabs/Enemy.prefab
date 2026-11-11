@@ -82,7 +82,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 46fc1884654cd994c9c73e246c025db1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 831a91eb88790344b944597fcc1a1343, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -110,3 +110,5 @@ MonoBehaviour:
   contactDamage: 10
   radius: 0.38
   gemPrefab: {fileID: 3676734111985373855, guid: 135c29dceba629d43a25efe64c44acd5, type: 3}
+  appearanceOverride: {fileID: 21300000, guid: 831a91eb88790344b944597fcc1a1343, type: 3}
+  eliteAppearanceOverride: {fileID: 21300000, guid: 0f3be23550c2eff40b4fcdd1a6861b1a, type: 3}

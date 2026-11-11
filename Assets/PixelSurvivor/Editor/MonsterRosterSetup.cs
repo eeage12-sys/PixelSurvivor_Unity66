@@ -63,10 +63,96 @@ namespace PixelSurvivor
             var visual=go.AddComponent<SpriteRenderer>();visual.sprite=sprite;visual.sortingOrder=5;
             var enemy=go.AddComponent<Enemy>();enemy.SetGem(gem);enemy.SetAppearance(sprite);
             enemy.ConfigureStats(hp,speed,damage,radius);
-            if(charger)go.AddComponent<EnemyTactics>().Configure(EnemyTacticKind.Charger);
+            if(charger)
+            {
+                var tactics=go.AddComponent<EnemyTactics>();tactics.Configure(EnemyTacticKind.Charger);
+                if(name=="EnemyMeadowFox")tactics.ConfigureCharge(.22f,2f,5.5f);
+                if(name=="EnemyAmberKestrel")tactics.ConfigureCharge(.24f,2.1f,5.5f);
+            }
             var saved=PrefabUtility.SaveAsPrefabAsset(go,Root+"/Prefabs/"+name+".prefab");
             UnityEngine.Object.DestroyImmediate(go);
             return saved.GetComponent<Enemy>();
+        }
+
+        [MenuItem("Tools/Pixel Survivor/Apply Combat Balance")]
+        public static void ApplyCombatBalance()
+        {
+            if(EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("Stop Play mode first");
+            ApplyChargeBalance("EnemyMeadowFox",.22f,2f,5.5f);
+            ApplyChargeBalance("EnemyAmberKestrel",.24f,2.1f,5.5f);
+            var playerPath=Root+"/Prefabs/Player.prefab";
+            var player=PrefabUtility.LoadPrefabContents(playerPath);
+            try
+            {
+                var health=player.GetComponent<PlayerHealth>();
+                if(health==null)throw new InvalidOperationException("Player health is missing");
+                var serialized=new SerializedObject(health);
+                serialized.FindProperty("invulnerabilitySeconds").floatValue=1f;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(player,playerPath);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(player); }
+            AssetDatabase.SaveAssets();
+        }
+
+        static void ApplyChargeBalance(string name,float duration,float speedMultiplier,float minimumSpeed)
+        {
+            string path=Root+"/Prefabs/"+name+".prefab";
+            var root=PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                var tactics=root.GetComponent<EnemyTactics>();
+                if(tactics==null)throw new InvalidOperationException(name+" tactics are missing");
+                tactics.ConfigureCharge(duration,speedMultiplier,minimumSpeed);
+                PrefabUtility.SaveAsPrefabAsset(root,path);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
+        }
+
+        [MenuItem("Tools/Pixel Survivor/Apply Early Stage Monster Roster")]
+        public static void ApplyEarlyStageRosterToOpenScene()
+        {
+            if(EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("Stop Play mode first");
+            var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if(!scene.IsValid() || !scene.path.EndsWith("/MainScene.unity"))
+                throw new InvalidOperationException("Open PixelSurvivor MainScene first");
+            var game=UnityEngine.Object.FindAnyObjectByType<GameManager>();
+            if(game==null || game.Spawner==null || game.Spawner.EnemyPrefab==null)
+                throw new InvalidOperationException("MainScene enemy spawner is not configured");
+            AssetDatabase.Refresh();
+            var light=ImportTheme("MeadowLightSpirit",1050);
+            var guardian=ImportTheme("MeadowGuardian",1050);
+            var wind=ImportTheme("WindLeafSpirit",1100);
+            var firefly=ImportTheme("AmberFirefly",1280);
+            var zombie=ImportTheme("RuinZombie",1100);
+            string basePath=Root+"/Prefabs/Enemy.prefab";
+            var baseRoot=PrefabUtility.LoadPrefabContents(basePath);
+            try
+            {
+                var enemy=baseRoot.GetComponent<Enemy>();
+                if(enemy==null)throw new InvalidOperationException("Base enemy prefab is missing");
+                enemy.SetAppearance(light);enemy.SetEliteAppearance(guardian);
+                baseRoot.GetComponent<SpriteRenderer>().sprite=light;
+                PrefabUtility.SaveAsPrefabAsset(baseRoot,basePath);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(baseRoot); }
+            var gem=game.Spawner.EnemyPrefab.GemPrefab;
+            var windPrefab=CreateTheme(gem,"EnemyWindLeafSpirit",wind,15,2.55f,6,.31f,false);
+            var fireflyPrefab=CreateTheme(gem,"EnemyAmberFirefly",firefly,17,3.15f,7,.32f,false);
+            var zombiePrefab=CreateTheme(gem,"EnemyRuinZombie",zombie,30,1.9f,10,.4f,false);
+            game.Spawner.SetEarlyVariants(windPrefab,fireflyPrefab,zombiePrefab);
+            var campaign=game.GetComponent<CampaignController>();
+            if(campaign==null || campaign.Data==null)
+                throw new InvalidOperationException("MainScene campaign data is not configured");
+            var stages=campaign.Data.stages;
+            stages[0].description="햇살이 내려앉은 들판입니다. 잎 정령과 바람 정령을 피해 살아남으세요.";
+            stages[1].description="호박빛 분지입니다. 나방과 반딧불이 나타나고, 3분 뒤 딱정벌레가 합류합니다.";
+            stages[2].description="보랏빛 폐허입니다. 박쥐와 좀비가 배회하고, 3분 뒤 해골이 나타납니다.";
+            foreach(var stageData in stages)EditorUtility.SetDirty(stageData);
+            EditorUtility.SetDirty(game.Spawner);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
         }
 
         [MenuItem("Tools/Pixel Survivor/Apply Stage Theme Roster")]

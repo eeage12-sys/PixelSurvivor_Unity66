@@ -84,6 +84,46 @@ namespace PixelSurvivor
                 case WeaponPattern.Trap:
                     PixelAttackFlash.Spawn(c,d.pattern,target,Vector2.up,area,d.color);
                     Zone(target,area,damage,Mathf.Max(1,duration),d.color,false,false,knock);break;
+                case WeaponPattern.PrismRay:
+                    int rays=Mathf.Min(3,Mathf.Max(1,count));
+                    for(int ray=0;ray<rays;ray++)
+                    {
+                        float angle=(ray-(rays-1)*.5f)*15*Mathf.Deg2Rad;
+                        Vector2 heading=new Vector2(direction.x*Mathf.Cos(angle)-direction.y*Mathf.Sin(angle),
+                            direction.x*Mathf.Sin(angle)+direction.y*Mathf.Cos(angle));
+                        for(int step=1;step<=4;step++)
+                        {
+                            Vector2 point=origin+heading*(step*area*.55f);
+                            HurtCircle(point,area*.38f,damage*.65f,knock,Vector2.zero,-1,d.color);
+                            PixelAttackFlash.Spawn(c,d.pattern,point,heading,area*.4f,d.color);
+                        }
+                    }
+                    break;
+                case WeaponPattern.Bloom:
+                    HurtCircle(target,area*.85f,damage,knock,Vector2.zero,-1,d.color);
+                    PixelAttackFlash.Spawn(c,d.pattern,target,Vector2.up,area,d.color);
+                    int petals=Mathf.Max(4,count+3);
+                    for(int i=0;i<petals;i++)
+                    {
+                        float angle=2*Mathf.PI*i/petals;
+                        Shoot(target,new Vector2(Mathf.Cos(angle),Mathf.Sin(angle)),damage*.45f,d.projectileSpeed,
+                            Mathf.Max(.35f,duration),pierce,area*.65f,d.color,d.pattern,knock);
+                    }
+                    break;
+                case WeaponPattern.GravityWell:
+                    HurtCircle(target,area*.55f,damage*.55f,0,Vector2.zero,-1,d.color);
+                    PixelAttackFlash.Spawn(c,d.pattern,target,Vector2.up,area,d.color);
+                    Zone(target,area,damage*.32f,Mathf.Max(1f,duration),d.color,false,false,-Mathf.Max(.15f,knock));
+                    break;
+                case WeaponPattern.Comet:
+                    for(int i=0;i<count;i++)
+                    {
+                        float angle=(i-(count-1)*.5f)*10*Mathf.Deg2Rad;
+                        Vector2 heading=new Vector2(direction.x*Mathf.Cos(angle)-direction.y*Mathf.Sin(angle),
+                            direction.x*Mathf.Sin(angle)+direction.y*Mathf.Cos(angle));
+                        Shoot(origin,heading,damage,d.projectileSpeed,Mathf.Max(.5f,duration),0,area,d.color,d.pattern,knock);
+                    }
+                    break;
                 default:
                     if(d.pattern==WeaponPattern.Dagger || d.pattern==WeaponPattern.Spear)direction=Facing;
                     for(int i=0;i<count;i++)

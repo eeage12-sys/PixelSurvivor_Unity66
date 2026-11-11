@@ -3,6 +3,9 @@ namespace PixelSurvivor
 {
     public sealed class StageDirector
     {
+        const float MeadowFoxUnlockSeconds=300f;
+        const float AmberKestrelUnlockSeconds=240f;
+        const float ArmoredMonsterUnlockSeconds=180f;
         readonly CampaignController c;
         float spawnTimer, nextElite;
         int bossWaves;
@@ -111,7 +114,7 @@ namespace PixelSurvivor
             sr.color=color;
             sr.sortingOrder=-15;
         }
-        public float Elapsed => c.Game.Timer.Elapsed*c.TimelineScale;
+        public float Elapsed => c.Game.Timer.Elapsed;
         public void Tick(float dt)
         {
             c.Terrain.Tick(dt);
@@ -147,16 +150,22 @@ namespace PixelSurvivor
         {
             var s=c.Game.Spawner;float sample=Random.value;
             if(c.StageIndex==0)
-                return sample<0.38f && s.MeadowFoxPrefab!=null ? s.MeadowFoxPrefab : s.EnemyPrefab;
+            {
+                if(Elapsed>=MeadowFoxUnlockSeconds && sample<0.2f && s.MeadowFoxPrefab!=null)return s.MeadowFoxPrefab;
+                if(sample<(Elapsed>=MeadowFoxUnlockSeconds?0.55f:0.45f) && s.WindLeafSpiritPrefab!=null)return s.WindLeafSpiritPrefab;
+                return s.EnemyPrefab;
+            }
             if(c.StageIndex==1)
             {
-                if(sample<0.34f && s.AmberKestrelPrefab!=null)return s.AmberKestrelPrefab;
-                if(sample<0.67f && s.MothPrefab!=null)return s.MothPrefab;
-                return s.BeetlePrefab!=null ? s.BeetlePrefab : s.MothPrefab;
+                if(Elapsed>=AmberKestrelUnlockSeconds && sample<0.18f && s.AmberKestrelPrefab!=null)return s.AmberKestrelPrefab;
+                if(Elapsed>=ArmoredMonsterUnlockSeconds && sample<0.38f && s.BeetlePrefab!=null)return s.BeetlePrefab;
+                if(sample<(Elapsed>=ArmoredMonsterUnlockSeconds?0.7f:0.5f) && s.AmberFireflyPrefab!=null)return s.AmberFireflyPrefab;
+                return s.MothPrefab??s.AmberFireflyPrefab;
             }
-            if(sample<0.34f && s.RuinBatPrefab!=null)return s.RuinBatPrefab;
-            if(sample<0.67f && s.BoneCrawlerPrefab!=null)return s.BoneCrawlerPrefab;
-            return s.EmberWraithPrefab!=null ? s.EmberWraithPrefab : s.BoneCrawlerPrefab;
+            if(Elapsed>=ArmoredMonsterUnlockSeconds && sample<0.24f && s.BoneCrawlerPrefab!=null)return s.BoneCrawlerPrefab;
+            if(Elapsed>=90f && sample<0.42f && s.EmberWraithPrefab!=null)return s.EmberWraithPrefab;
+            if(sample<(Elapsed>=90f?0.7f:0.5f) && s.RuinZombiePrefab!=null)return s.RuinZombiePrefab;
+            return s.RuinBatPrefab??s.RuinZombiePrefab;
         }
         public Enemy SpawnEnemy(bool elite)
         {
@@ -172,9 +181,9 @@ namespace PixelSurvivor
         Enemy ChooseElitePrefab()
         {
             var s=c.Game.Spawner;
-            return c.StageIndex==0 ? s.MeadowFoxPrefab??s.EnemyPrefab :
-                c.StageIndex==1 ? s.BeetlePrefab??s.AmberKestrelPrefab :
-                s.BoneCrawlerPrefab??s.RuinBatPrefab;
+            return c.StageIndex==0 ? s.EnemyPrefab :
+                c.StageIndex==1 ? (Elapsed>=ArmoredMonsterUnlockSeconds ? s.BeetlePrefab??s.AmberFireflyPrefab : s.AmberFireflyPrefab??s.MothPrefab) :
+                (Elapsed>=ArmoredMonsterUnlockSeconds ? s.BoneCrawlerPrefab??s.RuinZombiePrefab : s.RuinZombiePrefab??s.RuinBatPrefab);
         }
         // Kept for QA callers; regular events use an explicit wave number.
         public Enemy SpawnBoss(bool unlock) => SpawnBossWave(unlock?Mathf.CeilToInt(c.StageData.unlockBossTime/c.StageData.bossInterval):1);

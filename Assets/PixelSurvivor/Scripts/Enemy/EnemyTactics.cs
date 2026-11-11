@@ -8,6 +8,9 @@ namespace PixelSurvivor
     public sealed class EnemyTactics : MonoBehaviour
     {
         [SerializeField] EnemyTacticKind kind;
+        [SerializeField, Min(.05f)] float chargeDuration=.42f;
+        [SerializeField, Min(.1f)] float chargeSpeedMultiplier=4f;
+        [SerializeField, Min(.1f)] float chargeMinimumSpeed=7.5f;
         GameManager game;
         Enemy owner;
         SpriteRenderer warning;
@@ -16,9 +19,17 @@ namespace PixelSurvivor
         int phase; // 0: approach/cooldown, 1: warning, 2: charge
 
         public EnemyTacticKind Kind => kind;
+        public float ChargeDuration => chargeDuration;
+        public float ChargeSpeedMultiplier => chargeSpeedMultiplier;
         public bool IsTelegraphing => phase==1;
         public bool IsCommitting => phase!=0;
         public void Configure(EnemyTacticKind value) => kind=value;
+        public void ConfigureCharge(float duration,float speedMultiplier,float minimumSpeed)
+        {
+            chargeDuration=Mathf.Max(.05f,duration);
+            chargeSpeedMultiplier=Mathf.Max(.1f,speedMultiplier);
+            chargeMinimumSpeed=Mathf.Max(.1f,minimumSpeed);
+        }
 
         public void Initialize(GameManager source,Enemy enemy)
         {
@@ -52,11 +63,11 @@ namespace PixelSurvivor
                 if(warning!=null)warning.enabled=false;
                 if(kind==EnemyTacticKind.EmberCaster)
                 {FireEmber(damage);phase=0;timer=2.4f;return Vector2.zero;}
-                phase=2;timer=.42f;
+                phase=2;timer=chargeDuration;
             }
             if(phase==2)
             {
-                if(timer>0)return lockedDirection*Mathf.Max(7.5f,moveSpeed*4f);
+                if(timer>0)return lockedDirection*Mathf.Max(chargeMinimumSpeed,moveSpeed*chargeSpeedMultiplier);
                 phase=0;timer=2.2f;
             }
             if(timer<=0 && toPlayer.sqrMagnitude<(kind==EnemyTacticKind.Charger?49f:81f))

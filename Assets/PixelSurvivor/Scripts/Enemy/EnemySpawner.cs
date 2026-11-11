@@ -15,6 +15,9 @@ namespace PixelSurvivor
         [SerializeField] Enemy lumenStagBossPrefab;
         [SerializeField] Enemy amberCicadaBossPrefab;
         [SerializeField] Enemy violetLichBossPrefab;
+        [SerializeField] Enemy windLeafSpiritPrefab;
+        [SerializeField] Enemy amberFireflyPrefab;
+        [SerializeField] Enemy ruinZombiePrefab;
         [SerializeField, Min(0)] float mothUnlockSeconds = 30;
         [SerializeField, Min(0)] float beetleUnlockSeconds = 90;
         public Enemy MothPrefab => mothPrefab;
@@ -27,12 +30,17 @@ namespace PixelSurvivor
         public Enemy LumenStagBossPrefab => lumenStagBossPrefab;
         public Enemy AmberCicadaBossPrefab => amberCicadaBossPrefab;
         public Enemy VioletLichBossPrefab => violetLichBossPrefab;
+        public Enemy WindLeafSpiritPrefab => windLeafSpiritPrefab;
+        public Enemy AmberFireflyPrefab => amberFireflyPrefab;
+        public Enemy RuinZombiePrefab => ruinZombiePrefab;
         public bool HasExpandedRoster => enemyPrefab != null && mothPrefab != null && beetlePrefab != null;
         public bool HasFullRoster => HasExpandedRoster && boneCrawlerPrefab != null && emberWraithPrefab != null;
         public void SetVariants(Enemy moth, Enemy beetle) { mothPrefab = moth; beetlePrefab = beetle; }
         public void SetAdditionalVariants(Enemy boneCrawler, Enemy emberWraith) { boneCrawlerPrefab=boneCrawler; emberWraithPrefab=emberWraith; }
         public void SetThemedVariants(Enemy fox,Enemy kestrel,Enemy bat,Enemy stag,Enemy cicada,Enemy lich)
         {meadowFoxPrefab=fox;amberKestrelPrefab=kestrel;ruinBatPrefab=bat;lumenStagBossPrefab=stag;amberCicadaBossPrefab=cicada;violetLichBossPrefab=lich;}
+        public void SetEarlyVariants(Enemy windSpirit,Enemy firefly,Enemy zombie)
+        {windLeafSpiritPrefab=windSpirit;amberFireflyPrefab=firefly;ruinZombiePrefab=zombie;}
         // One random sample per spawn. Missing optional prefabs fall back to the slime.
         public Enemy SelectPrefab(float elapsed, float sample)
         {

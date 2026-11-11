@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.StageData
   id: stage1
   title: "2\uAD6C\uC5ED \xB7 \uD638\uBC15\uBE5B \uBD84\uC9C0"
-  description: "\uB113\uC740 \uBD84\uC9C0\uC785\uB2C8\uB2E4. \uBE60\uB978 \uB098\uBC29\uC774 \uB354 \uC790\uC8FC \uB4F1\uC7A5\uD569\uB2C8\uB2E4."
+  description: "\uD638\uBC15\uBE5B \uBD84\uC9C0\uC785\uB2C8\uB2E4. \uB098\uBC29\uACFC \uBC18\uB527\uBD88\uC774 \uB098\uD0C0\uB098\uACE0, 3\uBD84 \uB4A4 \uB531\uC815\uBC8C\uB808\uAC00 \uD569\uB958\uD569\uB2C8\uB2E4."
   halfSize: {x: 120, y: 76}
   groundColor: {r: 1, g: 0.72, b: 0.42, a: 1}
   detailColor: {r: 1, g: 0.85, b: 0.55, a: 1}

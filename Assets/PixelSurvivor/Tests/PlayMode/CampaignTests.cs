@@ -21,6 +21,40 @@ namespace PixelSurvivor.Tests
             var starters=new System.Collections.Generic.HashSet<WeaponData>();foreach(var ch in c.Data.characters)Assert.IsTrue(starters.Add(ch.startingWeapon));
             c.SelectCharacter(1);Begin();Assert.AreEqual(70,game.Stats.MaxHP);Assert.AreEqual(6.4f,game.Stats.MoveSpeed,0.01f);Assert.AreSame(c.Character.startingWeapon,c.Equipment.Weapons[0].data);
         }
+        [Test] public void FourNewWeaponsReuseExistingPassivesForEvolution()
+        {
+            Assert.AreEqual(16,c.Data.weapons.Length);
+            Assert.AreEqual(12,c.Data.passives.Length);
+            int[] partners={7,4,6,3};
+            Begin();
+            for(int index=12;index<16;index++)
+            {
+                var weapon=c.Data.weapons[index];
+                Assert.AreEqual((WeaponPattern)index,weapon.pattern);
+                Assert.NotNull(weapon.icon);Assert.NotNull(weapon.evolvedIcon);
+                Assert.NotNull(PixelCombatArt.Projectile(weapon.pattern));
+                Assert.NotNull(PixelCombatArt.Flash(weapon.pattern));
+                Assert.AreSame(c.Data.passives[partners[index-12]],weapon.evolutionPartner);
+                Assert.IsTrue(c.Equipment.Add(weapon));
+                var state=c.Equipment.Find(weapon);
+                while(state.level<state.Maximum)Assert.IsTrue(c.Equipment.Add(weapon));
+                Assert.IsFalse(c.Equipment.CanEvolve(state));
+                Assert.IsTrue(c.Equipment.Add(weapon.evolutionPartner));
+                Assert.IsTrue(c.Equipment.Evolve(state));
+            }
+        }
+        [Test] public void FourNewWeaponPatternsProduceCombatObjects()
+        {
+            Begin();
+            for(int index=12;index<16;index++)Assert.IsTrue(c.Equipment.Add(c.Data.weapons[index]));
+            var target=game.Spawner.SpawnAt((Vector2)game.Player.transform.position+Vector2.right*3);
+            target.ConfigureEncounter(1000,1,1,false,true,false);
+            c.Arsenal.Tick(.1f);
+            Assert.NotNull(game.RuntimeRoot.Find("PrismRay pixel attack"));
+            Assert.NotNull(game.RuntimeRoot.Find("Bloom"));
+            Assert.NotNull(game.RuntimeRoot.Find("Attack flash"));
+            Assert.NotNull(game.RuntimeRoot.Find("Comet"));
+        }
         [Test] public void MovementAndBoundaryStillWork()
         {Begin();Vector2 before=game.Player.transform.position;game.Player.Move(Vector2.one,0.2f);Assert.AreEqual(1,Vector2.Distance(before,game.Player.transform.position),0.01f);game.Player.Move(Vector2.one,1000);Assert.LessOrEqual(game.Player.transform.position.x,game.Bounds.HalfSize.x-game.Player.Radius+0.001f);}
         [Test] public void LevelUpPausesAndChoiceResumes()
@@ -59,18 +93,18 @@ namespace PixelSurvivor.Tests
         }
         [Test] public void EliteAlwaysDropsChestAndBombDoesNotInstakillHealthyBoss()
         {
-            Begin();var elite=c.Stage.SpawnEnemy(true);Assert.AreSame(game.Spawner.MeadowFoxPrefab.GetComponent<SpriteRenderer>().sprite,elite.GetComponent<SpriteRenderer>().sprite);
+            Begin();var elite=c.Stage.SpawnEnemy(true);Assert.AreSame(game.Spawner.EnemyPrefab.EliteAppearance,elite.GetComponent<SpriteRenderer>().sprite);
             int before=c.Field.Items.Count;elite.TakeDamage(elite.CurrentHP+1);Assert.AreEqual(before+1,c.Field.Items.Count);
             var boss=c.Stage.SpawnBoss(true);float hp=boss.CurrentHP;c.Field.Bomb();Assert.IsTrue(boss.IsAlive);Assert.AreEqual(hp-c.Data.bombSpecialDamage,boss.CurrentHP,0.01f);
         }
         [Test] public void EachStageUsesOnlyItsCreaturesAndAUniqueBoss()
         {
-            c.ToggleStagePreview();
+            c.Save.UnlockNext(1,c.Data.stages.Length);
             var normalNames=new[]
             {
-                new[]{"Enemy", "EnemyMeadowFox"},
-                new[]{"EnemyMoth", "EnemyBeetle", "EnemyAmberKestrel"},
-                new[]{"EnemyBoneCrawler", "EnemyEmberWraith", "EnemyRuinBat"}
+                new[]{"Enemy", "EnemyWindLeafSpirit", "EnemyMeadowFox"},
+                new[]{"EnemyMoth", "EnemyAmberFirefly", "EnemyBeetle", "EnemyAmberKestrel"},
+                new[]{"EnemyRuinBat", "EnemyRuinZombie", "EnemyEmberWraith", "EnemyBoneCrawler"}
             };
             var bossSprites=new Sprite[3];
             for(int stage=0;stage<3;stage++)
@@ -91,6 +125,78 @@ namespace PixelSurvivor.Tests
             Assert.AreNotSame(bossSprites[0],bossSprites[1]);
             Assert.AreNotSame(bossSprites[1],bossSprites[2]);
             Assert.AreNotSame(bossSprites[0],bossSprites[2]);
+        }
+        [Test] public void MeadowFoxWaitsFiveMinutesAndPouncesShorter()
+        {
+            Begin();
+            Assert.AreEqual(300f,c.StageData.firstEliteTime,.001f);
+            var foxTactics=game.Spawner.MeadowFoxPrefab.GetComponent<EnemyTactics>();
+            Assert.NotNull(foxTactics);
+            Assert.AreEqual(.22f,foxTactics.ChargeDuration,.001f);
+            Assert.AreEqual(2f,foxTactics.ChargeSpeedMultiplier,.001f);
+            for(int i=0;i<30;i++)
+                Assert.AreNotSame(game.Spawner.MeadowFoxPrefab.GetComponent<SpriteRenderer>().sprite,
+                    c.Stage.SpawnEnemy(false).GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(299);
+            Assert.AreSame(game.Spawner.EnemyPrefab.EliteAppearance,
+                c.Stage.SpawnEnemy(true).GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(1);
+            Assert.AreSame(game.Spawner.EnemyPrefab.EliteAppearance,c.Stage.SpawnEnemy(true).GetComponent<SpriteRenderer>().sprite);
+            bool seen=false;
+            for(int i=0;i<100;i++)
+                seen|=c.Stage.SpawnEnemy(false).GetComponent<SpriteRenderer>().sprite==game.Spawner.MeadowFoxPrefab.GetComponent<SpriteRenderer>().sprite;
+            Assert.IsTrue(seen);
+        }
+        [Test] public void OpeningMinutesMixCreaturesAndDelayArmoredOnes()
+        {
+            c.Save.UnlockNext(1,c.Data.stages.Length);
+            string[][] early=
+            {
+                new[]{"Enemy", "EnemyWindLeafSpirit"},
+                new[]{"EnemyMoth", "EnemyAmberFirefly"},
+                new[]{"EnemyRuinBat", "EnemyRuinZombie"}
+            };
+            string[] armored={null,"EnemyBeetle","EnemyBoneCrawler"};
+            for(int stage=0;stage<3;stage++)
+            {
+                Assert.IsTrue(c.SelectStage(stage));c.SelectCharacter(0);Begin();
+                var seen=new System.Collections.Generic.HashSet<string>();
+                for(int i=0;i<50;i++)
+                {
+                    string name=c.Stage.SpawnEnemy(false).name.Replace("(Clone)","");
+                    CollectionAssert.Contains(early[stage],name);seen.Add(name);
+                }
+                Assert.AreEqual(2,seen.Count);
+                game.Timer.AdvanceCampaign(179);
+                string elite=c.Stage.SpawnEnemy(true).name.Replace("(Clone)","");
+                Assert.AreNotEqual(armored[stage],elite);
+                if(stage>0)
+                {
+                    game.Timer.AdvanceCampaign(1);
+                    Assert.AreEqual(armored[stage],c.Stage.SpawnEnemy(true).name.Replace("(Clone)",""));
+                }
+                game.EndRun(false);game.ReturnToMenu();
+            }
+        }
+        [Test] public void AmberKestrelWaitsFourMinutesAndPouncesShorter()
+        {
+            c.Save.UnlockNext(0,c.Data.stages.Length);
+            Assert.IsTrue(c.SelectStage(1));Begin();
+            var birdTactics=game.Spawner.AmberKestrelPrefab.GetComponent<EnemyTactics>();
+            Assert.NotNull(birdTactics);
+            Assert.AreEqual(.24f,birdTactics.ChargeDuration,.001f);
+            Assert.AreEqual(2.1f,birdTactics.ChargeSpeedMultiplier,.001f);
+            for(int i=0;i<30;i++)
+                Assert.AreNotSame(game.Spawner.AmberKestrelPrefab.GetComponent<SpriteRenderer>().sprite,
+                    c.Stage.SpawnEnemy(false).GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(239);
+            Assert.AreNotSame(game.Spawner.AmberKestrelPrefab.GetComponent<SpriteRenderer>().sprite,
+                c.Stage.SpawnEnemy(false).GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(1);
+            bool seen=false;
+            for(int i=0;i<100;i++)
+                seen|=c.Stage.SpawnEnemy(false).GetComponent<SpriteRenderer>().sprite==game.Spawner.AmberKestrelPrefab.GetComponent<SpriteRenderer>().sprite;
+            Assert.IsTrue(seen);
         }
         [Test] public void PermanentPurchaseAppliesNextRunAndRunEquipmentResets()
         {
@@ -143,8 +249,25 @@ namespace PixelSurvivor.Tests
             Begin();Assert.AreEqual(3,c.Chests.Open(true).Count);
             var e=c.Stage.SpawnEnemy(true);e.TakeDamage(e.CurrentHP+1);Assert.AreEqual(1,c.EliteKills);Assert.AreEqual(1,game.KillCount);
         }
-        [Test] public void FastTestCannotUnlockStagesOrSaveGold()
-        {c.TogglePractice();Begin();Assert.AreEqual(20,c.TimelineScale);int gold=c.Save.Progress.gold;c.AddGold(100);game.Timer.AdvanceCampaign(60);c.Stage.Tick(0);Assert.IsTrue(c.Stage.DoomAppeared);game.EndRun(false);Assert.AreEqual(gold,c.Save.Progress.gold);Assert.AreEqual(1,c.Save.Progress.unlockedStages);}
+        [Test] public void NormalRunStoresGoldRecordAndStageUnlock()
+        {
+            Begin();int gold=c.Save.Progress.gold;c.AddGold(100);
+            game.Timer.AdvanceCampaign(1200);c.Stage.Tick(0);game.EndRun(false);
+            Assert.AreEqual(gold+100,c.Save.Progress.gold);
+            Assert.GreaterOrEqual(c.Save.Best(c.Character.id,c.StageData.id),1200);
+            Assert.AreEqual(2,c.Save.Progress.unlockedStages);
+            game.ReturnToMenu();Assert.IsTrue(c.SelectStage(1));
+        }
+        [UnityTest] public IEnumerator PlayerHasOneSecondOfInvulnerabilityAfterDamage()
+        {
+            Begin();Assert.AreEqual(1f,game.Health.InvulnerabilitySeconds,.001f);
+            game.Health.TakeDamage(5);float hp=game.Health.CurrentHP;
+            game.Health.TakeDamage(5);Assert.AreEqual(hp,game.Health.CurrentHP);
+            yield return new WaitForSeconds(.55f);
+            game.Health.TakeDamage(5);Assert.AreEqual(hp,game.Health.CurrentHP);
+            yield return new WaitForSeconds(.55f);
+            game.Health.TakeDamage(5);Assert.Less(game.Health.CurrentHP,hp);
+        }
         [Test] public void DamageFlashesAndShakesSpritesWithoutMovingCombatCoordinates()
         {
             Begin();var enemy=game.Spawner.SpawnAt(new Vector2(4,0));Vector3 enemyPosition=enemy.transform.position;

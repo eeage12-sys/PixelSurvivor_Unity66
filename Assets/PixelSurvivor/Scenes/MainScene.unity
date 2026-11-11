@@ -5745,6 +5745,9 @@ MonoBehaviour:
   lumenStagBossPrefab: {fileID: 7847558536379826233, guid: 62405c211793653498fca5d7e836573e, type: 3}
   amberCicadaBossPrefab: {fileID: 319110476342006543, guid: 74db56a8486f01449aababe55e6a0ef9, type: 3}
   violetLichBossPrefab: {fileID: 3458547117822043602, guid: e0550618a9c801b4a8c22d511624767c, type: 3}
+  windLeafSpiritPrefab: {fileID: 1377164075910442344, guid: f720344539ae59b4194530b99d6442e0, type: 3}
+  amberFireflyPrefab: {fileID: 4216708257805159285, guid: 7bca8c317d47a094ea4d7375e1f8c17b, type: 3}
+  ruinZombiePrefab: {fileID: 4313512118497804875, guid: e1c383a9c57267344b2c47fcdfd7aad8, type: 3}
   mothUnlockSeconds: 30
   beetleUnlockSeconds: 90
   spawnIntervals:

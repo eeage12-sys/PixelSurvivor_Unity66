@@ -110,12 +110,17 @@ namespace PixelSurvivor
             ButtonAt(modal.transform,"뒤로",-240,-300,360,65,ShowPauseInformation);
             ButtonAt(modal.transform,"계속하기",240,-300,360,65,ResumePause);SelectFirst(modal);
         }
-        void ShowRecipes()
+        void ShowRecipes() => ShowRecipes(0);
+        void ShowRecipes(int page)
         {
             pausePage=PausePage.Recipes;NewModal("조합법","공격형 최대 레벨 + 조합 강화형 보유 → 보물상자에서 진화 · 강화형은 소모되지 않습니다.");
-            for(int i=0;i<c.Data.weapons.Length;i++)
+            const int perPage=6;
+            int pages=Mathf.CeilToInt(c.Data.weapons.Length/(float)perPage);
+            page=Mathf.Clamp(page,0,Mathf.Max(0,pages-1));
+            for(int i=page*perPage;i<Mathf.Min(c.Data.weapons.Length,(page+1)*perPage);i++)
             {
-                var w=c.Data.weapons[i];float x=i%2==0?-375:375,y=165-(i/2)*112;
+                int local=i-page*perPage;
+                var w=c.Data.weapons[i];float x=local%2==0?-375:375,y=170-(local/2)*150;
                 var row=Box("Recipe "+i,modal.transform,new Vector2(x,y),new Vector2(720,100),Panel);
                 Icon(row.transform,w.icon,-315,8,42,Color.white);
                 TextAt(row.transform,"+",-268,8,25,32,24,Muted);
@@ -125,6 +130,13 @@ namespace PixelSurvivor
                 TextAt(row.transform,w.evolvedTitle,105,27,365,35,22,Mint);
                 TextAt(row.transform,w.title+" + "+(w.evolutionPartner!=null?w.evolutionPartner.title:"미설정"),105,-8,365,32,17,Color.white);
                 TextAt(row.transform,c.Equipment.EvolutionStatus(w).Replace("\n"," · "),30,-37,620,24,15,Muted);
+            }
+            if(pages>1)
+            {
+                int previous=page-1,next=page+1;
+                if(page>0)ButtonAt(modal.transform,"이전",-200,-245,160,46,()=>ShowRecipes(previous));
+                TextAt(modal.transform,(page+1)+" / "+pages,0,-245,130,42,20,Muted);
+                if(next<pages)ButtonAt(modal.transform,"다음",200,-245,160,46,()=>ShowRecipes(next));
             }
             ButtonAt(modal.transform,"뒤로",-240,-330,360,65,ShowPauseInformation);
             ButtonAt(modal.transform,"계속하기",240,-330,360,65,ResumePause);SelectFirst(modal);
