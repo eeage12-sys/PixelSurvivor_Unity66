@@ -97,9 +97,12 @@ namespace PixelSurvivor
             var go=new GameObject(kind.ToString());go.transform.SetParent(c.Game.RuntimeRoot,false);go.transform.position=position;
             var sr=go.AddComponent<SpriteRenderer>();sr.sortingOrder=3;
             bool chest=kind==FieldItemKind.EliteChest || kind==FieldItemKind.BossChest;
-            sr.sprite=chest?c.Data.chestSprite:c.Data.itemSprite;
-            Color[] colors={new Color(1,0.85f,0.25f),Color.cyan,new Color(1,0.3f,0.3f),Color.green,new Color(0.8f,0.6f,1),new Color(0.5f,1,0.7f),new Color(1,0.65f,0.2f)};
-            sr.color=colors[(int)kind];go.transform.localScale=Vector3.one*(chest?1.3f:0.7f);
+            sr.sprite=FieldPickupArt.Icon(kind);sr.color=Color.white;sr.sortingOrder=8;
+            go.transform.localScale=Vector3.one*(chest?1.3f:.9f);
+            var marker=new GameObject("Pickup marker");marker.transform.SetParent(go.transform,false);
+            marker.transform.localPosition=new Vector3(0,-.36f,0);marker.transform.localScale=new Vector3(.7f,.24f,1);
+            var ring=marker.AddComponent<SpriteRenderer>();ring.sprite=c.Data.ringSprite;
+            ring.color=FieldPickupArt.Accent(kind);ring.sortingOrder=3;
             var item=go.AddComponent<FieldItem>();item.Initialize(c,kind,gold,final);Items.Add(item);return item;
         }
         public void DropChest(Vector2 position,bool boss,bool final){Drop(position,boss?FieldItemKind.BossChest:FieldItemKind.EliteChest,0,final);}
