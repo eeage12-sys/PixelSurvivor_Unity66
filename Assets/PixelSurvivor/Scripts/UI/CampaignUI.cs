@@ -77,6 +77,7 @@ namespace PixelSurvivor
             compactHud.Initialize(c,()=>ShowPause(),InspectWeapon,InspectPassive);
             boss=TextAt(hud.transform,"",0,-120,850,40,22,new Color(1,0.5f,0.4f));
             PinTop(boss.rectTransform);
+            BuildPickupHint();
             notice=TextAt(hud.transform,"",0,-165,1250,60,22,Color.white);PinTop(notice.rectTransform);
             doomVeil=Box("Doom screen tint",hud.transform,Vector2.zero,Vector2.zero,Color.clear);
             Stretch(doomVeil.rectTransform);doomVeil.raycastTarget=false;
@@ -121,6 +122,7 @@ namespace PixelSurvivor
         public void Tick()
         {
             if(hud==null)return;
+            TickPickupHint();
             var b=c.Stage.CurrentBoss;boss.text=b!=null && b.IsAlive?(b.IsFinalBoss?"해금 보스":"보스")+"  "+Mathf.CeilToInt(b.CurrentHP)+" / "+Mathf.CeilToInt(b.MaxHP):"";
             if(Time.unscaledTime>noticeUntil)notice.text="";
             float remaining=Mathf.Max(0,doomWarningUntil-Time.unscaledTime);

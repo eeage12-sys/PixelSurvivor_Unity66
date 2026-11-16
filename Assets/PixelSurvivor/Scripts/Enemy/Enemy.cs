@@ -33,7 +33,7 @@ namespace PixelSurvivor
             if(appearanceOverride==null && boss && RedesignedSprites.Monster(3)!=null) visual.sprite=RedesignedSprites.Monster(3);
             else if(elite && eliteAppearanceOverride!=null) visual.sprite=eliteAppearanceOverride;
             tint=boss ? new Color(1,0.45f,0.45f) : elite ? new Color(0.45f,1,0.85f) : tint;
-            if(appearanceOverride!=null || eliteAppearanceOverride!=null || (boss && RedesignedSprites.Monster(3)!=null)) tint=Color.white;
+            if(appearanceOverride!=null || eliteAppearanceOverride!=null || (boss && RedesignedSprites.Monster(3)!=null)) tint=elite && eliteAppearanceOverride==null ? new Color(.65f,1f,.85f) : Color.white;
             visual.color=tint;
         }
         public void Knockback(Vector2 direction,float force)
@@ -55,7 +55,8 @@ namespace PixelSurvivor
         public ExperienceGem GemPrefab => gemPrefab;
         public Sprite EliteAppearance => eliteAppearanceOverride;
         public void SetGem(ExperienceGem prefab) => gemPrefab = prefab;
-        public void SetAppearance(Sprite sprite) => appearanceOverride = sprite;
+        public void SetAppearance(Sprite sprite)
+        { appearanceOverride=sprite;if(visual!=null){visual.sprite=sprite;tint=Color.white;visual.color=tint;} }
         public void SetEliteAppearance(Sprite sprite) => eliteAppearanceOverride = sprite;
         public void Initialize(GameManager owner, EnemySpawner source)
         {

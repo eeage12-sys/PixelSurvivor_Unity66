@@ -4,6 +4,11 @@ namespace PixelSurvivor
     // Pure rules shared by the director, HUD and tests. No elapsed-time win condition.
     public static class SurvivalRules
     {
+        public static int MinuteSpawnCount(float seconds,int initial,int perMinute,int maximum)
+        {
+            int minute=(int)Math.Floor(Math.Max(0,seconds)/60);
+            return (int)Math.Min(Math.Max(1,maximum),(long)Math.Max(1,initial)+(long)minute*Math.Max(1,perMinute));
+        }
         public static string Clock(float seconds)
         {
             long total=(long)Math.Max(0,seconds);

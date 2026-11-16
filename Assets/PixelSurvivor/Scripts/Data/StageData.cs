@@ -26,7 +26,9 @@ namespace PixelSurvivor
         [Min(0.1f)] public float difficulty=1, healthGrowthPerMinute=0.12f, damageGrowthPerMinute=0.04f, speedGrowthPerMinute=0.01f;
         [Min(0.1f)] public float initialSpawnInterval=1.5f, minimumSpawnInterval=0.3f;
         [Min(1)] public int initialSpawnCount=1, maxSpawnCount=4, propsCount=28;
-        [Min(1)] public float extraSpawnEvery=300;
+        [Min(1)] public float extraSpawnEvery=300; // Legacy serialized field retained for compatibility.
+        [Header("Minute reinforcements")]
+        [Min(1)] public int spawnCountPerMinute=1, maximumMinuteSpawnCount=24;
         [Min(0)] public float mothUnlock=30, beetleUnlock=90;
         [Range(0,1)] public float mothWeight=0.3f, beetleWeight=0.2f;
         [Min(0)] public float boneCrawlerUnlock=150, emberWraithUnlock=240;

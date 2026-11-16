@@ -9,6 +9,7 @@ namespace PixelSurvivor
         readonly CampaignController c;
         float spawnTimer, nextElite;
         int bossWaves;
+        int reportedMinute=-1;
         bool doomAppeared;
         bool doomCaughtPlayer;
         Sprite originalGround;
@@ -24,7 +25,7 @@ namespace PixelSurvivor
         public void Begin()
         {
             var d=c.StageData;spawnTimer=0.5f;nextElite=d.firstEliteTime;
-            bossWaves=0;CurrentBoss=null;Doom=null;doomAppeared=false;doomCaughtPlayer=false;
+            reportedMinute=-1;bossWaves=0;CurrentBoss=null;Doom=null;doomAppeared=false;doomCaughtPlayer=false;
             c.Game.Bounds.SetSize(d.halfSize);
             c.Game.Spawner.SetMaxEnemyCount(220);
             Transform map=c.Game.Bounds.transform;
@@ -38,7 +39,8 @@ namespace PixelSurvivor
                     var meadow=Resources.Load<Sprite>("StageCreatures/LumenGround");
                     sr.sprite=c.StageIndex==0 && meadow!=null ? meadow : originalGround;
                     sr.size=d.halfSize*2;
-                    sr.color=c.StageIndex==0 ? Color.white : d.groundColor;
+                    // A cool moss tint keeps the meadow green while separating bright enemies from the floor.
+                    sr.color=c.StageIndex==0 ? d.groundColor*new Color(.52f,.63f,.48f,1) : d.groundColor;
                 }
                 else if(sr.name.Contains("boundary"))
                 {
@@ -68,10 +70,10 @@ namespace PixelSurvivor
                         y=((float)layout.NextDouble()*2-1)*Mathf.Min(d.halfSize.y*0.85f,18);
                     }
                     sr.transform.localPosition=new Vector3(x,y,sr.transform.localPosition.z);
-                    sr.color=d.detailColor;
+                    sr.color=c.StageIndex==0 ? d.detailColor*new Color(.58f,.68f,.5f,1) : d.detailColor;
                     detailIndex++;
                 }
-                else sr.color=d.detailColor;
+                else sr.color=c.StageIndex==0 ? d.detailColor*new Color(.58f,.68f,.5f,1) : d.detailColor;
             }
             ApplyFloorLayout(map,d);
             c.Terrain.Build(map);
@@ -133,6 +135,13 @@ namespace PixelSurvivor
                 return;
             }
             if(doomAppeared)return;
+            int minute=Mathf.FloorToInt(time/60);
+            if(minute!=reportedMinute)
+            {
+                reportedMinute=minute;
+                Debug.Log("[Pixel Survivor] Stage "+(c.StageIndex+1)+" minute "+minute+
+                    " spawn batch="+SurvivalRules.MinuteSpawnCount(time,d.initialSpawnCount,d.spawnCountPerMinute,d.maximumMinuteSpawnCount)+" density cap="+DensityCap);
+            }
             // Catch up scheduled waves, keeping the original wave identity if a prior boss is alive.
             int due=SurvivalRules.DueBosses(time,d.bossInterval);
             if(bossWaves<due) {bossWaves++;SpawnBossWave(bossWaves);}
@@ -142,7 +151,7 @@ namespace PixelSurvivor
             if(spawnTimer<=0)
             {
                 spawnTimer=Mathf.Max(d.minimumSpawnInterval,d.initialSpawnInterval/(1+time/180));
-                int count=Mathf.Min(d.maxSpawnCount,d.initialSpawnCount+Mathf.FloorToInt(time/Mathf.Max(1,d.extraSpawnEvery)));
+                int count=SurvivalRules.MinuteSpawnCount(time,d.initialSpawnCount,d.spawnCountPerMinute,d.maximumMinuteSpawnCount);
                 for(int i=0;i<count && c.Game.Spawner.ActiveEnemies.Count<DensityCap;i++)SpawnEnemy(false);
             }
         }
@@ -169,9 +178,12 @@ namespace PixelSurvivor
         }
         public Enemy SpawnEnemy(bool elite)
         {
-            var d=c.StageData;Vector2 position=c.Game.Spawner.ChooseSpawnPosition();Enemy prefab=elite ? ChooseElitePrefab() : ChoosePrefab();
+            var d=c.StageData;Vector2 position=c.Game.Spawner.ChooseSpawnPosition();
+            int reinforcement=StageReinforcements.Select(c.StageIndex,Elapsed,Random.value);
+            Enemy prefab=reinforcement>=0?c.Game.Spawner.EnemyPrefab:elite?ChooseElitePrefab():ChoosePrefab();
             Enemy enemy=elite?c.Game.Spawner.SpawnSpecial(position,prefab):c.Game.Spawner.SpawnAt(position,prefab);
             if(enemy==null)return null;
+            if(reinforcement>=0){StageReinforcements.Apply(enemy,reinforcement);enemy.SetEliteAppearance(null);}
             float minutes=Elapsed/60;
             enemy.ConfigureEncounter((1+minutes*d.healthGrowthPerMinute)*d.difficulty*(elite?d.eliteHP:1),
                 (1+minutes*d.speedGrowthPerMinute)*(elite?d.eliteSpeed:1),

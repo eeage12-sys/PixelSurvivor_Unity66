@@ -4,6 +4,7 @@ namespace PixelSurvivor
     public sealed class FieldItem : MonoBehaviour
     {
         CampaignController c;FieldItemKind kind;int gold;bool final,collected,magnet;
+        public FieldItemKind Kind => kind;
         public void Initialize(CampaignController owner,FieldItemKind type,int amount,bool finalChest){c=owner;kind=type;gold=amount;final=finalChest;}
         public void Attract(){magnet=true;}
         void Update()
