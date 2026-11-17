@@ -18,6 +18,8 @@ namespace PixelSurvivor
         HitFeedbackVisual feedback;
         float flash;
         float lastVfxTime=-1f;
+        Vector2 rushDirection;
+        float rushTime;
         Color tint=Color.white;
         Vector3 visualScale;
         public bool IsElite {get;private set;}
@@ -50,6 +52,9 @@ namespace PixelSurvivor
         public float MaxHP => hp;
         public float MoveSpeed => moveSpeed;
         public float ContactDamage => contactDamage;
+        public bool IsRushing => rushTime>0;
+        public void SetRush(Vector2 direction,float duration)
+        {rushDirection=direction.normalized;rushTime=Mathf.Max(0,duration);}
         public void ConfigureStats(float health, float speed, float damage, float hitRadius)
         { hp = Mathf.Max(1, health); moveSpeed = Mathf.Max(0, speed); contactDamage = Mathf.Max(0, damage); radius = Mathf.Max(0.01f, hitRadius); }
         public ExperienceGem GemPrefab => gemPrefab;
@@ -76,7 +81,10 @@ namespace PixelSurvivor
         {
             if (game == null || !game.IsPlaying || !IsAlive) return;
             Vector2 offset = game.Player.transform.position - transform.position;
-            Vector2 velocity = tactics!=null?tactics.Velocity(offset,moveSpeed,contactDamage,Time.deltaTime):offset.normalized*moveSpeed;
+            Vector2 velocity;
+            if(rushTime>0)
+            {velocity=rushDirection*moveSpeed;rushTime=Mathf.Max(0,rushTime-Time.deltaTime);}
+            else velocity=tactics!=null?tactics.Velocity(offset,moveSpeed,contactDamage,Time.deltaTime):offset.normalized*moveSpeed;
             // Separate only enemies in adjacent spatial cells; this stays bounded as waves grow.
             Vector2 separation = Vector2.zero;
             int cellX=spawner.SeparationCell(transform.position.x),cellY=spawner.SeparationCell(transform.position.y);

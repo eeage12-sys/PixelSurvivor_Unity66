@@ -5748,6 +5748,15 @@ MonoBehaviour:
   windLeafSpiritPrefab: {fileID: 1377164075910442344, guid: f720344539ae59b4194530b99d6442e0, type: 3}
   amberFireflyPrefab: {fileID: 4216708257805159285, guid: 7bca8c317d47a094ea4d7375e1f8c17b, type: 3}
   ruinZombiePrefab: {fileID: 4313512118497804875, guid: e1c383a9c57267344b2c47fcdfd7aad8, type: 3}
+  brambleBoarPrefab: {fileID: 8423303933561609575, guid: 380b96cc661674c4a9e1c3644fec498c, type: 3}
+  mossGolemPrefab: {fileID: 9103498030906919075, guid: de43b41ab4d93054baddfbe13a14a5f4, type: 3}
+  amberScorpionPrefab: {fileID: 609138949333512442, guid: c252c8628dd20c542a118c76846547f3, type: 3}
+  cinderScarabPrefab: {fileID: 311947541636613328, guid: 19d27977599c382438c96993d8cf6eb4, type: 3}
+  cryptKnightPrefab: {fileID: 8834331613614333351, guid: 43d8129b93d7ea843acb3a6ff50760e7, type: 3}
+  voidSpecterPrefab: {fileID: 2164338185022551221, guid: 3ad33bfcba5ac6d4a9e6018860716a69, type: 3}
+  guardianGolemPrefab: {fileID: 3573551307684283652, guid: 9e1d72e5c1d45a74d83abc8b99a190ff, type: 3}
+  amberSentinelPrefab: {fileID: 317555428473043537, guid: 98a58a09b1eb0054b929243ae6975a49, type: 3}
+  ruinWardenPrefab: {fileID: 2377438834979247588, guid: 193a17675c883804597e9d0147fbd02c, type: 3}
   mothUnlockSeconds: 30
   beetleUnlockSeconds: 90
   spawnIntervals:

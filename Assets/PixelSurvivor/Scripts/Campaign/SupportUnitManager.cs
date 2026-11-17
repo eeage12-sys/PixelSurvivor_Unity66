@@ -17,8 +17,10 @@ namespace PixelSurvivor
             var existing=units.Find(x=>x.kind==kind);
             if(existing!=null){existing.time=c.Data.supportDuration;c.UI.Notify("지원군 지속시간이 갱신되었습니다");return;}
             var go=new GameObject("Support "+kind);go.transform.SetParent(c.Game.RuntimeRoot,false);
-            var sr=go.AddComponent<SpriteRenderer>();sr.sprite=kind==2?c.Data.whiteSprite:c.Data.supportSprite;sr.sortingOrder=8;
-            sr.color=kind==0?Color.cyan:kind==1?Color.green:new Color(0.4f,0.7f,1,0.8f);
+            var sr=go.AddComponent<SpriteRenderer>();
+            var drone=kind==0?Resources.Load<Sprite>("FieldIcons/AttackDrone"):kind==1?Resources.Load<Sprite>("FieldIcons/HealDrone"):null;
+            sr.sprite=kind==2?c.Data.whiteSprite:drone!=null?drone:c.Data.supportSprite;sr.sortingOrder=8;
+            sr.color=kind==2?new Color(0.4f,0.7f,1,0.8f):drone!=null?Color.white:kind==0?Color.cyan:Color.green;
             Vector2 forward=c.Arsenal.Facing;
             var u=new Unit{kind=kind,time=c.Data.supportDuration,visual=go,center=(Vector2)c.Game.Player.transform.position+forward*2.5f,vertical=Mathf.Abs(forward.x)>0.5f};
             if(kind==2){go.transform.position=u.center;go.transform.localScale=u.vertical?new Vector3(16,c.Data.barrierWidth*32,1):new Vector3(c.Data.barrierWidth*32,16,1);}

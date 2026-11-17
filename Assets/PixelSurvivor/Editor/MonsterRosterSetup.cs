@@ -74,6 +74,107 @@ namespace PixelSurvivor
             return saved.GetComponent<Enemy>();
         }
 
+        static Enemy CreateLate(ExperienceGem gem,string name,int pixelsPerUnit,float hp,float speed,float damage,float radius,EnemyTacticKind? tactic)
+        {
+            var sprite=ImportTheme(name,pixelsPerUnit);
+            if(sprite==null)throw new InvalidOperationException("Missing sprite for "+name);
+            var go=new GameObject("Enemy"+name);
+            var visual=go.AddComponent<SpriteRenderer>();visual.sprite=sprite;visual.sortingOrder=5;
+            var enemy=go.AddComponent<Enemy>();enemy.SetGem(gem);enemy.SetAppearance(sprite);
+            enemy.ConfigureStats(hp,speed,damage,radius);
+            if(tactic.HasValue)
+            {
+                var tactics=go.AddComponent<EnemyTactics>();tactics.Configure(tactic.Value);
+                if(tactic.Value==EnemyTacticKind.Charger)tactics.ConfigureCharge(.27f,2.1f,5.8f);
+            }
+            var saved=PrefabUtility.SaveAsPrefabAsset(go,Root+"/Prefabs/Enemy"+name+".prefab");
+            UnityEngine.Object.DestroyImmediate(go);
+            return saved.GetComponent<Enemy>();
+        }
+
+        [MenuItem("Tools/Pixel Survivor/Apply Late Stage Monster Roster")]
+        public static void ApplyLateRosterToOpenScene()
+        {
+            if(EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("Stop Play mode first");
+            var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if(!scene.IsValid() || !scene.path.EndsWith("/MainScene.unity"))
+                throw new InvalidOperationException("Open PixelSurvivor MainScene first");
+            var game=UnityEngine.Object.FindAnyObjectByType<GameManager>();
+            if(game==null || game.Spawner==null || game.Spawner.EnemyPrefab==null)
+                throw new InvalidOperationException("MainScene enemy spawner is not configured");
+            AssetDatabase.Refresh();
+            var gem=game.Spawner.EnemyPrefab.GemPrefab;
+            var boar=CreateLate(gem,"BrambleBoar",1200,43,2.6f,13,.45f,EnemyTacticKind.Charger);
+            var golem=CreateLate(gem,"MossGolem",1200,95,1.45f,19,.62f,null);
+            var scorpion=CreateLate(gem,"AmberScorpion",1200,48,2.5f,14,.43f,EnemyTacticKind.Charger);
+            var scarab=CreateLate(gem,"CinderScarab",1200,70,2.15f,17,.49f,EnemyTacticKind.EmberCaster);
+            var knight=CreateLate(gem,"CryptKnight",1200,66,1.8f,17,.48f,null);
+            var specter=CreateLate(gem,"VoidSpecter",1200,61,2.9f,18,.43f,EnemyTacticKind.EmberCaster);
+            game.Spawner.SetLateVariants(boar,golem,scorpion,scarab,knight,specter);
+            EditorUtility.SetDirty(game.Spawner);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+            Debug.Log("Late monster roster linked: 6 new enemies across 3 stages");
+        }
+
+        [MenuItem("Tools/Pixel Survivor/Apply Meadow Timeline")]
+        public static void ApplyMeadowTimelineToOpenScene()
+        {
+            if(EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("Stop Play mode first");
+            var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if(!scene.IsValid() || !scene.path.EndsWith("/MainScene.unity"))
+                throw new InvalidOperationException("Open PixelSurvivor MainScene first");
+            var game=UnityEngine.Object.FindAnyObjectByType<GameManager>();
+            if(game==null || game.Spawner==null || game.Spawner.EnemyPrefab==null)
+                throw new InvalidOperationException("MainScene enemy spawner is not configured");
+            AssetDatabase.Refresh();
+            var guardian=CreateLate(game.Spawner.EnemyPrefab.GemPrefab,"GuardianGolem",1200,130,1.35f,21,.72f,null);
+            game.Spawner.SetGuardianGolem(guardian);
+            var campaign=game.GetComponent<CampaignController>();
+            if(campaign==null || campaign.Data==null || campaign.Data.stages.Length==0)
+                throw new InvalidOperationException("Stage data is missing");
+            campaign.Data.stages[0].description="1분 바람 정령, 3분 빛 정령 무리, 7~8분 추가 습격. 15분 수호 골렘과 18분 루멘 사슴을 상대하세요.";
+            campaign.Data.stages[0].firstEliteTime=120f;
+            EditorUtility.SetDirty(campaign.Data.stages[0]);
+            EditorUtility.SetDirty(game.Spawner);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+            Debug.Log("Meadow timeline linked: guardian golem mid-boss at 15 minutes");
+        }
+
+        [MenuItem("Tools/Pixel Survivor/Apply Later Stage Timelines")]
+        public static void ApplyLaterStageTimelinesToOpenScene()
+        {
+            if(EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("Stop Play mode first");
+            var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if(!scene.IsValid() || !scene.path.EndsWith("/MainScene.unity"))
+                throw new InvalidOperationException("Open PixelSurvivor MainScene first");
+            var game=UnityEngine.Object.FindAnyObjectByType<GameManager>();
+            if(game==null || game.Spawner==null || game.Spawner.EnemyPrefab==null)
+                throw new InvalidOperationException("MainScene enemy spawner is not configured");
+            AssetDatabase.Refresh();
+            var gem=game.Spawner.EnemyPrefab.GemPrefab;
+            var amber=CreateLate(gem,"AmberSentinel",1200,140,1.45f,22,.72f,null);
+            var ruin=CreateLate(gem,"RuinWarden",1200,155,1.55f,24,.75f,null);
+            game.Spawner.SetLaterStageBosses(amber,ruin);
+            var campaign=game.GetComponent<CampaignController>();
+            if(campaign==null || campaign.Data==null || campaign.Data.stages.Length<3)
+                throw new InvalidOperationException("Stage data is missing");
+            campaign.Data.stages[1].description="좌우에서 밀려오는 호박빛 무리를 피하세요. 10분 호박 갑충 수호자와 18분 호박 매미가 등장합니다.";
+            campaign.Data.stages[2].description="사방에서 좁혀오는 폐허의 포위를 돌파하세요. 12분 폐허 수문장과 18분 보랏빛 리치가 등장합니다.";
+            campaign.Data.stages[1].firstEliteTime=180f;
+            campaign.Data.stages[2].firstEliteTime=180f;
+            EditorUtility.SetDirty(campaign.Data.stages[1]);
+            EditorUtility.SetDirty(campaign.Data.stages[2]);
+            EditorUtility.SetDirty(game.Spawner);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+            Debug.Log("Later stage timelines linked: Amber Sentinel and Ruin Warden at 15 minutes");
+        }
+
         [MenuItem("Tools/Pixel Survivor/Apply Combat Balance")]
         public static void ApplyCombatBalance()
         {

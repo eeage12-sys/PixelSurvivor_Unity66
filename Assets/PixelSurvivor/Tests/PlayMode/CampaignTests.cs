@@ -69,9 +69,13 @@ namespace PixelSurvivor.Tests
         }
         [Test] public void Surviving20MinutesUnlocksStageAndDoomCatchesPlayer()
         {
-            Begin();game.Timer.AdvanceCampaign(600);c.Stage.Tick(0);
+            Begin();game.Timer.AdvanceCampaign(900);c.Stage.Tick(0);
             Assert.AreEqual(1,c.Stage.BossWaves);Assert.NotNull(c.Stage.CurrentBoss);
-            game.Timer.AdvanceCampaign(600);c.Stage.Tick(0);
+            Assert.AreSame(game.Spawner.GuardianGolemPrefab.GetComponent<SpriteRenderer>().sprite,c.Stage.CurrentBoss.GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(180);c.Stage.Tick(0);
+            Assert.AreEqual(2,c.Stage.BossWaves);
+            Assert.AreSame(game.Spawner.LumenStagBossPrefab.GetComponent<SpriteRenderer>().sprite,c.Stage.CurrentBoss.GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(120);c.Stage.Tick(0);
             Assert.IsTrue(c.Stage.DoomAppeared);Assert.NotNull(c.Stage.Doom);
             Assert.AreEqual(2,c.Save.Progress.unlockedStages);
             Assert.AreEqual(0,game.Spawner.ActiveEnemies.Count);
@@ -88,7 +92,8 @@ namespace PixelSurvivor.Tests
         }
         [UnityTest] public IEnumerator MidBossDoesNotClearAndDropsBossChest()
         {
-            Begin();game.Timer.Tick(600);yield return null;var boss=c.Stage.CurrentBoss;Assert.IsFalse(boss.IsFinalBoss);
+            Begin();game.Timer.Tick(900);yield return null;var boss=c.Stage.CurrentBoss;Assert.IsFalse(boss.IsFinalBoss);
+            Assert.AreSame(game.Spawner.GuardianGolemPrefab.GetComponent<SpriteRenderer>().sprite,boss.GetComponent<SpriteRenderer>().sprite);
             boss.TakeDamage(boss.CurrentHP+1);Assert.AreEqual(RunState.Playing,game.State);Assert.Greater(c.Field.Items.Count,0);Assert.AreEqual(1,c.Save.Progress.unlockedStages);
         }
         [Test] public void EliteAlwaysDropsChestAndBombDoesNotInstakillHealthyBoss()
@@ -103,8 +108,8 @@ namespace PixelSurvivor.Tests
             var normalNames=new[]
             {
                 new[]{"Enemy", "EnemyWindLeafSpirit", "EnemyMeadowFox"},
-                new[]{"EnemyMoth", "EnemyAmberFirefly", "EnemyBeetle", "EnemyAmberKestrel"},
-                new[]{"EnemyRuinBat", "EnemyRuinZombie", "EnemyEmberWraith", "EnemyBoneCrawler"}
+                new[]{"EnemyMoth", "EnemyAmberFirefly", "EnemyBeetle", "EnemyAmberKestrel", "EnemyAmberScorpion", "EnemyCinderScarab"},
+                new[]{"EnemyRuinBat", "EnemyRuinZombie", "EnemyEmberWraith", "EnemyBoneCrawler", "EnemyCryptKnight", "EnemyVoidSpecter"}
             };
             var bossSprites=new Sprite[3];
             for(int stage=0;stage<3;stage++)
@@ -126,10 +131,83 @@ namespace PixelSurvivor.Tests
             Assert.AreNotSame(bossSprites[1],bossSprites[2]);
             Assert.AreNotSame(bossSprites[0],bossSprites[2]);
         }
+        [Test] public void AmberStageSweepsFromAlternatingSidesAndHasAnEarlyBoss()
+        {
+            c.Save.UnlockNext(0,c.Data.stages.Length);
+            Assert.IsTrue(c.SelectStage(1));Begin();
+            Assert.AreEqual(180f,c.StageData.firstEliteTime,.001f);
+            game.Timer.AdvanceCampaign(120);c.Stage.Tick(0);
+            int left=0;
+            foreach(var enemy in game.Spawner.ActiveEnemies)if(enemy!=null && enemy.IsRushing && enemy.transform.position.x<game.Player.transform.position.x)left++;
+            Assert.AreEqual(8,left);
+            game.Timer.AdvanceCampaign(2.5f);c.Stage.Tick(0);
+            int right=0;
+            foreach(var enemy in game.Spawner.ActiveEnemies)if(enemy!=null && enemy.IsRushing && enemy.transform.position.x>game.Player.transform.position.x)right++;
+            Assert.AreEqual(8,right);
+            game.Timer.AdvanceCampaign(57.5f);c.Stage.Tick(0);
+            Enemy elite=null;
+            foreach(var enemy in game.Spawner.ActiveEnemies)if(enemy!=null && enemy.IsElite)elite=enemy;
+            Assert.NotNull(elite);
+            int items=c.Field.Items.Count;elite.TakeDamage(elite.CurrentHP+1);
+            Assert.AreEqual(items+1,c.Field.Items.Count);
+            Assert.AreEqual("EliteChest",c.Field.Items[c.Field.Items.Count-1].name);
+            game.Timer.AdvanceCampaign(420);c.Stage.Tick(0);
+            Assert.AreEqual(1,c.Stage.BossWaves);
+            Assert.AreSame(game.Spawner.AmberSentinelPrefab.GetComponent<SpriteRenderer>().sprite,c.Stage.CurrentBoss.GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(360);c.Stage.Tick(0);
+            var enemies=game.Spawner.ActiveEnemies;
+            for(int i=enemies.Count-12;i<enemies.Count;i++)
+            {
+                Assert.IsTrue(enemies[i].IsRushing);
+                Assert.Less(enemies[i].transform.position.x,game.Player.transform.position.x);
+                CollectionAssert.Contains(new[]{"EnemyAmberFirefly(Clone)","EnemyMoth(Clone)"},enemies[i].name);
+            }
+            game.Timer.AdvanceCampaign(120);c.Stage.Tick(0);
+            Assert.AreEqual(2,c.Stage.BossWaves);
+            Assert.AreSame(game.Spawner.AmberCicadaBossPrefab.GetComponent<SpriteRenderer>().sprite,c.Stage.CurrentBoss.GetComponent<SpriteRenderer>().sprite);
+        }
+        [Test] public void RuinStageSurroundsThePlayerAndHasAFinalSiege()
+        {
+            c.Save.UnlockNext(1,c.Data.stages.Length);
+            Assert.IsTrue(c.SelectStage(2));Begin();
+            Assert.AreEqual(180f,c.StageData.firstEliteTime,.001f);
+            game.Timer.AdvanceCampaign(120);c.Stage.Tick(0);
+            int left=0,right=0,top=0,bottom=0;
+            Vector2 player=game.Player.transform.position;
+            foreach(var enemy in game.Spawner.ActiveEnemies)
+            {
+                if(enemy==null || !enemy.IsRushing)continue;
+                Vector2 offset=(Vector2)enemy.transform.position-player;
+                if(offset.x<0)left++;else right++;
+                if(offset.y<0)bottom++;else top++;
+            }
+            Assert.AreEqual(10,left+right);
+            Assert.Greater(left,0);Assert.Greater(right,0);Assert.Greater(top,0);Assert.Greater(bottom,0);
+            game.Timer.AdvanceCampaign(60);c.Stage.Tick(0);
+            Enemy elite=null;
+            foreach(var enemy in game.Spawner.ActiveEnemies)if(enemy!=null && enemy.IsElite)elite=enemy;
+            Assert.NotNull(elite);
+            int items=c.Field.Items.Count;elite.TakeDamage(elite.CurrentHP+1);
+            Assert.AreEqual(items+1,c.Field.Items.Count);
+            Assert.AreEqual("EliteChest",c.Field.Items[c.Field.Items.Count-1].name);
+            game.Timer.AdvanceCampaign(540);c.Stage.Tick(0);
+            Assert.AreEqual(1,c.Stage.BossWaves);
+            Assert.AreSame(game.Spawner.RuinWardenPrefab.GetComponent<SpriteRenderer>().sprite,c.Stage.CurrentBoss.GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(360);c.Stage.Tick(0);
+            Assert.AreEqual(2,c.Stage.BossWaves);
+            Assert.AreSame(game.Spawner.VioletLichBossPrefab.GetComponent<SpriteRenderer>().sprite,c.Stage.CurrentBoss.GetComponent<SpriteRenderer>().sprite);
+            game.Timer.AdvanceCampaign(60);c.Stage.Tick(0);
+            var enemies=game.Spawner.ActiveEnemies;
+            for(int i=enemies.Count-10;i<enemies.Count;i++)
+            {
+                Assert.IsTrue(enemies[i].IsRushing);
+                CollectionAssert.Contains(new[]{"EnemyVoidSpecter(Clone)","EnemyCryptKnight(Clone)"},enemies[i].name);
+            }
+        }
         [Test] public void MeadowFoxWaitsFiveMinutesAndPouncesShorter()
         {
             Begin();
-            Assert.AreEqual(300f,c.StageData.firstEliteTime,.001f);
+            Assert.AreEqual(120f,c.StageData.firstEliteTime,.001f);
             var foxTactics=game.Spawner.MeadowFoxPrefab.GetComponent<EnemyTactics>();
             Assert.NotNull(foxTactics);
             Assert.AreEqual(.22f,foxTactics.ChargeDuration,.001f);
@@ -166,19 +244,19 @@ namespace PixelSurvivor.Tests
                     string name=c.Stage.SpawnEnemy(false).name.Replace("(Clone)","");
                     CollectionAssert.Contains(early[stage],name);seen.Add(name);
                 }
-                Assert.AreEqual(2,seen.Count);
+                Assert.AreEqual(1,seen.Count);
                 game.Timer.AdvanceCampaign(179);
                 string elite=c.Stage.SpawnEnemy(true).name.Replace("(Clone)","");
                 Assert.AreNotEqual(armored[stage],elite);
                 if(stage>0)
                 {
-                    game.Timer.AdvanceCampaign(1);
+                    game.Timer.AdvanceCampaign(stage==1?61:121);
                     Assert.AreEqual(armored[stage],c.Stage.SpawnEnemy(true).name.Replace("(Clone)",""));
                 }
                 game.EndRun(false);game.ReturnToMenu();
             }
         }
-        [Test] public void AmberKestrelWaitsFourMinutesAndPouncesShorter()
+        [Test] public void AmberKestrelWaitsSixMinutesAndPouncesShorter()
         {
             c.Save.UnlockNext(0,c.Data.stages.Length);
             Assert.IsTrue(c.SelectStage(1));Begin();
@@ -189,7 +267,7 @@ namespace PixelSurvivor.Tests
             for(int i=0;i<30;i++)
                 Assert.AreNotSame(game.Spawner.AmberKestrelPrefab.GetComponent<SpriteRenderer>().sprite,
                     c.Stage.SpawnEnemy(false).GetComponent<SpriteRenderer>().sprite);
-            game.Timer.AdvanceCampaign(239);
+            game.Timer.AdvanceCampaign(359);
             Assert.AreNotSame(game.Spawner.AmberKestrelPrefab.GetComponent<SpriteRenderer>().sprite,
                 c.Stage.SpawnEnemy(false).GetComponent<SpriteRenderer>().sprite);
             game.Timer.AdvanceCampaign(1);

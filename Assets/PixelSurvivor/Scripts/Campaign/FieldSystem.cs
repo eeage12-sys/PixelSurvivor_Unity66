@@ -5,6 +5,8 @@ namespace PixelSurvivor
     public enum FieldItemKind { Gold, Magnet, Bomb, Heal, Support, EliteChest, BossChest }
     public sealed class FieldSystem
     {
+        static readonly string[] ItemArt={"GoldCoin","Magnet","Bomb","HealPotion","SupportBeacon"};
+        readonly Sprite[] itemSprites=new Sprite[ItemArt.Length];
         readonly CampaignController c;
         public readonly List<DestructibleProp> Props=new List<DestructibleProp>();
         public readonly List<FieldItem> Items=new List<FieldItem>();
@@ -97,9 +99,11 @@ namespace PixelSurvivor
             var go=new GameObject(kind.ToString());go.transform.SetParent(c.Game.RuntimeRoot,false);go.transform.position=position;
             var sr=go.AddComponent<SpriteRenderer>();sr.sortingOrder=3;
             bool chest=kind==FieldItemKind.EliteChest || kind==FieldItemKind.BossChest;
-            sr.sprite=chest?c.Data.chestSprite:c.Data.itemSprite;
+            if(!chest && (int)kind<ItemArt.Length && itemSprites[(int)kind]==null)
+                itemSprites[(int)kind]=Resources.Load<Sprite>("FieldIcons/"+ItemArt[(int)kind]);
+            sr.sprite=chest?c.Data.chestSprite:itemSprites[(int)kind]!=null?itemSprites[(int)kind]:c.Data.itemSprite;
             Color[] colors={new Color(1,0.85f,0.25f),Color.cyan,new Color(1,0.3f,0.3f),Color.green,new Color(0.8f,0.6f,1),new Color(0.5f,1,0.7f),new Color(1,0.65f,0.2f)};
-            sr.color=colors[(int)kind];go.transform.localScale=Vector3.one*(chest?1.3f:0.7f);
+            sr.color=chest?colors[(int)kind]:Color.white;go.transform.localScale=Vector3.one*(chest?1.3f:0.62f);
             var item=go.AddComponent<FieldItem>();item.Initialize(c,kind,gold,final);Items.Add(item);return item;
         }
         public void DropChest(Vector2 position,bool boss,bool final){Drop(position,boss?FieldItemKind.BossChest:FieldItemKind.EliteChest,0,final);}

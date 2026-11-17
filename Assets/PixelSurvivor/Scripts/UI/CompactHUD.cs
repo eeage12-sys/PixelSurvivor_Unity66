@@ -31,7 +31,8 @@ namespace PixelSurvivor
                 int index=i;weapons[i]=Slot("Attack slot "+i,34+i*48,-54,()=>weapon(index),out weaponFrames[i],out weaponLevels[i]);
                 passives[i]=Slot("Passive slot "+i,34+i*48,-102,()=>passive(index),out passiveFrames[i],out passiveLevels[i]);
             }
-            coinSprite=Glyph(new[]{"...####...","..######..",".##++++##.","##++##++##","##++#+++##","##++##++##",".##++++##.","..######..","...####..."},new Color(1,.78f,.22f),out coinTexture);
+            coinSprite=Resources.Load<Sprite>("FieldIcons/GoldCoin");
+            if(coinSprite==null)coinSprite=Glyph(new[]{"...####...","..######..",".##++++##.","##++##++##","##++#+++##","##++##++##",".##++++##.","..######..","...####..."},new Color(1,.78f,.22f),out coinTexture);
             killSprite=Glyph(new[]{"..######..",".########.","###.##.###","###.##.###",".########.","..##..##..","..######..","...#..#...",".........."},new Color(.9f,.91f,.85f),out killTexture);
             var killIcon=Panel("Kill icon",root,new Vector2(1,1),new Vector2(-238,-54),new Vector2(26,26),Color.white);killIcon.sprite=killSprite;
             kills=Label("Kill count",root,"0",new Vector2(1,1),new Vector2(-180,-54),new Vector2(85,35),23);
@@ -98,7 +99,7 @@ namespace PixelSurvivor
             for(int y=0;y<h;y++)for(int x=0;x<w;x++)texture.SetPixel(x,h-1-y,rows[y][x]=='.'?Color.clear:rows[y][x]=='+'?Color.Lerp(color,Color.white,.45f):color);
             texture.Apply();return Sprite.Create(texture,new Rect(0,0,w,h),Vector2.one*.5f,16);
         }
-        void OnDestroy(){if(coinSprite!=null)Destroy(coinSprite);if(killSprite!=null)Destroy(killSprite);if(coinTexture!=null)Destroy(coinTexture);if(killTexture!=null)Destroy(killTexture);}
+        void OnDestroy(){if(coinTexture!=null){Destroy(coinSprite);Destroy(coinTexture);}if(killSprite!=null)Destroy(killSprite);if(killTexture!=null)Destroy(killTexture);}
     }
 }
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 namespace PixelSurvivor
 {
     // Builds the expansion UI on a separate canvas, preserving the existing HUD and scene objects.
@@ -26,6 +27,8 @@ namespace PixelSurvivor
         public void Build()
         {
             font=KoreanText.Font;
+            var input=EventSystem.current!=null?EventSystem.current.GetComponent<InputSystemUIInputModule>():null;
+            if(input!=null)input.deselectOnBackgroundClick=false;
             var root=new GameObject("Campaign Canvas",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));
             canvas=root.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.sortingOrder=50;
             var scaler=root.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1600,900);scaler.matchWidthOrHeight=0.5f;
@@ -365,7 +368,13 @@ namespace PixelSurvivor
         void NewModal(string title,string subtitle)
         {HideModal();modal=Overlay("Campaign Modal");TextAt(modal.transform,title,0,340,1450,80,45,Mint);TextAt(modal.transform,subtitle,0,270,1450,65,22,Muted);}
         public void HideModal(){if(modal!=null){modal.SetActive(false);Object.Destroy(modal);modal=null;}}
-        GameObject Overlay(string name){var image=Box(name,canvas.transform,Vector2.zero,Vector2.zero,Ink);Stretch(image.rectTransform);return image.gameObject;}
+        GameObject Overlay(string name)
+        {
+            var image=Box(name,canvas.transform,Vector2.zero,Vector2.zero,Ink);
+            Stretch(image.rectTransform);
+            TextAt(image.transform,"WASD / 방향키: 이동     Enter: 선택",0,-420,1000,28,18,Muted);
+            return image.gameObject;
+        }
         RectTransform Rect(string name,Transform parent,float x,float y,float w,float h)
         {var go=new GameObject(name,typeof(RectTransform));var r=go.GetComponent<RectTransform>();r.SetParent(parent,false);r.anchorMin=r.anchorMax=r.pivot=new Vector2(0.5f,0.5f);r.anchoredPosition=new Vector2(x,y);r.sizeDelta=new Vector2(w,h);return r;}
         static void Stretch(RectTransform r){r.anchorMin=Vector2.zero;r.anchorMax=Vector2.one;r.offsetMin=r.offsetMax=Vector2.zero;}
@@ -378,7 +387,14 @@ namespace PixelSurvivor
         Image Icon(Transform parent,Sprite sprite,float x,float y,float size,Color color)
         {var image=Box("Icon",parent,new Vector2(x,y),Vector2.one*size,color);image.sprite=sprite;image.preserveAspect=true;image.raycastTarget=false;return image;}
         static void SelectFirst(GameObject root)
-        {if(EventSystem.current!=null){var b=root.GetComponentInChildren<Button>();EventSystem.current.SetSelectedGameObject(b!=null?b.gameObject:null);}}
+        {
+            if(EventSystem.current==null)return;
+            var buttons=root.GetComponentsInChildren<Button>();
+            foreach(var button in buttons)
+                if(button.IsActive() && button.IsInteractable())
+                {EventSystem.current.SetSelectedGameObject(button.gameObject);return;}
+            EventSystem.current.SetSelectedGameObject(null);
+        }
     }
 
     // Clear pointer and keyboard focus feedback on every campaign button.
@@ -392,7 +408,6 @@ namespace PixelSurvivor
         void Awake()
         {
             button=GetComponent<Button>();
-            // Unity's programmatic first selection must not look like a mouse hover.
             var colors=button.colors;
             colors.selectedColor=colors.normalColor;
             colors.highlightedColor=colors.normalColor;
@@ -415,9 +430,7 @@ namespace PixelSurvivor
         public void OnPointerExit(PointerEventData eventData){pointer=false;Refresh();}
         public void OnSelect(BaseEventData eventData)
         {
-            // AxisEventData is sent by deliberate keyboard/gamepad navigation.
-            // SelectFirst uses plain BaseEventData when a page opens.
-            selected=eventData is AxisEventData;
+            selected=true;
             Refresh();
         }
         public void OnDeselect(BaseEventData eventData){selected=false;Refresh();}

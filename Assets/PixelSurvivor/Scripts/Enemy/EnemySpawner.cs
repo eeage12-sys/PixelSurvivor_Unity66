@@ -18,6 +18,15 @@ namespace PixelSurvivor
         [SerializeField] Enemy windLeafSpiritPrefab;
         [SerializeField] Enemy amberFireflyPrefab;
         [SerializeField] Enemy ruinZombiePrefab;
+        [SerializeField] Enemy brambleBoarPrefab;
+        [SerializeField] Enemy mossGolemPrefab;
+        [SerializeField] Enemy amberScorpionPrefab;
+        [SerializeField] Enemy cinderScarabPrefab;
+        [SerializeField] Enemy cryptKnightPrefab;
+        [SerializeField] Enemy voidSpecterPrefab;
+        [SerializeField] Enemy guardianGolemPrefab;
+        [SerializeField] Enemy amberSentinelPrefab;
+        [SerializeField] Enemy ruinWardenPrefab;
         [SerializeField, Min(0)] float mothUnlockSeconds = 30;
         [SerializeField, Min(0)] float beetleUnlockSeconds = 90;
         public Enemy MothPrefab => mothPrefab;
@@ -33,6 +42,15 @@ namespace PixelSurvivor
         public Enemy WindLeafSpiritPrefab => windLeafSpiritPrefab;
         public Enemy AmberFireflyPrefab => amberFireflyPrefab;
         public Enemy RuinZombiePrefab => ruinZombiePrefab;
+        public Enemy BrambleBoarPrefab => brambleBoarPrefab;
+        public Enemy MossGolemPrefab => mossGolemPrefab;
+        public Enemy AmberScorpionPrefab => amberScorpionPrefab;
+        public Enemy CinderScarabPrefab => cinderScarabPrefab;
+        public Enemy CryptKnightPrefab => cryptKnightPrefab;
+        public Enemy VoidSpecterPrefab => voidSpecterPrefab;
+        public Enemy GuardianGolemPrefab => guardianGolemPrefab;
+        public Enemy AmberSentinelPrefab => amberSentinelPrefab;
+        public Enemy RuinWardenPrefab => ruinWardenPrefab;
         public bool HasExpandedRoster => enemyPrefab != null && mothPrefab != null && beetlePrefab != null;
         public bool HasFullRoster => HasExpandedRoster && boneCrawlerPrefab != null && emberWraithPrefab != null;
         public void SetVariants(Enemy moth, Enemy beetle) { mothPrefab = moth; beetlePrefab = beetle; }
@@ -41,6 +59,11 @@ namespace PixelSurvivor
         {meadowFoxPrefab=fox;amberKestrelPrefab=kestrel;ruinBatPrefab=bat;lumenStagBossPrefab=stag;amberCicadaBossPrefab=cicada;violetLichBossPrefab=lich;}
         public void SetEarlyVariants(Enemy windSpirit,Enemy firefly,Enemy zombie)
         {windLeafSpiritPrefab=windSpirit;amberFireflyPrefab=firefly;ruinZombiePrefab=zombie;}
+        public void SetLateVariants(Enemy boar,Enemy golem,Enemy scorpion,Enemy scarab,Enemy knight,Enemy specter)
+        {brambleBoarPrefab=boar;mossGolemPrefab=golem;amberScorpionPrefab=scorpion;cinderScarabPrefab=scarab;cryptKnightPrefab=knight;voidSpecterPrefab=specter;}
+        public void SetGuardianGolem(Enemy guardian) => guardianGolemPrefab=guardian;
+        public void SetLaterStageBosses(Enemy amberSentinel,Enemy ruinWarden)
+        {amberSentinelPrefab=amberSentinel;ruinWardenPrefab=ruinWarden;}
         // One random sample per spawn. Missing optional prefabs fall back to the slime.
         public Enemy SelectPrefab(float elapsed, float sample)
         {

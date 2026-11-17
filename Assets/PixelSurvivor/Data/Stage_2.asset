@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: PixelSurvivor.Runtime::PixelSurvivor.StageData
   id: stage2
   title: "3\uAD6C\uC5ED \xB7 \uBCF4\uB78F\uBE5B \uD3D0\uD5C8"
-  description: "\uBCF4\uB78F\uBE5B \uD3D0\uD5C8\uC785\uB2C8\uB2E4. \uBC15\uC950\uC640 \uC880\uBE44\uAC00 \uBC30\uD68C\uD558\uACE0, 3\uBD84 \uB4A4 \uD574\uACE8\uC774 \uB098\uD0C0\uB0A9\uB2C8\uB2E4."
+  description: "\uC0AC\uBC29\uC5D0\uC11C \uC881\uD600\uC624\uB294 \uD3D0\uD5C8\uC758 \uD3EC\uC704\uB97C \uB3CC\uD30C\uD558\uC138\uC694. 12\uBD84 \uD3D0\uD5C8 \uC218\uBB38\uC7A5\uACFC 18\uBD84 \uBCF4\uB78F\uBE5B \uB9AC\uCE58\uAC00 \uB4F1\uC7A5\uD569\uB2C8\uB2E4."
   halfSize: {x: 80, y: 100}
   groundColor: {r: 0.8, g: 0.6, b: 1, a: 1}
   detailColor: {r: 0.8, g: 0.65, b: 1, a: 1}
@@ -35,7 +35,7 @@ MonoBehaviour:
   bossProjectileLife: 6
   bossAttackDamage: 25
   bossAreaGrowthPerWave: 0.12
-  firstEliteTime: 60
+  firstEliteTime: 180
   eliteInterval: 75
   difficulty: 1.9
   healthGrowthPerMinute: 0.12

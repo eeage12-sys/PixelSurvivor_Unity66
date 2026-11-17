@@ -218,6 +218,41 @@
           "path": "<Keyboard>/rightArrow",
           "action": "Navigate",
           "isPartOfComposite": true
+        },
+        {
+          "name": "WASD",
+          "id": "392ad71f-26a5-46ad-a5d7-c255c4d6ae61",
+          "path": "2DVector",
+          "action": "Navigate",
+          "isComposite": true
+        },
+        {
+          "name": "up",
+          "id": "eea45c43-a036-4027-9532-736e64815b60",
+          "path": "<Keyboard>/w",
+          "action": "Navigate",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "down",
+          "id": "d796489e-e4ac-4661-a3d9-7e7c12a833e7",
+          "path": "<Keyboard>/s",
+          "action": "Navigate",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "left",
+          "id": "87bcaa49-9f98-42a0-a4ae-d2740fa1c2b5",
+          "path": "<Keyboard>/a",
+          "action": "Navigate",
+          "isPartOfComposite": true
+        },
+        {
+          "name": "right",
+          "id": "38da11d3-59fd-4569-9203-5c0d324eec05",
+          "path": "<Keyboard>/d",
+          "action": "Navigate",
+          "isPartOfComposite": true
         }
       ]
     }
