@@ -46,6 +46,7 @@ namespace PixelSurvivor
             }
             const float lobbyX=300;
             TextAt(menu.transform,"픽셀 서바이버",lobbyX,245,850,100,64,Mint);
+            menu.transform.GetChild(0).SetAsLastSibling();
             TextAt(menu.transform,"20분 생존 도전",lobbyX,155,850,60,28,Muted);
             TextAt(menu.transform,"장비를 조합하고 보스를 쓰러뜨리며 오래 살아남으세요.",lobbyX,85,850,55,24,Color.white);
             ButtonAt(menu.transform,"시작",lobbyX,-30,450,75,()=>ShowCharacters(true));
@@ -372,7 +373,9 @@ namespace PixelSurvivor
         {
             var image=Box(name,canvas.transform,Vector2.zero,Vector2.zero,Ink);
             Stretch(image.rectTransform);
-            TextAt(image.transform,"WASD / 방향키: 이동     Enter: 선택",0,-420,1000,28,18,Muted);
+            var hint=Box("Keyboard controls",image.transform,new Vector2(0,-414),new Vector2(870,45),new Color(.02f,.05f,.09f,.88f));
+            hint.raycastTarget=false;
+            TextAt(hint.transform,"WASD / 방향키: 선택 이동     Enter: 선택",0,0,850,36,20,Color.white);
             return image.gameObject;
         }
         RectTransform Rect(string name,Transform parent,float x,float y,float w,float h)
@@ -403,11 +406,12 @@ namespace PixelSurvivor
         Button button;
         Outline outline;
         Vector3 originalScale;
-        bool pointer, selected;
+        bool pointer, selected, isHudButton;
 
         void Awake()
         {
             button=GetComponent<Button>();
+            isHudButton=GetComponentInParent<CompactHUD>()!=null;
             var colors=button.colors;
             colors.selectedColor=colors.normalColor;
             colors.highlightedColor=colors.normalColor;
@@ -426,7 +430,13 @@ namespace PixelSurvivor
             {pointer=false;selected=false;Refresh();}
         }
 
-        public void OnPointerEnter(PointerEventData eventData){pointer=true;Refresh();}
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            pointer=true;
+            if(!isHudButton && button!=null && button.interactable && EventSystem.current!=null)
+                EventSystem.current.SetSelectedGameObject(gameObject,eventData);
+            Refresh();
+        }
         public void OnPointerExit(PointerEventData eventData){pointer=false;Refresh();}
         public void OnSelect(BaseEventData eventData)
         {
@@ -438,7 +448,9 @@ namespace PixelSurvivor
 
         void Refresh()
         {
-            bool active=button!=null && button.interactable && (pointer || selected);
+            bool active=button!=null && button.interactable &&
+                (selected || (isHudButton && pointer &&
+                    (EventSystem.current==null || EventSystem.current.currentSelectedGameObject==null)));
             if(outline!=null)outline.enabled=active;
             transform.localScale=originalScale*(active?1.035f:1f);
         }

@@ -6,7 +6,14 @@ namespace PixelSurvivor
     public sealed class FieldSystem
     {
         static readonly string[] ItemArt={"GoldCoin","Magnet","Bomb","HealPotion","SupportBeacon"};
+        static readonly string[] StageArt={"Meadow","Amber","Ruin"};
+        static readonly Vector2[][] OpeningOffsets={
+            new[]{new Vector2(-5,-1),new Vector2(5,1),new Vector2(-2,3),new Vector2(3,-3),new Vector2(-7,2),new Vector2(7,-2)},
+            new[]{new Vector2(-5,0),new Vector2(5,0),new Vector2(-3,3),new Vector2(3,-3),new Vector2(-6,-2),new Vector2(6,2)},
+            new[]{new Vector2(-4,-1),new Vector2(4,1),new Vector2(-3,3),new Vector2(3,-3),new Vector2(-5,-3),new Vector2(5,3),new Vector2(0,-4)}
+        };
         readonly Sprite[] itemSprites=new Sprite[ItemArt.Length];
+        readonly Sprite[] chestSprites=new Sprite[StageArt.Length],supplySprites=new Sprite[StageArt.Length];
         readonly CampaignController c;
         public readonly List<DestructibleProp> Props=new List<DestructibleProp>();
         public readonly List<FieldItem> Items=new List<FieldItem>();
@@ -18,8 +25,15 @@ namespace PixelSurvivor
         public void Reset()
         {
             Props.Clear();Items.Clear();pendingProps.Clear();layout=new System.Random(c.StageData.layoutSeed);respawn=c.Data.propRespawnSeconds;
-            int nearby=Mathf.Min(16,c.StageData.propsCount/4);
-            for(int i=0;i<c.StageData.propsCount;i++)CreateProp(i<nearby);
+            int opening=0;
+            foreach(var offset in OpeningOffsets[Mathf.Clamp(c.StageIndex,0,OpeningOffsets.Length-1)])
+            {
+                if(opening>=4 || opening>=c.StageData.propsCount)break;
+                Vector2 position=(Vector2)c.Game.Player.transform.position+offset;
+                if(!CanPlaceProp(position))continue;
+                CreateProp(position);opening++;
+            }
+            for(int i=opening;i<c.StageData.propsCount;i++)CreateProp(i<opening+12);
         }
         public void Tick(float dt)
         {
@@ -48,16 +62,32 @@ namespace PixelSurvivor
             {
                 Vector2 pos=center+new Vector2((float)(layout.NextDouble()*2-1)*half.x,(float)(layout.NextDouble()*2-1)*half.y);
                 if((pos-center).magnitude<3)pos+=Vector2.right*4;
-                if(c.Terrain.IsBlocked(pos,.65f))continue;
+                if(!CanPlaceProp(pos))continue;
                 CreateProp(pos);return;
             }
             CreateProp(center+Vector2.up*7);
         }
         void CreateProp(Vector2 pos)
         {
-            var go=new GameObject("Breakable supply");go.transform.SetParent(c.Game.RuntimeRoot,false);go.transform.position=pos;
-            var sr=go.AddComponent<SpriteRenderer>();sr.sprite=c.Data.propSprite;sr.sortingOrder=2;sr.color=c.StageData.detailColor;
+            var go=new GameObject(StageArt[Mathf.Clamp(c.StageIndex,0,StageArt.Length-1)]+" breakable supply");
+            go.transform.SetParent(c.Game.RuntimeRoot,false);go.transform.position=pos;
+            var sr=go.AddComponent<SpriteRenderer>();sr.sprite=StageSprite(supplySprites,"Supply")??c.Data.propSprite;
+            sr.sortingOrder=2;sr.color=Color.white;
             var prop=go.AddComponent<DestructibleProp>();prop.Initialize(c);Props.Add(prop);
+        }
+        Sprite StageSprite(Sprite[] cache,string suffix)
+        {
+            int stage=Mathf.Clamp(c.StageIndex,0,StageArt.Length-1);
+            if(cache[stage]==null)cache[stage]=Resources.Load<Sprite>("StageArt/"+StageArt[stage]+suffix);
+            return cache[stage];
+        }
+        bool CanPlaceProp(Vector2 position)
+        {
+            if(((Vector2)c.Game.Player.transform.position-position).sqrMagnitude<9)return false;
+            if(c.Terrain.IsBlocked(position,.65f) || c.Terrain.IsNearScenery(position,1.6f))return false;
+            foreach(var prop in Props)
+                if(prop!=null && ((Vector2)prop.transform.position-position).sqrMagnitude<2.25f)return false;
+            return true;
         }
         bool TryHiddenPosition(out Vector2 position)
         {
@@ -79,11 +109,7 @@ namespace PixelSurvivor
                 Vector3 viewport=view.WorldToViewportPoint(sample);
                 if(viewport.x>-.1f && viewport.x<1.1f && viewport.y>-.1f && viewport.y<1.1f)continue;
                 if(((Vector2)c.Game.Player.transform.position-sample).sqrMagnitude<25)continue;
-                if(c.Terrain.IsBlocked(sample,.65f))continue;
-                bool occupied=false;
-                foreach(var prop in Props)
-                    if(prop!=null && ((Vector2)prop.transform.position-sample).sqrMagnitude<2.25f){occupied=true;break;}
-                if(occupied)continue;
+                if(!CanPlaceProp(sample))continue;
                 position=sample;return true;
             }
             position=default;return false;
@@ -101,9 +127,9 @@ namespace PixelSurvivor
             bool chest=kind==FieldItemKind.EliteChest || kind==FieldItemKind.BossChest;
             if(!chest && (int)kind<ItemArt.Length && itemSprites[(int)kind]==null)
                 itemSprites[(int)kind]=Resources.Load<Sprite>("FieldIcons/"+ItemArt[(int)kind]);
-            sr.sprite=chest?c.Data.chestSprite:itemSprites[(int)kind]!=null?itemSprites[(int)kind]:c.Data.itemSprite;
-            Color[] colors={new Color(1,0.85f,0.25f),Color.cyan,new Color(1,0.3f,0.3f),Color.green,new Color(0.8f,0.6f,1),new Color(0.5f,1,0.7f),new Color(1,0.65f,0.2f)};
-            sr.color=chest?colors[(int)kind]:Color.white;go.transform.localScale=Vector3.one*(chest?1.3f:0.62f);
+            sr.sprite=chest?StageSprite(chestSprites,"Chest")??c.Data.chestSprite:itemSprites[(int)kind]!=null?itemSprites[(int)kind]:c.Data.itemSprite;
+            sr.color=Color.white;
+            go.transform.localScale=Vector3.one*(chest?(kind==FieldItemKind.BossChest?1.4f:1.2f):0.62f);
             var item=go.AddComponent<FieldItem>();item.Initialize(c,kind,gold,final);Items.Add(item);return item;
         }
         public void DropChest(Vector2 position,bool boss,bool final){Drop(position,boss?FieldItemKind.BossChest:FieldItemKind.EliteChest,0,final);}

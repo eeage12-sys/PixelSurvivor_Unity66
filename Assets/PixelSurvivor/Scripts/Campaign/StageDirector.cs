@@ -92,7 +92,7 @@ namespace PixelSurvivor
         {
             var previous=map.Find("Stage floor layout");
             if(previous!=null){previous.gameObject.SetActive(false);Object.Destroy(previous.gameObject);}
-            if(c.StageIndex==0)return;
+            if(c.StageIndex!=1)return;
             var ground=map.Find("Ground")?.GetComponent<SpriteRenderer>();
             if(ground==null || ground.sprite==null)return;
             var tile=c.Data.whiteSprite!=null?c.Data.whiteSprite:ground.sprite;
@@ -103,13 +103,6 @@ namespace PixelSurvivor
                 for(int i=-3;i<=3;i++)
                     AddFloorBand(root,tile,"Basin band",new Vector2(Mathf.Sin(i*1.7f)*2,i*5.5f),
                         new Vector2(d.halfSize.x*1.45f,2.5f),new Color(0.45f,0.25f,0.07f,0.4f));
-            }
-            else if(c.StageIndex==2)
-            {
-                for(int side=-1;side<=1;side+=2)
-                    for(int i=-2;i<=2;i++)
-                        AddFloorBand(root,tile,"Ruins paving",new Vector2(side*4,i*6.5f),
-                            new Vector2(1.1f,3.2f),new Color(0.12f,0.19f,0.28f,0.35f));
             }
         }
         static void AddFloorBand(Transform parent,Sprite sprite,string name,Vector2 position,Vector2 size,Color color)

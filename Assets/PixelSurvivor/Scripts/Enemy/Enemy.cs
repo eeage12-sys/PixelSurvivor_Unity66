@@ -4,6 +4,9 @@ namespace PixelSurvivor
     [RequireComponent(typeof(SpriteRenderer))]
     public sealed class Enemy : MonoBehaviour
     {
+        const float RegularVisualScale=0.72f;
+        const float EliteVisualScale=0.88f;
+        const float BossVisualScale=2.8f;
         [SerializeField, Min(1)] float hp = 20;
         [SerializeField, Min(0)] float moveSpeed = 2;
         [SerializeField, Min(0)] float contactDamage = 10;
@@ -29,8 +32,15 @@ namespace PixelSurvivor
         {
             hp*=Mathf.Max(0.1f,healthScale);CurrentHP=hp;moveSpeed*=Mathf.Max(0.1f,speedScale);contactDamage*=Mathf.Max(0.1f,damageScale);
             IsElite=elite;IsBoss=boss;IsFinalBoss=final;
-            float size=boss ? 2.8f : elite ? 1.4f : 1;
-            transform.localScale=Vector3.one*size;radius*=size;
+            float size=boss?BossVisualScale:elite?EliteVisualScale:RegularVisualScale;
+            if(elite && eliteAppearanceOverride!=null && visual.sprite!=null)
+            {
+                float regularExtent=Mathf.Max(visual.sprite.bounds.size.x,visual.sprite.bounds.size.y);
+                float eliteExtent=Mathf.Max(eliteAppearanceOverride.bounds.size.x,eliteAppearanceOverride.bounds.size.y);
+                if(eliteExtent>0)size*=regularExtent/eliteExtent;
+            }
+            transform.localScale=Vector3.one*size;
+            radius*=boss?BossVisualScale:elite?EliteVisualScale:RegularVisualScale;
             visualScale=transform.localScale;
             if(appearanceOverride==null && boss && RedesignedSprites.Monster(3)!=null) visual.sprite=RedesignedSprites.Monster(3);
             else if(elite && eliteAppearanceOverride!=null) visual.sprite=eliteAppearanceOverride;
