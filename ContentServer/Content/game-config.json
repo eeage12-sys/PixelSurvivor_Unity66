@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "soundVolume": 0.45,
+  "description": "Optional remote sound setting. The game uses its built-in default without this server."
+}

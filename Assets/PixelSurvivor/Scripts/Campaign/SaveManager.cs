@@ -15,7 +15,11 @@ namespace PixelSurvivor
     }
     public sealed class SaveManager
     {
+#if PIXELSURVIVOR_PORTFOLIO
+        public const string DefaultKey="PixelSurvivor.Portfolio.v1";
+#else
         public const string DefaultKey="PixelSurvivor.Campaign.v1";
+#endif
         readonly string key;
         public MetaProgress Progress {get;private set;}
         public SaveManager(CampaignData data, string storageKey=DefaultKey)
@@ -29,6 +33,10 @@ namespace PixelSurvivor
             if(Progress.records==null)Progress.records=new List<SurvivalRecord>();
             Progress.gold=Mathf.Max(0,Progress.gold);
             Progress.unlockedStages=Mathf.Clamp(Progress.unlockedStages,1,data.stages.Length);
+#if PIXELSURVIVOR_PORTFOLIO
+            Progress.unlockedStages=data.stages.Length;
+            Debug.Log("Portfolio mode: "+Progress.unlockedStages+" stages available from the start.");
+#endif
             if(Progress.upgrades==null) Progress.upgrades=new List<SavedUpgrade>();
             if(Progress.unlockedCharacters==null) Progress.unlockedCharacters=new List<string>();
             foreach(var c in data.characters) if(c!=null && !Progress.unlockedCharacters.Contains(c.id)) Progress.unlockedCharacters.Add(c.id);

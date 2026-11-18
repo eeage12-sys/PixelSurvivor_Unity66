@@ -19,7 +19,9 @@ namespace PixelSurvivor
         void Update()
         {
             if (game == null || !game.IsPlaying || moveAction == null) return;
-            Move(moveAction.action.ReadValue<Vector2>(), Time.deltaTime);
+            Vector2 direction=moveAction.action.ReadValue<Vector2>();
+            if(TouchJoystick.Direction.sqrMagnitude>.001f)direction=TouchJoystick.Direction;
+            Move(direction, Time.deltaTime);
         }
         public void Move(Vector2 input, float dt)
         {

@@ -35,6 +35,7 @@ namespace PixelSurvivor
             root.AddComponent<FitCanvasViewport>();
             menu=Overlay("Main Menu");characters=Overlay("Character Select");stages=Overlay("Stage Select");shop=Overlay("Permanent Upgrades");codex=Overlay("Equipment Codex");hud=Box("Equipment HUD",root.transform,Vector2.zero,Vector2.zero,Color.clear).gameObject;
             Stretch(hud.GetComponent<RectTransform>());hud.GetComponent<Image>().raycastTarget=false;
+            hud.AddComponent<SafeAreaViewport>();
             var backdrop=Resources.Load<Texture2D>("MenuBackdrop");
             if(backdrop!=null)
             {
@@ -79,6 +80,7 @@ namespace PixelSurvivor
             stageStart=ButtonAt(stages.transform,"전투 시작",360,-300,440,75,()=>c.Game.BeginRun());
             compactHud=hud.AddComponent<CompactHUD>();
             compactHud.Initialize(c,()=>ShowPause(),InspectWeapon,InspectPassive);
+            BuildTouchControls();
             boss=TextAt(hud.transform,"",0,-120,850,40,22,new Color(1,0.5f,0.4f));
             PinTop(boss.rectTransform);
             notice=TextAt(hud.transform,"",0,-165,1250,60,22,Color.white);PinTop(notice.rectTransform);
@@ -102,7 +104,12 @@ namespace PixelSurvivor
             }
             selection.text=c.HasCharacterSelection?"선택: "+CharacterName(c.Character):"함께할 캐릭터를 선택하세요.";
             characterNext.interactable=c.HasCharacterSelection;stageStart.interactable=c.HasCharacterSelection;
-            stageInfo.text=c.StageData.description+"\n\n캐릭터: "+CharacterName(c.Character)+"\n최고 생존 기록: "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n\n10분에 보스가 등장합니다. 20분 생존 시 다음 구역이 열립니다.\n그때 불사의 추격자가 등장합니다. 닿으면 전투가 끝납니다.";
+#if PIXELSURVIVOR_PORTFOLIO
+            string unlockMessage="포트폴리오 체험판: 모든 구역을 처음부터 선택할 수 있습니다.";
+#else
+            string unlockMessage="20분 생존 시 다음 구역이 열립니다.";
+#endif
+            stageInfo.text=c.StageData.description+"\n\n캐릭터: "+CharacterName(c.Character)+"\n최고 생존 기록: "+SurvivalRules.Clock(c.Save.Best(c.Character.id,c.StageData.id))+"\n\n10분에 보스가 등장합니다. "+unlockMessage+"\n그때 불사의 추격자가 등장합니다. 닿으면 전투가 끝납니다.";
             gold.text="보유 골드  "+c.Save.Progress.gold;
         }
         void Only(GameObject screen)
@@ -373,6 +380,7 @@ namespace PixelSurvivor
         {
             var image=Box(name,canvas.transform,Vector2.zero,Vector2.zero,Ink);
             Stretch(image.rectTransform);
+            image.gameObject.AddComponent<SafeAreaViewport>();
             var hint=Box("Keyboard controls",image.transform,new Vector2(0,-414),new Vector2(870,45),new Color(.02f,.05f,.09f,.88f));
             hint.raycastTarget=false;
             TextAt(hint.transform,"WASD / 방향키: 선택 이동     Enter: 선택",0,0,850,36,20,Color.white);
